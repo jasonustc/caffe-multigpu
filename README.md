@@ -2,13 +2,19 @@ Here is the windows version of caffe forked in 04/10/2016. Multi-GPU is
 supported in this version.
 
 Tools:
+
 1. Visual Studio 2013
+
 2. Cuda 7.5
+
 3. OpenCV 2.4.9
 
 Steps:
-1. Copy folder \$3rdparty and \$bin to the caffe root directory
+
+1. Copy folder \$3rdparty (http://pan.baidu.com/s/1jIyEjKq) and \$bin (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
+
 2. Configure the environment variables: \$BOOST_1_56_0, \$OPENCV_2_4_9
+
 3. Compile the caffe.sln in VS2013
 
 Notes:

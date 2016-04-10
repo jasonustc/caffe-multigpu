@@ -1,4 +1,4 @@
-Here is the windows version of caffe forked in 04/10/2016. Multi-GPU is
+Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
 supported in this version.
 
 Tools:

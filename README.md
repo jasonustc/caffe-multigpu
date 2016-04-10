@@ -11,14 +11,16 @@ Tools:
 
 Steps:
 
-1. Copy folder \$3rdparty (http://pan.baidu.com/s/1jIyEjKq) and \$bin (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
+1. Copy folder \$3rdparty (http://pan.baidu.com/s/1ge3nKRp) and \$bin (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
 
 2. Configure the environment variables: \$BOOST_1_56_0, \$OPENCV_2_4_9
 
 3. Compile the caffe.sln in VS2013
 
 Notes:
+
 1. Currently Caffe works with cuDNN_v3 or cuDNN_v4
+
 2. You need to compile cudnn_*_.cu files firstly manually, then compile the project (I don't know why too...)
 
 You need copy 

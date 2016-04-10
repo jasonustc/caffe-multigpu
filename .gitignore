@@ -1,5 +1,7 @@
 ## General
 
+# Files in bin/
+bin/
 # Compiled Object files
 *.slo
 *.lo
@@ -93,3 +95,4 @@ LOCK
 LOG*
 CURRENT
 MANIFEST-*
+

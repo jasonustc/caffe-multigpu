@@ -19,6 +19,12 @@
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
 
+//port for Win32
+#ifdef _MSC_VER
+#include <io.h>
+#define open _open
+#endif
+
 const int kProtoReadBytesLimit = INT_MAX;  // Max size of 2 GB minus 1 byte.
 
 namespace caffe {
@@ -37,7 +43,7 @@ bool ReadProtoFromTextFile(const char* filename, Message* proto) {
   FileInputStream* input = new FileInputStream(fd);
   bool success = google::protobuf::TextFormat::Parse(input, proto);
   delete input;
-  close(fd);
+  _close(fd);
   return success;
 }
 
@@ -46,7 +52,7 @@ void WriteProtoToTextFile(const Message& proto, const char* filename) {
   FileOutputStream* output = new FileOutputStream(fd);
   CHECK(google::protobuf::TextFormat::Print(proto, output));
   delete output;
-  close(fd);
+  _close(fd);
 }
 
 bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
@@ -60,7 +66,7 @@ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
 
   delete coded_input;
   delete raw_input;
-  close(fd);
+  _close(fd);
   return success;
 }
 
@@ -152,7 +158,7 @@ bool ReadFileToDatum(const string& filename, const int label,
     std::string buffer(size, ' ');
     file.seekg(0, ios::beg);
     file.read(&buffer[0], size);
-    file.close();
+	file.close();
     datum->set_data(buffer);
     datum->set_label(label);
     datum->set_encoded(true);

@@ -88,6 +88,7 @@ namespace caffe {
 		
 		//Layers
 		// split_h_ layer
+		// split LSTMUnit output (h_1,h_2,..., h_T)
 		shared_ptr<SplitLayer<Dtype> > split_h_;
 		vector<shared_ptr<Blob<Dtype> > > H_1_;
 		vector<shared_ptr<Blob<Dtype> > > H_2_;

@@ -43,7 +43,11 @@ bool ReadProtoFromTextFile(const char* filename, Message* proto) {
   FileInputStream* input = new FileInputStream(fd);
   bool success = google::protobuf::TextFormat::Parse(input, proto);
   delete input;
+#ifdef _MSC_VER
   _close(fd);
+#else
+  close(fd);
+#endif
   return success;
 }
 
@@ -52,7 +56,11 @@ void WriteProtoToTextFile(const Message& proto, const char* filename) {
   FileOutputStream* output = new FileOutputStream(fd);
   CHECK(google::protobuf::TextFormat::Print(proto, output));
   delete output;
+#ifdef _MSC_VER
   _close(fd);
+#else
+  close(fd);
+#endif
 }
 
 bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
@@ -66,7 +74,11 @@ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
 
   delete coded_input;
   delete raw_input;
+#ifdef _MSC_VER
   _close(fd);
+#else
+  close(fd);
+#endif
   return success;
 }
 

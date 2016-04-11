@@ -6,6 +6,9 @@
 
 namespace caffe {
 
+	/*
+	 * bottom[0]->shape(1): #streams
+	 */
 	template <typename Dtype>
 	void LSTMLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top)
@@ -72,6 +75,7 @@ namespace caffe {
 			SH_[t].reset(new Blob<Dtype>(h_shape));
 		}
 		// Layer
+		// element-wise multiplication
 		const vector<Blob<Dtype>*> scale_h_bottom{
 			H_[0].get(),
 			CONT_[0].get()

@@ -147,6 +147,7 @@ namespace caffe {
 		const Dtype* X = bottom[1]->gpu_data();
 		const int X_count = bottom[1]->count();
 		// NOLINT_NEXT_LINE(whitespace/operators)
+		// why do forward of X again?
 		LSTMActsForward<Dtype> << <CAFFE_GET_BLOCKS(X_count), CAFFE_CUDA_NUM_THREADS >> >(
 			X_count, hidden_dim_, X, X_acts);
 		CUDA_POST_KERNEL_CHECK;

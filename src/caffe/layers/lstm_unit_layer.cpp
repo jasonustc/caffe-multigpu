@@ -28,9 +28,11 @@ namespace caffe {
 		const int num_instances = bottom[0]->shape(1);
 		for (int i = 0; i < bottom.size(); ++i) {
 			if (i == 2) {
+				//continuous indicators: 1 x N
 				CHECK_EQ(2, bottom[i]->num_axes());
 			}
 			else {
+				// 1 x N x D/4D
 				CHECK_EQ(3, bottom[i]->num_axes());
 			}
 			CHECK_EQ(1, bottom[i]->shape(0));
@@ -107,6 +109,7 @@ namespace caffe {
 				Dtype* f_diff = X_diff + 1 * hidden_dim_ + d;
 				Dtype* o_diff = X_diff + 2 * hidden_dim_ + d;
 				Dtype* g_diff = X_diff + 3 * hidden_dim_ + d;
+				//accumulate diff bp from c_t and h_t
 				const Dtype c_term_diff =
 					C_diff[d] + H_diff[d] * o * (1 - tanh_c * tanh_c);
 				*c_prev_diff = c_term_diff * f;

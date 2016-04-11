@@ -47,6 +47,8 @@ namespace caffe {
 		*      the previous timestep cell state @f$ c_t-1 @f$
 		*   -# @f$ (1 \times N \times 4D) @f$
 		*      the "gate inputs" @f$ [i_t', f_t', o_t', g_t'] @f$
+		*   -# @f$ (1 \times N) @f$
+		*      the "continuous indicators" cont
 		* @param top output Blob vector (length, input_num * 2)
 		*   -# @f$ (1 \times N \times D) @f$
 		*      the updated cell state @f$ c_t @f$, computed as:

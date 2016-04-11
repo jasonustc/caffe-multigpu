@@ -1,6 +1,7 @@
 Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
 supported in this version.
 
+## Windows
 Tools:
 
 1. Visual Studio 2013
@@ -25,6 +26,10 @@ Notes:
 
 You need copy 
 More details at https://github.com/BVLC/caffe/tree/windows
+
+## Linux
+
+Please follow the official tutorials here: http://caffe.berkeleyvision.org/installation.html 
 
 ## License and Citation
 

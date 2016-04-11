@@ -10,6 +10,8 @@ Tools:
 
 3. OpenCV 2.4.9
 
+4. Boost
+
 Steps:
 
 1. Copy folder \$3rdparty (http://pan.baidu.com/s/1ge3nKRp) and \$bin (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory

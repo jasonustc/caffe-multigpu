@@ -237,7 +237,6 @@
     <ClCompile Include="..\src\caffe\util\math_functions.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe.cpp" />
     <ClCompile Include="..\src\caffe\layers\batch_norm_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
@@ -310,6 +309,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\convert_c3d_model_full_convolutional.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

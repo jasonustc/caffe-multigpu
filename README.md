@@ -6,7 +6,7 @@ Tools:
 
 1. Visual Studio 2013
 
-2. Cuda 7.5
+2. Cuda 7.5 (**you should install cuda after the installation of Visual Studio 2013 to incorporate cuda vs integration into VS**)
 
 3. OpenCV 2.4.9
 

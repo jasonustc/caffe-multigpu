@@ -34,12 +34,12 @@ namespace caffe{
 	 * the last transform parameter in tmat will be updated, not reset: tmat_new = transform(tmat_old)
 	 */
 	void TMatFromParam(TransType transType, const float param1, const float param2, float *tmat, bool invert){
-		// TODO: if we want recursively apply mutiple transformations
+		// NOTE: if we want recursively apply mutiple transformations
 		// we can not initialize here, because the previous transform parameters
 		// will be flushed away.
 		//initialize to identity
-		std::fill(tmat, tmat + 9, 0);
-		tmat[0] = tmat[4] = tmat[8] = 1;
+//		std::fill(tmat, tmat + 9, 0);
+//		tmat[0] = tmat[4] = tmat[8] = 1;
 		switch (transType)
 		{
 		case caffe::ROTATION:

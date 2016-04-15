@@ -165,8 +165,8 @@ namespace caffe{
 
 int main(int argc, char** argv){
 	caffe::RandomTransformTest<float> test;
-//	test.TestSetUp();
-//	test.TestCPUForward();
+	test.TestSetUp();
+	test.TestCPUForward();
 	test.TestCPUGradients();
 //	test.TestGPUForward();
 //	test.TestGPUGradients();

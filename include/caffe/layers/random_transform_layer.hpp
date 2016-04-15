@@ -122,9 +122,22 @@ namespace caffe{
 				static_cast<caffe::rng_t*>(rng_->generator());
 			return ((*rng)() % n);
 		}
+
+		//initialize the transform matrix to identity
+		void InitTransform(){
+			Dtype* tmat_data = tmat_.mutable_cpu_data();
+			std::fill(tmat_data, tmat_data + 9, 0);
+			tmat_data[0] = tmat_data[4] = tmat_data[8] = 1;
+		}
+
 		shared_ptr<Caffe::RNG> rng_;
 		bool needs_rand_;
 		int rand_;
+
+		//indicators in a single forward pass for random transformations
+		bool need_scale_;
+		bool need_rotation_;
+		bool need_shift_;
 	};
 }
 

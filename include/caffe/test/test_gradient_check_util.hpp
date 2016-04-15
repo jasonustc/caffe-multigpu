@@ -127,6 +127,7 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
   // Compute derivative of top w.r.t. each bottom and parameter input using
   // finite differencing.
   // LOG(ERROR) << "Checking " << blobs_to_check.size() << " blobs.";
+  // NOTE: currently we can not deal with random things in forward pass
   for (int blob_id = 0; blob_id < blobs_to_check.size(); ++blob_id) {
     Blob<Dtype>* current_blob = blobs_to_check[blob_id];
     const Dtype* computed_gradients =

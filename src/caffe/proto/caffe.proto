@@ -389,6 +389,7 @@ message LayerParameter {
   optional PowerParameter power_param = 122;
   optional PReLUParameter prelu_param = 131;
   optional PythonParameter python_param = 130;
+  optional RandTransformParameter rand_trans_param = 145;
   optional ReductionParameter reduction_param = 136;
   optional ReLUParameter relu_param = 123;
   optional ReshapeParameter reshape_param = 133;
@@ -402,6 +403,41 @@ message LayerParameter {
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
 }
+
+//Message that stores parameters used to do random transformation
+message RandTransformParameter{
+    //parameters for uniform sampling
+    //rotation angle in [start_angle, end_angle]
+    optional float start_angle = 1;
+    optional float end_angle = 2;
+    //scale in [start_scale, end_scale]
+    optional float start_scale = 3;
+    optional float end_scale = 8;
+    optional float dx_prop = 4;//shift proportion of x axis
+    optional float dy_prop = 5;//shift proportion of y axis
+    //0 = CROP, 1 = CLAMP, 2 = REFLECT
+    optional int32 border = 6 [default = 0];
+    //0 = NN, 1 = BILINEAR
+    optional int32 interp = 7 [default = 1];
+    //specify the sampling type of transform parameters
+    enum SampleType{
+        UNIFORM = 1;
+        GAUSSIAN = 2;
+    }
+    optional SampleType sample_type = 9 [default = UNIFORM];
+    //parameters for gaussian sampling
+    optional float std_scale = 10;
+    optional float std_angle = 11;
+    optional float std_dx_prop = 12;
+    optional float std_dy_prop = 13;
+    optional float min_scale = 14 [default = 0.1];
+    optional float max_scale = 15 [default = 10];
+    optional float max_shift_prop = 16 [default = 0.9];
+    // if we need to randomly determine the transform type
+    // not apply transformations for all the training samples
+    optional bool alternate = 17 [default = false];
+}
+
 
 // Message that stores parameters used to apply transformation
 // to the data layer's data

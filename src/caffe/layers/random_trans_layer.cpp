@@ -199,9 +199,9 @@ namespace caffe{
 			need_scale_ = scale_ && (Rand(2) == 1);
 			need_rotation_ = rotation_ && (Rand(2) == 1);
 			need_shift_ = shift_ && (Rand(2) == 1);
-			// keep 0.5 probability to apply transformations
+            // keep 0.5 probability to apply transformations
             if ((scale_ + rotation_ + shift_) > 1){
-			    rand_ = Rand(2);
+                rand_ = Rand(2);
             }
             else{
                 rand_ = 1;

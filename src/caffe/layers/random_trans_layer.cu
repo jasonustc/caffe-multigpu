@@ -92,10 +92,10 @@ namespace caffe{
 			need_shift_ = shift_ && (Rand(2) == 1);
 			//0.5 probability to apply transformations
             if ((scale_ + shift_ + rotation_) > 1){
-			    rand_ = Rand(2);
+                rand_ = Rand(2);
             }
             else{
-			    rand_ = 1;
+                rand_ = 1;
             }
 		}
 		bool not_need_transform = (!need_shift_ && !need_scale_ && !need_rotation_) 

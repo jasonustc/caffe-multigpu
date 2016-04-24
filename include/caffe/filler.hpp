@@ -21,6 +21,7 @@ class Filler {
   explicit Filler(const FillerParameter& param) : filler_param_(param) {}
   virtual ~Filler() {}
   virtual void Fill(Blob<Dtype>* blob) = 0;
+  virtual void Fill(const int count, Dtype* data) = 0;
  protected:
   FillerParameter filler_param_;
 };  // class Filler
@@ -43,6 +44,15 @@ class ConstantFiller : public Filler<Dtype> {
     CHECK_EQ(this->filler_param_.sparse(), -1)
          << "Sparsity not supported by this Filler.";
   }
+  virtual void Fill(const int count, Dtype* data) {
+    const Dtype value = this->filler_param_.value();
+    CHECK(count);
+    for (int i = 0; i < count; ++i) {
+      data[i] = value;
+    }
+    CHECK_EQ(this->filler_param_.sparse(), -1)
+         << "Sparsity not supported by this Filler.";
+  }
 };
 
 /// @brief Fills a Blob with uniformly distributed values @f$ x\sim U(a, b) @f$.
@@ -55,6 +65,13 @@ class UniformFiller : public Filler<Dtype> {
     CHECK(blob->count());
     caffe_rng_uniform<Dtype>(blob->count(), Dtype(this->filler_param_.min()),
         Dtype(this->filler_param_.max()), blob->mutable_cpu_data());
+    CHECK_EQ(this->filler_param_.sparse(), -1)
+         << "Sparsity not supported by this Filler.";
+  }
+  virtual void Fill(const int count, Dtype* data) {
+    CHECK(count);
+    caffe_rng_uniform<Dtype>(count, Dtype(this->filler_param_.min()),
+        Dtype(this->filler_param_.max()), data);
     CHECK_EQ(this->filler_param_.sparse(), -1)
          << "Sparsity not supported by this Filler.";
   }
@@ -90,6 +107,14 @@ class GaussianFiller : public Filler<Dtype> {
     }
   }
 
+  virtual void Fill(const int count, Dtype* data) {
+    CHECK(count);
+    caffe_rng_gaussian<Dtype>(count, Dtype(this->filler_param_.mean()),
+        Dtype(this->filler_param_.std()), data);
+    CHECK_EQ(this->filler_param_.sparse(), -1)
+         << "Sparsity not supported by this type of Filling.";
+  }
+
  protected:
   shared_ptr<SyncedMemory> rand_vec_;
 };
@@ -121,6 +146,9 @@ class PositiveUnitballFiller : public Filler<Dtype> {
     }
     CHECK_EQ(this->filler_param_.sparse(), -1)
          << "Sparsity not supported by this Filler.";
+  }
+  virtual void Fill(const int count, Dtype* data) {
+	  NOT_IMPLEMENTED;
   }
 };
 
@@ -163,6 +191,9 @@ class XavierFiller : public Filler<Dtype> {
     CHECK_EQ(this->filler_param_.sparse(), -1)
          << "Sparsity not supported by this Filler.";
   }
+  virtual void Fill(const int count, Dtype* data) {
+	  NOT_IMPLEMENTED;
+  }
 };
 
 /**
@@ -204,6 +235,9 @@ class MSRAFiller : public Filler<Dtype> {
         blob->mutable_cpu_data());
     CHECK_EQ(this->filler_param_.sparse(), -1)
          << "Sparsity not supported by this Filler.";
+  }
+  virtual void Fill(const int count, Dtype* data) {
+	  NOT_IMPLEMENTED;
   }
 };
 
@@ -258,6 +292,9 @@ class BilinearFiller : public Filler<Dtype> {
     }
     CHECK_EQ(this->filler_param_.sparse(), -1)
          << "Sparsity not supported by this Filler.";
+  }
+  virtual void Fill(const int count, Dtype* data) {
+	  NOT_IMPLEMENTED;
   }
 };
 

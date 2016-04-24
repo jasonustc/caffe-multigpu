@@ -394,6 +394,7 @@ message LayerParameter {
   optional ReshapeParameter reshape_param = 133;
   optional ScaleParameter scale_param = 142;
   optional SigmoidParameter sigmoid_param = 124;
+  optional SimMergeParameter sim_merge_param = 145;
   optional SoftmaxParameter softmax_param = 125;
   optional SPPParameter spp_param = 132;
   optional SliceParameter slice_param = 126;
@@ -401,6 +402,27 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// Message that stores parameters used to apply similarity based
+// parameter merge
+message SimMergeParameter{
+    //number of iterations averaged to evaluate similarity
+    optional int32 iter = 1[default = 1];
+    //threshold to set as similar feature maps
+    optional float threshold = 2[default = 1];
+    //axis larger or equal than axis in blob will considered as a 
+    //parameter to produce a single output
+    optional int32 axis = 3[default = 2];
+    // we need to set the shape and bias, so that we can 
+    // share parameters with the layer that similarity merge
+    // of parameters will be applied
+    optional BlobShape weight_shape = 4;
+    optional BlobShape bias_shape = 5;
+    //whether we need to use history similarity for evaluation
+    optional bool use_history = 6[default = true];
+    optional FillerParameter weight_filler = 7;
+    optional FillerParameter bias_filler = 8;
 }
 
 // Message that stores parameters used to apply transformation

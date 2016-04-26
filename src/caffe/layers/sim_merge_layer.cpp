@@ -2,7 +2,7 @@
 ** Copyright(c) 2016 USTC Reserved.
 ** auth: Xu Shen
 ** mail: shenxu@mail.ustc.edu.cn
-** date: 2016/1/1
+** date: 2016/01/25
 ** desc: SimMergeLayer(CPU), merge similar feature maps and re-initialize similar
 **       weights to learn more independent feature maps
 *********************************************************************************/
@@ -43,8 +43,8 @@ void SimMergeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 	//number of output
 	//dim_0 * dim_1 * ... * dim_{axis_-1} is the number of outputs
 	N_ = this->blobs_[0]->count(0, axis_);
-	//number of weight dim for input
-	K_ = bottom[0]->count(axis_);
+	//dim_{axis} * dim_{axis+1} * ... is the number of weights for a single output
+	K_ = this->blobs_[0]->count(axis_);
 	if (bias_term_){
 		const BlobShape bias_shape = this->layer_param_.sim_merge_param().bias_shape();
 		vector<int> bias_dim;
@@ -71,8 +71,6 @@ void SimMergeLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 	this->sim_.Reshape(1, 1, 1, N_ * N_);
 }
 
-//TODO: maybe this operation will be very time consuming, we 
-// need to figure out a more efficient way
 template <typename Dtype>
 void SimMergeLayer<Dtype>::update_sim_matrix_cpu(){
 	const Dtype* weight_data = this->blobs_[0]->mutable_cpu_data();
@@ -128,11 +126,6 @@ void SimMergeLayer<Dtype>::refresh_weight_cpu(const int j){
 	}
 }
 
-/**
- * NOTE: we should merge weights in the backward pass
- * because diffs will be rewritten in bp, so it is non-sense
- * to refresh diffs in the forward pass
- **/
 template<typename Dtype>
 void SimMergeLayer<Dtype>::merge_sim_weights_cpu(){
 	Dtype* weight_data = this->blobs_[0]->mutable_cpu_data();
@@ -153,7 +146,7 @@ void SimMergeLayer<Dtype>::merge_sim_weights_cpu(){
 			if (sim_ij > threshold_){
 				//weight_i := (1 - sim_ij) * weight_i + sim_ij * weight_j
 				caffe_cpu_axpby<Dtype>(K_, Dtype(sim_ij), weight_data + j * K_,
-					Dtype(1 - sim_ij), weight_data + i * N_);
+					Dtype(1 - sim_ij), weight_data + i * K_);
 				//weight_diff_i := (1 - sim_ij) * weight_diff_i 
 				// + sim_ij * weight_diff_j
 				caffe_cpu_axpby<Dtype>(K_, Dtype(sim_ij), weight_diff + j * K_,
@@ -171,20 +164,20 @@ void SimMergeLayer<Dtype>::merge_sim_weights_cpu(){
 template <typename Dtype>
 void SimMergeLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-	//currently, we have nothing to do
-}
-
-template <typename Dtype>
-void SimMergeLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
-      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
 	this->update_sim_matrix_cpu();
-	this->curr_iter_++;
 	if (this->curr_iter_ % this->iter_ == 0){
 		//reset number of iterations, 
 		//so as to reset similarity matrix to all 0s
 		this->curr_iter_ = 0;
 		this->merge_sim_weights_cpu();
 	}
+	this->curr_iter_++;
+}
+
+template <typename Dtype>
+void SimMergeLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+	//currently, we have nothing to do
 }
 
 #ifdef CPU_ONLY

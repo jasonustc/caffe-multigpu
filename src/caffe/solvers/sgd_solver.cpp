@@ -215,30 +215,50 @@ void SGDSolver<Dtype>::ComputeUpdateValue(int param_id, Dtype rate) {
   const vector<float>& net_params_lr = this->net_->params_lr();
   Dtype momentum = this->param_.momentum();
   Dtype local_rate = rate * net_params_lr[param_id];
+  //used in similarity based merge of parameters
+  int refresh_step_size = this->param_.refresh_step_size();
   // Compute the update to history, then copy it to the parameter diff.
   switch (Caffe::mode()) {
   case Caffe::CPU: {
-    caffe_cpu_axpby(net_params[param_id]->count(), local_rate,
-              net_params[param_id]->cpu_diff(), momentum,
-              history_[param_id]->mutable_cpu_data());
-    caffe_copy(net_params[param_id]->count(),
-        history_[param_id]->cpu_data(),
-        net_params[param_id]->mutable_cpu_diff());
-    break;
+	  if (refresh_step_size && (this->iter_ % refresh_step_size == 0)){
+		  //clear history and current diff
+		  caffe_set<Dtype>(net_params[param_id]->count(),
+			  Dtype(0), history_[param_id]->mutable_cpu_data());
+		  caffe_set<Dtype>(net_params[param_id]->count(),
+			  Dtype(0), net_params[param_id]->mutable_cpu_diff());
+	  }
+	  else{
+		  caffe_cpu_axpby(net_params[param_id]->count(), local_rate,
+			  net_params[param_id]->cpu_diff(), momentum,
+			  history_[param_id]->mutable_cpu_data());
+		  caffe_copy(net_params[param_id]->count(),
+			  history_[param_id]->cpu_data(),
+			  net_params[param_id]->mutable_cpu_diff());
+	  }
+	   break;
   }
   case Caffe::GPU: {
 #ifndef CPU_ONLY
-    sgd_update_gpu(net_params[param_id]->count(),
-        net_params[param_id]->mutable_gpu_diff(),
-        history_[param_id]->mutable_gpu_data(),
-        momentum, local_rate);
+	  if (refresh_step_size && (this->iter_ % refresh_step_size == 0)){
+		  //clear history and current diff
+		  caffe_gpu_set<Dtype>(net_params[param_id]->count(),
+			  Dtype(0), history_[param_id]->mutable_gpu_data());
+		  caffe_gpu_set<Dtype>(net_params[param_id]->count(),
+			  Dtype(0), net_params[param_id]->mutable_gpu_diff());
+	  }
+	  else{
+		  sgd_update_gpu(net_params[param_id]->count(),
+			  net_params[param_id]->mutable_gpu_diff(),
+			  history_[param_id]->mutable_gpu_data(),
+			  momentum, local_rate);
 #else
-    NO_GPU;
+	      NO_GPU;
 #endif
-    break;
+	  }
+       break;
   }
   default:
-    LOG(FATAL) << "Unknown caffe mode: " << Caffe::mode();
+	  LOG(FATAL) << "Unknown caffe mode: " << Caffe::mode();
   }
 }
 

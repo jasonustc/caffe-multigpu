@@ -3,7 +3,7 @@
 ** Copyright(c) 2016 USTC Reserved.
 ** auth: Xu Shen
 ** mail: shenxu@mail.ustc.edu.cn
-** date: 2016/1/1
+** date: 2016/01/25
 ** desc: SimMergeLayer(GPU), merge similar feature maps and re-initialize similar
 **       weights to learn more independent feature maps
 *********************************************************************************/
@@ -29,8 +29,6 @@ namespace caffe{
 		}
 	}
 
-	//TODO: maybe this operation will be very time consuming, we 
-	// need to figure out a more efficient way
 	template <typename Dtype>
 	void SimMergeLayer<Dtype>::update_sim_matrix_gpu(){
 		Dtype* weight_data = this->blobs_[0]->mutable_gpu_data();
@@ -58,22 +56,22 @@ namespace caffe{
 	template <typename Dtype>
 	void SimMergeLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top) {
-		//currently, we have nothing to do
-	}
-
-	template <typename Dtype>
-	void SimMergeLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
-		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
 		this->update_sim_matrix_gpu();
-		this->curr_iter_++;
 		if (this->curr_iter_ % this->iter_ == 0){
-			//reset number of iterations, 
-			//so as to reset similarity matrix to all 0s
+			// reset number of iterations, 
+			// so as to reset similarity matrix to all 0s
 			this->curr_iter_ = 0;
 			// NOTE: I don't think a gpu version can accelerate the computation
 			// so I just use the cpu code here
 			this->merge_sim_weights_cpu();
 		}
+		this->curr_iter_++;
+	}
+
+	template <typename Dtype>
+	void SimMergeLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
+		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+		//currently, we have nothing to do
 	}
 
 	INSTANTIATE_LAYER_GPU_FUNCS(SimMergeLayer);

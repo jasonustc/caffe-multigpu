@@ -333,7 +333,7 @@
     <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\test\test_sim_merge_layer.cpp" />
+    <ClCompile Include="..\tools\caffe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

@@ -114,6 +114,10 @@ message SolverParameter {
   // A test_level and/or a test_stage may also be specified for each test_net.
   //////////////////////////////////////////////////////////////////////////////
 
+  //the step size to refresh diffs, i.e. set history diff to 0s
+  //this is needed for similarity based parameter merge
+  optional int32 refresh_step_size = 41 [default = 0]; 
+
   // Proto filename for the train net, possibly combined with one or more
   // test nets.
   optional string net = 24;

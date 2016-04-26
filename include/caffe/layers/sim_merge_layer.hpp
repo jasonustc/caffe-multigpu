@@ -1,3 +1,11 @@
+/********************************************************************************
+** Copyright(c) 2016 USTC Reserved.
+** auth: Xu Shen
+** mail: shenxu@mail.ustc.edu.cn
+** date: 2016/01/25
+** desc: SimMergeLayer(CPU), merge similar feature maps and re-initialize similar
+**       weights to learn more independent feature maps
+*********************************************************************************/
 #ifndef CAFFE_SIM_MERGE_LAYER_HPP_
 #define CAFFE_SIM_MERGE_LAYRE_HPP_
 
@@ -9,6 +17,12 @@
 namespace caffe{
 
 /**
+ * NOTE: we need also reset the history diffs because of the usage of 
+ * momentum in solver.cpp, currently, we add operations in solver.cpp
+ * to reset all history gradients to 0s every iter_ iterations.
+ *
+ * TODO: only reset corresponding weights in history 
+ *
  * Input: Blob[N, C, H, W]
  * We must set name to params so that we can reset them
  * Output: Blob[N, C, H, W]

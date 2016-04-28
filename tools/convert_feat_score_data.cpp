@@ -24,6 +24,17 @@ DEFINE_string(spliter, "", "The spliter to split each dim of feat in feat file")
 DEFINE_bool(shuffle, false, "If we need to shuffle the index file");
 DEFINE_string(root_dir, "", "The root folder of feat files");
 
+void parse_file_feat_v2(string& file_path, vector<float>& feat){
+	feat.clear();
+	ifstream in_feat(file_path.c_str());
+	CHECK(in_feat.is_open()) << "can not open feat file " << file_path;
+	float feat_i;
+	while (in_feat >> feat_i){
+		feat.push_back(feat_i);
+	}
+	in_feat.close();
+}
+
 void parse_file_feat(string& file_path, vector<float>& feat){
 	feat.clear();
 	vector<string> strs;
@@ -102,7 +113,7 @@ void convert_dataset_float (const string& list_file, const string& db_name){
 	vector<float> feats;
 	int count = 0;
 	for (size_t f = 0; f < file_list.size(); f++){
-		parse_file_feat(file_list[f].first, feats);
+		parse_file_feat_v2(file_list[f].first, feats);
 		//check feat dim 
 		int feat_dim = FLAGS_channels * FLAGS_height * FLAGS_width;
 		CHECK_EQ(feat_dim, feats.size()) << "Feat dim not match, required: "

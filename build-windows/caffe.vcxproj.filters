@@ -309,7 +309,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\convert_c3d_model_full_convolutional.cpp" />
+    <ClCompile Include="..\tools\convert_feat_score_data.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

@@ -111,7 +111,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\tools\convert_c3d_model_full_convolutional.cpp" />
+    <ClCompile Include="..\tools\convert_feat_score_data.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -370,7 +370,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_USE_CUDNN;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_USE_CUDNN;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;USE_LMDB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../include;../src;$(CUDA_PATH_V7_5)/include;$(OPENCV_2_4_9)/include;$(OPENCV_2_4_9)/include/opencv;$(BOOST_1_56_0);../3rdparty/include;../3rdparty/include/openblas;../3rdparty/include/hdf5;../3rdparty/include/lmdb;../3rdparty/include/pthread;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>

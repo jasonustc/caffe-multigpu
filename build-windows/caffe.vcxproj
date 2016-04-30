@@ -223,6 +223,8 @@
     <ClInclude Include="..\include\caffe\layers\loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lrn_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lstm_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\lstm_new_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\lstm_new_unit_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lstm_unit_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\memory_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\multinomial_logistic_loss_layer.hpp" />

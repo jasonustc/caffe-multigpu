@@ -1,3 +1,10 @@
+/********************************************************************************
+** Copyright(c) 2015 USTC Reserved.
+** auth: Xu Shen
+** mail: shenxu@mail.ustc.edu.cn
+** date: 2015/11/4
+** desc: RandomTransformLayer(GPU)
+*********************************************************************************/
 #ifndef CAFFE_RANDOM_TRANSFORM_LAYER_HPP_
 #define CAFFE_RANDOM_TRANSFORM_LAYER_HPP_
 

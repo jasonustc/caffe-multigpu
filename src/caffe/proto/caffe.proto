@@ -385,6 +385,7 @@ message LayerParameter {
   optional LRNParameter lrn_param = 118;
   optional MemoryDataParameter memory_data_param = 119;
   optional MVNParameter mvn_param = 120;
+  optional PatchRankParameter patch_rank_param = 146;
   optional PoolingParameter pooling_param = 121;
   optional PowerParameter power_param = 122;
   optional PReLUParameter prelu_param = 131;
@@ -402,6 +403,17 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+}
+
+//Message that stores parameters used to do reordering
+message PatchRankParameter{
+    enum EnergyType{
+        L1 = 1;
+        L2 = 2;
+    }
+    optional EnergyType energy_type = 1 [default = L2];
+    optional int32 pyramid_height = 2;
+    optional int32 block_num = 3;
 }
 
 //Message that stores parameters used to do random transformation

@@ -124,8 +124,7 @@ namespace caffe{
 	__global__ void ComputeBlockOffset(int nthreads, int split_num, 
 		int outer_dim, int outer_num, int num_unit_block,
 		int unit_block_height, int unit_block_width,
-		const Dtype* energy_data, Dtype* offset_h_data, Dtype* offset_w_data,
-		Dtype* test_data){
+		const Dtype* energy_data, Dtype* offset_h_data, Dtype* offset_w_data){
 		CUDA_KERNEL_LOOP(index, nthreads){
 			const int num_part = split_num * split_num;
 			// 16 KB limitation of local memory for each thread
@@ -135,8 +134,6 @@ namespace caffe{
 			int oh = (index / outer_num) % outer_num;
 			int c = index / outer_num / outer_num;
 			int inner_dim = outer_dim / split_num;
-			test_data[2 * num_part] = Dtype(inner_dim);
-			test_data[2 * num_part + 1] = Dtype(outer_dim);
 			int ooffset = c * num_unit_block * num_unit_block + oh *
 				outer_dim * num_unit_block + ow * outer_dim;
 			for (int ih = 0; ih < split_num; ++ih){
@@ -154,10 +151,6 @@ namespace caffe{
 			}
 			//sort
 			bubble_sort<Dtype>(num_part, block_energy, indexes);
-			for (int i = 0; i < num_part; ++i){
-				test_data[i] = block_energy[i];
-				test_data[i + num_part] = indexes[i];
-			}
 			//offset
 			for (int b = 0; b < num_part; ++b){
 				int sorted_bw = b % split_num;
@@ -195,7 +188,6 @@ namespace caffe{
 		//clear
 		caffe_gpu_set<Dtype>(block_offsets_.count(), Dtype(0), offset_h_data);
 		caffe_gpu_set<Dtype>(block_offsets_.count(), Dtype(0), offset_w_data);
-		Dtype* test_data = block_energies_.mutable_gpu_diff();
 		cudaStream_t* stream = new cudaStream_t[pyramid_height_];
 		//lunch multi-kernel
 		for (int i = 0; i < pyramid_height_; ++i){
@@ -209,14 +201,12 @@ namespace caffe{
 				CAFFE_CUDA_NUM_THREADS, stream[p] >> >(
 				nthreads, split_num_, outer_dim, outer_num, num_unit_block_,
 				unit_block_height_, unit_block_width_, energy_data, offset_h_data,
-				offset_w_data, test_data);
+				offset_w_data);
 			CUDA_POST_KERNEL_CHECK;
 		}
 		for (int i = 0; i < pyramid_height_; ++i){
 			cudaStreamDestroy(stream[i]);
 		}
-		block_offsets_.ToTxt("offset_gpu",true);
-		block_energies_.ToTxt("energy_gpu", true);
 	}
 
 	/*

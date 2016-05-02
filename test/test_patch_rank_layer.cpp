@@ -45,7 +45,6 @@ namespace caffe{
 			//checker.CheckGradientExhaustive(&layer, bottom_, top_);
 			layer.SetUp(bottom_, top_);
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
-			LOG(INFO) << top_[0]->count();
 			checker.CheckGradientExhaustive(&layer, bottom_, top_);
 		}
 

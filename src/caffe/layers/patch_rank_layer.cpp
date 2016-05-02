@@ -40,8 +40,8 @@ namespace caffe{
 							}
 							break;
 						case PatchRankParameter_EnergyType_L2:
-							for (int h = start_h; h < unit_block_height_; ++h){
-								for (int w = start_w; w < unit_block_width_; ++w){
+							for (int h = start_h; h < end_h; ++h){
+								for (int w = start_w; w < end_w; ++w){
 									Dtype data = bottom_data[h * width + w];
 									sum += data * data;
 								}
@@ -152,7 +152,8 @@ namespace caffe{
 	template<typename Dtype>
 	void PatchRankLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		block_offsets_.Reshape(num_, channels_, num_unit_block_, num_unit_block_);
+		block_offsets_.Reshape(num_ , channels_, num_unit_block_, 
+			num_unit_block_);
 		block_energies_.Reshape(num_, channels_, num_unit_block_, num_unit_block_);
 		top[0]->ReshapeLike(*bottom[0]);
 	}
@@ -244,7 +245,7 @@ namespace caffe{
 	}
 
 #ifdef CPU_ONLY
-	STUB_GPU(ReOrderLayer);
+	STUB_GPU(PatchRankLayer);
 #endif
 
 	INSTANTIATE_CLASS(PatchRankLayer);

@@ -32,7 +32,12 @@ namespace caffe{
 			Caffe::set_mode(mode);
 			layer->SetUp(bottom_, top_);
 			layer->Forward(bottom_, top_);
-			top_[0]->ToTxt("top");
+			if (mode == Caffe::CPU){
+				top_[0]->ToTxt("top_cpu");
+			}
+			else{
+				top_[0]->ToTxt("top_gpu");
+			}
 		}
 
 
@@ -98,7 +103,7 @@ int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
 	caffe::PatchRankLayerTest<float> test;
-	test.TestSetUp();
+//	test.TestSetUp();
 	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);

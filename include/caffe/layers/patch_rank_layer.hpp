@@ -20,7 +20,7 @@ namespace caffe{
 		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
 			const vector<Blob<Dtype>*>& top);
 
-		virtual inline const char* type() const { return "ReOrder"; }
+		virtual inline const char* type() const { return "PatchRank"; }
 		virtual inline int ExactNumBottomBlobs() const { return 1; }
 		virtual inline int ExactNumTopBlobs() const { return 1; }
 
@@ -49,8 +49,10 @@ namespace caffe{
 		 * into blok_num_ blocks
 		 * then reorder these blocks based on their energies
 		 **/
-		virtual void GetBlockOffset_cpu();
-		void GetBlockOffset_gpu();
+		void GetBlockOffset_cpu();
+		void SortBlock_gpu();
+		void ComputeLevelOffset_gpu();
+		void MergeOffset_gpu();
 
 
 		int pyramid_height_;
@@ -62,19 +64,25 @@ namespace caffe{
 		int channels_;
 		PatchRankParameter_EnergyType energy_type_;
 
+		/*
+		 * To store energies for GPU computation
+		 * data: sum of energy of each block
+		 * diff: indexes
+		 */
+		vector<Blob<Dtype>*> block_infos_;
 
 		/*
-		 * shape: num_ * channels_ * num_unit_block_ * num_unit_block_
+		 * shape: num_ * channels_ * 
+		 *            * [(split_num * split_num)^pyramid_height_ 
+	     *            - (split_num * split_num)]  
+	     *            / (split_num * split_num - 1)
 		 * offset w after patch rank will be saved into data
 		 * offset h after patch rank will be saved into diff
 		 */
-		Blob<Dtype> block_offsets_;
+		vector<Blob<Dtype>*> block_offsets_;
 
-		/*
-		 * energies of each unit block 
-		 * shape: num_ * channels_ * num_unit_block_ * num_unit_block_
-		 */
-		Blob<Dtype> block_energies_;
+		Blob<Dtype> test_data_;
+
 	};
 }
 

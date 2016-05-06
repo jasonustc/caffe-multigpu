@@ -19,7 +19,7 @@ namespace caffe{
 	template<typename Dtype>
 	void PatchRankLayer<Dtype>::GetBlockEnergy_cpu(const vector<Blob<Dtype>*>& bottom){
 		const Dtype* bottom_data = bottom[0]->cpu_data();
-		Dtype* energy_data = this->block_energies_.mutable_cpu_data();
+		Dtype* energy_data = this->block_infos_[0]->mutable_cpu_data();
 		const int width = bottom[0]->width();
 		for (int n = 0; n < num_; ++n){
 			for (int c = 0; c < channels_; ++c){
@@ -54,7 +54,7 @@ namespace caffe{
 						energy_data[bh * num_unit_block_ + bw] = sum;
 					}//for (int bw = 0; bw < num_unit_block_; ++bw)
 				}//for (int bh = 0; bh < num_unit_block_; ++bh)
-				energy_data += block_energies_.offset(0, 1);
+				energy_data += block_infos_[0]->offset(0, 1);
 			}//for (int c = 0; c < channels_; ++c)
 		}//for (int n = 0; n < num_; ++n)
 	}
@@ -64,12 +64,12 @@ namespace caffe{
 	 */
 	template <typename Dtype>
 	void PatchRankLayer<Dtype>::GetBlockOffset_cpu(){
-		const Dtype* energy_data = this->block_energies_.cpu_data();
-		Dtype* offset_w_data = this->block_offsets_.mutable_cpu_data();
-		Dtype* offset_h_data = this->block_offsets_.mutable_cpu_diff();
+		const Dtype* energy_data = this->block_infos_[0]->cpu_data();
+		Dtype* offset_w_data = this->block_offsets_[0]->mutable_cpu_data();
+		Dtype* offset_h_data = this->block_offsets_[0]->mutable_cpu_diff();
 		//clear
-		caffe_set<Dtype>(block_offsets_.count(), Dtype(0.), offset_w_data);
-		caffe_set<Dtype>(block_offsets_.count(), Dtype(0.), offset_h_data);
+		caffe_set<Dtype>(block_offsets_[0]->count(), Dtype(0.), offset_w_data);
+		caffe_set<Dtype>(block_offsets_[0]->count(), Dtype(0.), offset_h_data);
 		for (int n = 0; n < num_; ++n){
 			for (int c = 0; c < channels_; ++c){
 				for (int p = 0; p < pyramid_height_; ++p){
@@ -123,9 +123,9 @@ namespace caffe{
 						}//for (int bw = 0; bw < outer_block; ++bw)
 					}//for (int bh = 0; bh < outer_block; ++bh)
 				}//for (int p = 0; p < pyramid_height_; ++p)
-				offset_h_data += block_offsets_.offset(0, 1);
-				offset_w_data += block_offsets_.offset(0, 1);
-				energy_data += block_energies_.offset(0, 1);
+				offset_h_data += block_offsets_[0]->offset(0, 1);
+				offset_w_data += block_offsets_[0]->offset(0, 1);
+				energy_data += block_infos_[0]->offset(0, 1);
 			}//for (int c = 0; c < channels_; ++c)
 		}//for (int n = 0; n < num_; ++n)
 	}
@@ -145,17 +145,27 @@ namespace caffe{
 		num_unit_block_ = pow(split_num_, pyramid_height_);
 		unit_block_width_ = width / num_unit_block_;
 		unit_block_height_ = height / num_unit_block_;
-		CHECK_GE(unit_block_width_, 1);
-		CHECK_GE(unit_block_height_, 1);
+		CHECK_GE(unit_block_width_, 1) << "number of unit blocks should be less or "
+			<< " equal than feature map width";
+		CHECK_GE(unit_block_height_, 1)<< "number of unit blocks should be less or "
+			<< " equal than feature map height";
+		for (int i = 0; i < pyramid_height_; ++i){
+			block_infos_.push_back(new Blob<Dtype>());
+			block_offsets_.push_back(new Blob<Dtype>());
+		}
 	}
 
 	template<typename Dtype>
 	void PatchRankLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		block_offsets_.Reshape(num_ , channels_, num_unit_block_, 
-			num_unit_block_);
-		block_energies_.Reshape(num_, channels_, num_unit_block_, num_unit_block_);
 		top[0]->ReshapeLike(*bottom[0]);
+		//level 0 to level pyramid_height_ - 1
+		for (int i = 0; i < pyramid_height_; ++i){
+			int num_block = pow(split_num_, pyramid_height_ - i);
+			block_infos_[i]->Reshape(num_, channels_, num_block, num_block);
+			block_offsets_[i]->Reshape(num_, channels_, num_block, num_block);
+		}
+		test_data_.Reshape(num_, channels_, num_unit_block_, num_unit_block_);
 	}
 
 	template<typename Dtype>
@@ -163,8 +173,8 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		GetBlockEnergy_cpu(bottom);
 		GetBlockOffset_cpu();
-		const Dtype* offset_w_data = block_offsets_.cpu_data();
-		const Dtype* offset_h_data = block_offsets_.cpu_diff();
+		const Dtype* offset_w_data = block_offsets_[0]->cpu_data();
+		const Dtype* offset_h_data = block_offsets_[0]->cpu_diff();
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		Dtype* top_data = top[0]->mutable_cpu_data();
 		const int height = bottom[0]->height();
@@ -194,8 +204,8 @@ namespace caffe{
 						}
 					}
 				}
-				offset_w_data += block_offsets_.offset(0, 1);
-				offset_h_data += block_offsets_.offset(0, 1);
+				offset_w_data += block_offsets_[0]->offset(0, 1);
+				offset_h_data += block_offsets_[0]->offset(0, 1);
 				bottom_data += bottom[0]->offset(0, 1);
 				top_data += top[0]->offset(0, 1);
 			}//for (int c = 0; c < channels_; ++c)
@@ -206,8 +216,8 @@ namespace caffe{
 	void PatchRankLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down,
 		const vector<Blob<Dtype>*>& bottom){
-		const Dtype* offset_w_data = block_offsets_.cpu_data();
-		const Dtype* offset_h_data = block_offsets_.cpu_diff();
+		const Dtype* offset_w_data = block_offsets_[0]->cpu_data();
+		const Dtype* offset_h_data = block_offsets_[0]->cpu_diff();
 		Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
 		const Dtype* top_diff = top[0]->cpu_diff();
 		const int height = bottom[0]->height();
@@ -236,8 +246,8 @@ namespace caffe{
 						}
 					}
 				}
-				offset_w_data += block_offsets_.offset(0, 1);
-				offset_h_data += block_offsets_.offset(0, 1);
+				offset_w_data += block_offsets_[0]->offset(0, 1);
+				offset_h_data += block_offsets_[0]->offset(0, 1);
 				bottom_diff += bottom[0]->offset(0, 1);
 				top_diff += top[0]->offset(0, 1);
 			}//for (int c = 0; c < channels_; ++c)

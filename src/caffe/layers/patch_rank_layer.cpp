@@ -138,6 +138,15 @@ namespace caffe{
 		split_num_ = this->layer_param_.patch_rank_param().block_num();
 		CHECK_GT(split_num_, 0);
 		energy_type_ = this->layer_param_.patch_rank_param().energy_type();
+		for (int i = 0; i < pyramid_height_; ++i){
+			block_infos_.push_back(new Blob<Dtype>());
+			block_offsets_.push_back(new Blob<Dtype>());
+		}
+	}
+
+	template<typename Dtype>
+	void PatchRankLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
+		const vector<Blob<Dtype>*>& top){
 		const int width = bottom[0]->width();
 		const int height = bottom[0]->height();
 		num_ = bottom[0]->num();
@@ -149,15 +158,6 @@ namespace caffe{
 			<< " equal than feature map width";
 		CHECK_GE(unit_block_height_, 1)<< "number of unit blocks should be less or "
 			<< " equal than feature map height";
-		for (int i = 0; i < pyramid_height_; ++i){
-			block_infos_.push_back(new Blob<Dtype>());
-			block_offsets_.push_back(new Blob<Dtype>());
-		}
-	}
-
-	template<typename Dtype>
-	void PatchRankLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
-		const vector<Blob<Dtype>*>& top){
 		top[0]->ReshapeLike(*bottom[0]);
 		//level 0 to level pyramid_height_ - 1
 		for (int i = 0; i < pyramid_height_; ++i){
@@ -165,7 +165,7 @@ namespace caffe{
 			block_infos_[i]->Reshape(num_, channels_, num_block, num_block);
 			block_offsets_[i]->Reshape(num_, channels_, num_block, num_block);
 		}
-		test_data_.Reshape(num_, channels_, num_unit_block_, num_unit_block_);
+		test_data_.Reshape(num_, channels_, height, width);
 	}
 
 	template<typename Dtype>

@@ -44,7 +44,7 @@ namespace caffe{
 		void TestGradients(Caffe::Brew mode){
 			PatchRankLayer<Dtype> layer(layer_param_);
 			Caffe::set_mode(mode);
-			GradientChecker<Dtype> checker(1e-2, 1e-3);
+			GradientChecker<Dtype> checker(1e-3, 1e-4);
 			//because decoding parameters is not correlated with h_enc,
 			//so the computed and estimated gradient will be 0
 			//checker.CheckGradientExhaustive(&layer, bottom_, top_);
@@ -59,8 +59,8 @@ namespace caffe{
 			vector<int> x_shape;
 			x_shape.push_back(2);
 			x_shape.push_back(3);
-			x_shape.push_back(5);
-			x_shape.push_back(5);
+			x_shape.push_back(9);
+			x_shape.push_back(10);
 			x_->Reshape(x_shape);
 			FillerParameter filler_param;
 			filler_param.set_value(0.1);
@@ -68,9 +68,9 @@ namespace caffe{
 			filler.Fill(x_);
 			Dtype* x_data = x_->mutable_cpu_data();
 			for (int c = 0; c < 6; ++c){
-				for (int i = 0; i < 5; i++){
-					for (int j = 0; j < 5; j++){
-						x_data[c * 25 + i * 5 + j] = j * 5 + i;
+				for (int i = 0; i < 9; i++){
+					for (int j = 0; j < 10; j++){
+						x_data[c * 90 + i * 10 + j] = j * 10 + i;
 					}
 				}
 			}
@@ -104,8 +104,8 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::PatchRankLayerTest<float> test;
 //	test.TestSetUp();
-	test.TestForward(caffe::Caffe::CPU);
-	test.TestGradients(caffe::Caffe::CPU);
+//	test.TestForward(caffe::Caffe::CPU);
+//	test.TestGradients(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);
 	return 0;

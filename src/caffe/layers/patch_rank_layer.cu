@@ -331,9 +331,9 @@ namespace caffe{
 				block_pixel_width, block_pixel_height, index_data, offset_w_data, 
 				offset_h_data, test_data);
 			CUDA_POST_KERNEL_CHECK;
-//			ostringstream oss;
-//			oss << p;
-//			block_offsets_[p]->ToTxt("block_offset_" + oss.str(), true);
+			ostringstream oss;
+			oss << p;
+			block_offsets_[p]->ToTxt("block_offset_" + oss.str(), true);
 		}
 		for (int i = 0; i < pyramid_height_; ++i){
 			cudaStreamDestroy(stream[i]);
@@ -361,9 +361,9 @@ namespace caffe{
 				count, block_num, split_num_, next_offset_w, next_offset_h,
 				curr_offset_w, curr_offset_h);
 			CUDA_POST_KERNEL_CHECK;
-//			ostringstream oss;
-//			oss << p;
-//			block_offsets_[p]->ToTxt("block_offset_merge_" + oss.str(), true);
+			ostringstream oss;
+			oss << p;
+			block_offsets_[p]->ToTxt("block_offset_merge_" + oss.str(), true);
 		}
 		for (int i = 0; i < pyramid_height_; ++i){
 			cudaStreamDestroy(stream[i]);
@@ -389,7 +389,7 @@ namespace caffe{
 			 * for pixels not in the sorted blocks
 			 * we just copy them to the output
 			 */
-			if (w == num_unit_block || h == num_unit_block){
+			if (w >= num_unit_block || h >= num_unit_block){
 				top_data[index] = bottom_data[index];
 			}
 			else{
@@ -431,7 +431,7 @@ namespace caffe{
 		const int unit_block_height, const int unit_block_width, 
 		const int height, const int width, 
 		const int num_unit_block, const Dtype* top_diff, const Dtype* offset_h_data,
-		const Dtype* offset_w_data, Dtype* bottom_diff){
+		const Dtype* offset_w_data, Dtype* bottom_diff, Dtype* test_data){
 		CUDA_KERNEL_LOOP(index, nthreads){
 			int w = index % width;
 			int h = (index / width) % height;
@@ -442,7 +442,7 @@ namespace caffe{
 			 * for pixels not in the sorted blocks
 			 * we just copy diffs to the bottom
 			 */
-			if (block_id_h == num_unit_block || block_id_w == num_unit_block){
+			if (block_id_h >= num_unit_block || block_id_w >= num_unit_block){
 				bottom_diff[index] = top_diff[index];
 			}
 			else{
@@ -453,6 +453,7 @@ namespace caffe{
 				int top_w = w + offset_w;
 				int top_h = h + offset_h;
 				bottom_diff[index] = top_diff[c * height * width + top_h * width + top_w];
+				test_data[index] = offset_w;
 			}
 		}
 	}
@@ -462,17 +463,23 @@ namespace caffe{
 		const vector<bool>& propagate_down,
 		const vector<Blob<Dtype>*>& bottom){
 		Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+		block_offsets_[0]->ToTxt("offset_bak_0", true);
 		const Dtype* offset_w_data = block_offsets_[0]->gpu_data();
 		const Dtype* offset_h_data = block_offsets_[0]->gpu_diff();
 		const Dtype* top_diff = top[0]->gpu_diff();
 		const int count = bottom[0]->count();
 		const int height = bottom[0]->height();
 		const int width = bottom[0]->width();
+		caffe_gpu_set<Dtype>(test_data_.count(), Dtype(0), 
+			test_data_.mutable_gpu_data());
+		test_data_.ToTxt("test_before");
 		PatchRankBackward<Dtype> << < CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
 			count, unit_block_height_, unit_block_width_,  
 			height, width, num_unit_block_,
-			top_diff, offset_h_data, offset_w_data, bottom_diff);
+			top_diff, offset_h_data, offset_w_data, 
+			bottom_diff, test_data_.mutable_gpu_data());
 		CUDA_POST_KERNEL_CHECK;
+		test_data_.ToTxt("test_data");
 	}
 
 	INSTANTIATE_LAYER_GPU_FUNCS(PatchRankLayer);

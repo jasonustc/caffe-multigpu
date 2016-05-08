@@ -146,17 +146,22 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
       if (!element_wise || (feat_id == top_data_id)) {
         // Do finite differencing.
         // Compute loss with stepsize_ added to input.
+		  feat_id = 26;
         current_blob->mutable_cpu_data()[feat_id] += stepsize_;
         Caffe::set_random_seed(seed_);
         layer->Forward(bottom, top);
         positive_objective =
             GetObjAndGradient(*layer, top, top_id, top_data_id);
+//		top[top_id]->ToTxt("pos_top", true);
+//		bottom[0]->ToTxt("pos_bottom", true);
         // Compute loss with stepsize_ subtracted from input.
         current_blob->mutable_cpu_data()[feat_id] -= stepsize_ * 2;
         Caffe::set_random_seed(seed_);
         layer->Forward(bottom, top);
         negative_objective =
             GetObjAndGradient(*layer, top, top_id, top_data_id);
+//		top[top_id]->ToTxt("neg_top",true);
+//		bottom[0]->ToTxt("neg_bottom", true);
         // Recover original input value.
         current_blob->mutable_cpu_data()[feat_id] += stepsize_;
         estimated_gradient = (positive_objective - negative_objective) /

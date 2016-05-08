@@ -6,7 +6,6 @@
 ** desc: PatchRankLayer(GPU)
 *********************************************************************************/
 #include "caffe/layers/patch_rank_layer.hpp"
-#include <thrust/sort.h>
 
 namespace caffe{
 
@@ -159,28 +158,16 @@ namespace caffe{
 		default:
 			LOG(FATAL) << "Unkown energy type.";
 		}
-		cudaStream_t* stream = new cudaStream_t[pyramid_height_ - 1];
-		//lunch multi-kernel
-		for (int i = 0; i < pyramid_height_ - 1; ++i){
-			cudaStreamCreate(&stream[i]);
-		}
-//		block_infos_[0]->ToTxt("block_info_0", true);
 		for (int p = 1; p < pyramid_height_; ++p){
 			int count = block_infos_[p]->count();
 			int block_num = block_infos_[p]->width();
 			const Dtype* prev_level_energy = block_infos_[p - 1]->gpu_data();
 			Dtype* level_energy = block_infos_[p]->mutable_gpu_data();
 			Dtype* level_index = block_infos_[p]->mutable_gpu_diff();
-			ComputeLevelEnergy<Dtype> << <1, CAFFE_GET_BLOCKS(count),
-				CAFFE_CUDA_NUM_THREADS, stream[p - 1] >> >(count, split_num_,
+			ComputeLevelEnergy<Dtype> << <CAFFE_GET_BLOCKS(count),
+				CAFFE_CUDA_NUM_THREADS>> >(count, split_num_,
 				block_num, prev_level_energy, level_energy, level_index);
 			CUDA_POST_KERNEL_CHECK;
-//			ostringstream oss;
-//			oss << p;
-//			block_infos_[p]->ToTxt("block_info_" + oss.str(), true);
-		}
-		for (int i = 0; i < pyramid_height_ - 1; ++i){
-			cudaStreamDestroy(stream[i]);
 		}
 	}
 
@@ -235,13 +222,13 @@ namespace caffe{
 	}
 
 	/*
+	 * @brief get the offset of unit block corresponding to this single level
 	 * nthreads = num_ * channels_ * block_num * block_num
 	 */
 	template<typename Dtype>
 	__global__ void ComputeOffset(int nthreads, int block_num, int split_num,
 		int block_pixel_width, int block_pixel_height,
-		const Dtype* index_data, Dtype* offset_w_data, Dtype* offset_h_data,
-		Dtype* test_data){
+		const Dtype* index_data, Dtype* offset_w_data, Dtype* offset_h_data){
 		CUDA_KERNEL_LOOP(index, nthreads){
 			// we only care about offset in sub-blocks
 			int block_size = split_num * split_num;
@@ -257,7 +244,6 @@ namespace caffe{
 			int offset_h = (sorted_ih - source_ih) * block_pixel_height;
 			offset_w_data[c * block_num * block_num + id] = offset_w;
 			offset_h_data[c * block_num * block_num + id] = offset_h;
-			test_data[index] = int(index_data[index]);
 		}
 	}
 
@@ -285,10 +271,6 @@ namespace caffe{
 
 	template<typename Dtype>
 	void PatchRankLayer<Dtype>::SortBlock_gpu(){
-		cudaStream_t* stream = new cudaStream_t[pyramid_height_];
-		for (int i = 0; i < pyramid_height_; ++i){
-			cudaStreamCreate(&stream[i]);
-		}
 		//sort 
 		for (int p = 0; p < pyramid_height_; ++p){
 			Dtype* energy_data = block_infos_[p]->mutable_gpu_data();
@@ -296,27 +278,15 @@ namespace caffe{
 			int block_num = block_infos_[p]->width();
 			int N = num_ * channels_ * (block_num / split_num_) * 
 				(block_num / split_num_);
-			SortInBlock<Dtype><< < 1, CAFFE_GET_BLOCKS(N), 
-				CAFFE_CUDA_NUM_THREADS, stream[p] >> >(
+			SortInBlock<Dtype><< <CAFFE_GET_BLOCKS(N), 
+				CAFFE_CUDA_NUM_THREADS>> >(
 				N, block_num, split_num_, energy_data, index_data);
 			CUDA_POST_KERNEL_CHECK;
-//			ostringstream oss;
-//			oss << p;
-//			block_infos_[p]->ToTxt("block_info_sort_" + oss.str(), true);
-		}
-		for (int i = 0; i < pyramid_height_; ++i){
-			cudaStreamDestroy(stream[i]);
 		}
 	}
 
 	template<typename Dtype>
 	void PatchRankLayer<Dtype>::ComputeLevelOffset_gpu(){
-		cudaStream_t* stream = new cudaStream_t[pyramid_height_];
-		//lunch multi-kernel to compute offset
-		for (int i = 0; i < pyramid_height_; ++i){
-			cudaStreamCreate(&stream[i]);
-		}
-		Dtype* test_data = test_data_.mutable_gpu_data();
 		for (int p = 0; p < pyramid_height_; ++p){
 			//offset of level p
 			int count = block_offsets_[p]->count();
@@ -326,27 +296,16 @@ namespace caffe{
 			const Dtype* index_data = block_infos_[p]->gpu_diff();
 			Dtype* offset_w_data = block_offsets_[p]->mutable_gpu_data();
 			Dtype* offset_h_data = block_offsets_[p]->mutable_gpu_diff();
-			ComputeOffset<Dtype> << <1, CAFFE_GET_BLOCKS(count),
-				CAFFE_CUDA_NUM_THREADS, stream[p]>> >(count, block_num, split_num_,
+			ComputeOffset<Dtype> << <CAFFE_GET_BLOCKS(count),
+				CAFFE_CUDA_NUM_THREADS>> >(count, block_num, split_num_,
 				block_pixel_width, block_pixel_height, index_data, offset_w_data, 
-				offset_h_data, test_data);
+				offset_h_data);
 			CUDA_POST_KERNEL_CHECK;
-			ostringstream oss;
-			oss << p;
-			block_offsets_[p]->ToTxt("block_offset_" + oss.str(), true);
-		}
-		for (int i = 0; i < pyramid_height_; ++i){
-			cudaStreamDestroy(stream[i]);
 		}
 	}
 
 	template<typename Dtype>
 	void PatchRankLayer<Dtype>::MergeOffset_gpu(){
-		cudaStream_t* stream = new cudaStream_t[pyramid_height_];
-		//lunch multi-kernel
-		for (int i = 0; i < pyramid_height_; ++i){
-			cudaStreamCreate(&stream[i]);
-		}
 		//backpropagate offsets from level p to level 1
 		for (int p = pyramid_height_ - 2; p >= 0; --p){
 			//offset_{p} += offset_{p + 1}
@@ -356,17 +315,11 @@ namespace caffe{
 			const Dtype* next_offset_h = block_offsets_[p + 1]->gpu_diff();
 			Dtype* curr_offset_w = block_offsets_[p]->mutable_gpu_data();
 			Dtype* curr_offset_h = block_offsets_[p]->mutable_gpu_diff();
-			MergeOffset<Dtype> << <1, CAFFE_GET_BLOCKS(count), 
-				CAFFE_CUDA_NUM_THREADS, stream[p] >> >(
+			MergeOffset<Dtype> << <CAFFE_GET_BLOCKS(count), 
+				CAFFE_CUDA_NUM_THREADS>> >(
 				count, block_num, split_num_, next_offset_w, next_offset_h,
 				curr_offset_w, curr_offset_h);
 			CUDA_POST_KERNEL_CHECK;
-			ostringstream oss;
-			oss << p;
-			block_offsets_[p]->ToTxt("block_offset_merge_" + oss.str(), true);
-		}
-		for (int i = 0; i < pyramid_height_; ++i){
-			cudaStreamDestroy(stream[i]);
 		}
 	}
 
@@ -388,8 +341,11 @@ namespace caffe{
 			/*
 			 * for pixels not in the sorted blocks
 			 * we just copy them to the output
+			 * TODO: fucos on center part of the features
+			 * or to specify different block_size for different 
+			 * pyramid levels
 			 */
-			if (w >= num_unit_block || h >= num_unit_block){
+			if (block_id_h >= num_unit_block || block_id_w >= num_unit_block){
 				top_data[index] = bottom_data[index];
 			}
 			else{
@@ -409,16 +365,24 @@ namespace caffe{
 	void PatchRankLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		const Dtype* bottom_data = bottom[0]->gpu_data();
-		const Dtype* offset_w_data = block_offsets_[0]->gpu_data();
-		const Dtype* offset_h_data = block_offsets_[0]->gpu_diff();
-		Dtype* top_data = top[0]->mutable_gpu_data();
+		//clear
+		for (int i = 0; i < pyramid_height_; ++i){
+			int count = block_offsets_[i]->count();
+			Dtype* data = block_offsets_[i]->mutable_gpu_data();
+			Dtype* diff = block_offsets_[i]->mutable_gpu_diff();
+			caffe_gpu_set<Dtype>(count, Dtype(0.), data);
+			caffe_gpu_set<Dtype>(count, Dtype(0.), diff);
+		}
 		GetBlockEnergy_gpu(bottom);
 		SortBlock_gpu();
 		ComputeLevelOffset_gpu();
 		MergeOffset_gpu();
+		Dtype* top_data = top[0]->mutable_gpu_data();
 		const int count = bottom[0]->count();
 		const int height = bottom[0]->height();
 		const int width = bottom[0]->width();
+		const Dtype* offset_w_data = block_offsets_[0]->gpu_data();
+		const Dtype* offset_h_data = block_offsets_[0]->gpu_diff();
 		PatchRankForward<Dtype> << < CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
 			count, unit_block_height_, unit_block_width_, height, 
 			width, num_unit_block_,
@@ -431,7 +395,7 @@ namespace caffe{
 		const int unit_block_height, const int unit_block_width, 
 		const int height, const int width, 
 		const int num_unit_block, const Dtype* top_diff, const Dtype* offset_h_data,
-		const Dtype* offset_w_data, Dtype* bottom_diff, Dtype* test_data){
+		const Dtype* offset_w_data, Dtype* bottom_diff){
 		CUDA_KERNEL_LOOP(index, nthreads){
 			int w = index % width;
 			int h = (index / width) % height;
@@ -441,6 +405,9 @@ namespace caffe{
 			/*
 			 * for pixels not in the sorted blocks
 			 * we just copy diffs to the bottom
+			 * TODO: fucos on center part of the features
+			 * or to specify different block_size for different 
+			 * pyramid levels
 			 */
 			if (block_id_h >= num_unit_block || block_id_w >= num_unit_block){
 				bottom_diff[index] = top_diff[index];
@@ -453,7 +420,6 @@ namespace caffe{
 				int top_w = w + offset_w;
 				int top_h = h + offset_h;
 				bottom_diff[index] = top_diff[c * height * width + top_h * width + top_w];
-				test_data[index] = offset_w;
 			}
 		}
 	}
@@ -463,23 +429,17 @@ namespace caffe{
 		const vector<bool>& propagate_down,
 		const vector<Blob<Dtype>*>& bottom){
 		Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-		block_offsets_[0]->ToTxt("offset_bak_0", true);
 		const Dtype* offset_w_data = block_offsets_[0]->gpu_data();
 		const Dtype* offset_h_data = block_offsets_[0]->gpu_diff();
 		const Dtype* top_diff = top[0]->gpu_diff();
 		const int count = bottom[0]->count();
 		const int height = bottom[0]->height();
 		const int width = bottom[0]->width();
-		caffe_gpu_set<Dtype>(test_data_.count(), Dtype(0), 
-			test_data_.mutable_gpu_data());
-		test_data_.ToTxt("test_before");
 		PatchRankBackward<Dtype> << < CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
 			count, unit_block_height_, unit_block_width_,  
 			height, width, num_unit_block_,
-			top_diff, offset_h_data, offset_w_data, 
-			bottom_diff, test_data_.mutable_gpu_data());
+			top_diff, offset_h_data, offset_w_data, bottom_diff);
 		CUDA_POST_KERNEL_CHECK;
-		test_data_.ToTxt("test_data");
 	}
 
 	INSTANTIATE_LAYER_GPU_FUNCS(PatchRankLayer);

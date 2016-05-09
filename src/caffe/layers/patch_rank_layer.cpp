@@ -179,7 +179,6 @@ namespace caffe{
 		Dtype* top_data = top[0]->mutable_cpu_data();
 		const int height = bottom[0]->height();
 		const int width = bottom[0]->width();
-		const int count = bottom[0]->count();
 		for (int n = 0; n < num_; ++n){
 			for (int c = 0; c < channels_; ++c){
 				for (int h = 0; h < height; ++h){

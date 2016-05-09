@@ -278,6 +278,8 @@ namespace caffe{
 			int block_num = block_infos_[p]->width();
 			int N = num_ * channels_ * (block_num / split_num_) * 
 				(block_num / split_num_);
+			//TODO: since the sorting data for each level is independent,
+			//we can use multi-stream to lunch mutliple kernels
 			SortInBlock<Dtype><< <CAFFE_GET_BLOCKS(N), 
 				CAFFE_CUDA_NUM_THREADS>> >(
 				N, block_num, split_num_, energy_data, index_data);
@@ -289,6 +291,9 @@ namespace caffe{
 	void PatchRankLayer<Dtype>::ComputeLevelOffset_gpu(){
 		for (int p = 0; p < pyramid_height_; ++p){
 			//offset of level p
+			//TODO: since the data for computing offset of 
+			//each level is independent,
+			//we can use multi-stream to lunch mutliple kernels
 			int count = block_offsets_[p]->count();
 			int block_num = block_offsets_[p]->width();
 			int block_pixel_width = num_unit_block_ / block_num * unit_block_width_;

@@ -31,6 +31,9 @@
     <Filter Include="include\layers">
       <UniqueIdentifier>{802fafb2-be05-4b9a-94f3-27b9b5cddcb0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\solvers">
+      <UniqueIdentifier>{bad9e030-a249-4dcd-988f-5ca136f84869}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\caffe\layers\absval_layer.cpp">
@@ -319,6 +322,24 @@
       <Filter>src\layers</Filter>
     </ClCompile>
     <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\adagrad_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\adam_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\nesterov_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -482,6 +503,24 @@
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\patch_rank_layer.cu">
       <Filter>src\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\adagrad_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\adam_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\nesterov_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\rmsprop_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu">
+      <Filter>src\solvers</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

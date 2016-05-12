@@ -310,6 +310,9 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\unpooling_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -463,6 +466,9 @@
       <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu">
+      <Filter>src\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\unpooling_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -778,6 +784,9 @@
     </ClInclude>
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\unpooling_layer.hpp">
+      <Filter>include\layers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

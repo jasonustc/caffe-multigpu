@@ -790,6 +790,7 @@ void Net<Dtype>::CopyTrainedLayersFromBinaryProto(
     const string trained_filename) {
   NetParameter param;
   ReadNetParamsFromBinaryFileOrDie(trained_filename, &param);
+  LOG(INFO) << param.layer_size();
   CopyTrainedLayersFrom(param);
 }
 

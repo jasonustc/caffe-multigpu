@@ -15,7 +15,6 @@
 #include "caffe/net.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
-#include "caffe/vision_layers.hpp"
 
 using namespace caffe;  // NOLINT(build/namespaces)
 
@@ -30,7 +29,7 @@ int main(int argc, char** argv) {
 template<typename Dtype>
 int feature_extraction_pipeline(int argc, char** argv) {
 	::google::InitGoogleLogging(argv[0]);
-//	::google::SetStderrLogging(0);
+	::google::SetStderrLogging(0);
 	const int num_required_args = 6;
 	if (argc < num_required_args) {
 		LOG(ERROR)<<
@@ -97,7 +96,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
 	string feature_extraction_proto(argv[++arg_pos]);
 	boost::shared_ptr<Net<Dtype> > feature_extraction_net(
 		new Net<Dtype>(feature_extraction_proto, caffe::TEST));
-	feature_extraction_net->CopyTrainedLayersFrom(pretrained_binary_proto);
+	feature_extraction_net->CopyTrainedLayersFromBinaryProto(pretrained_binary_proto);
 
 	string extract_feature_blob_names(argv[++arg_pos]);
 	vector<string> blob_names;
@@ -149,7 +148,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
 				feature_blob_data = feature_blob->cpu_data() +
 					feature_blob->offset(n);
 				for (int d = 0; d < dim_features; ++d) {
-					*feature_dbs[i]<<feature_blob_data[d]<<' ';   //added by qing li
+					*feature_dbs[i]<<feature_blob_data[d]<<' ';   
 				}
 				*feature_dbs[i]<<'\n';
 				

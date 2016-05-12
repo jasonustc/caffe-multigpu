@@ -96,6 +96,12 @@
     <ClCompile Include="..\src\caffe\parallel.cpp" />
     <ClCompile Include="..\src\caffe\proto\caffe.pb.cc" />
     <ClCompile Include="..\src\caffe\solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adagrad_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adam_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\nesterov_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp" />
     <ClCompile Include="..\src\caffe\syncedmem.cpp" />
     <ClCompile Include="..\src\caffe\util\benchmark.cpp" />
     <ClCompile Include="..\src\caffe\util\blocking_queue.cpp" />
@@ -111,7 +117,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\tools\convert_feat_label_data.cpp" />
+    <ClCompile Include="..\tools\extract_features2files.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -163,6 +169,12 @@
     <CudaCompile Include="..\src\caffe\layers\tanh_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\adagrad_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\adam_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\nesterov_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\rmsprop_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu" />
     <CudaCompile Include="..\src\caffe\util\im2col.cu" />
     <CudaCompile Include="..\src\caffe\util\math_functions.cu" />
   </ItemGroup>
@@ -370,7 +382,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_USE_CUDNN;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;USE_LEVELDB;USE_LMDB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_USE_CUDNN;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;USE_LEVELDB;USE_LMDB;USE_OPENCV;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../include;../src;$(CUDA_PATH_V7_5)/include;$(OPENCV_2_4_9)/include;$(OPENCV_2_4_9)/include/opencv;$(BOOST_1_56_0);../3rdparty/include;../3rdparty/include/openblas;../3rdparty/include/hdf5;../3rdparty/include/lmdb;../3rdparty/include/pthread;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>

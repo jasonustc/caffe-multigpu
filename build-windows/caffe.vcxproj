@@ -48,6 +48,7 @@
     <ClCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\downpool_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dropout_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dummy_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\eltwise_layer.cpp" />
@@ -72,11 +73,9 @@
     <ClCompile Include="..\src\caffe\layers\multinomial_logistic_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\mvn_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\neuron_layer.cpp" />
-    <ClCompile Include="..\src\caffe\layers\patch_rank_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\power_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prelu_layer.cpp" />
-    <ClCompile Include="..\src\caffe\layers\random_trans_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reduction_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\relu_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reshape_layer.cpp" />
@@ -91,7 +90,10 @@
     <ClCompile Include="..\src\caffe\layers\spp_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\threshold_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\ticonv_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\tiedconv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tile_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\up_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\window_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layer_factory.cpp" />
     <ClCompile Include="..\src\caffe\net.cpp" />
@@ -117,7 +119,7 @@
     <ClCompile Include="..\src\caffe\util\io.cpp" />
     <ClCompile Include="..\src\caffe\util\math_functions.cpp" />
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
-    <ClCompile Include="..\src\caffe\util\transform.cpp" />
+    <ClCompile Include="..\src\caffe\util\transformation.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
     <ClCompile Include="..\tools\caffe.cpp" />
@@ -156,11 +158,9 @@
     <CudaCompile Include="..\src\caffe\layers\log_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\lrn_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\mvn_layer.cu" />
-    <CudaCompile Include="..\src\caffe\layers\patch_rank_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\pooling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\prelu_layer.cu" />
-    <CudaCompile Include="..\src\caffe\layers\random_trans_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\reduction_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\relu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\scale_layer.cu" />
@@ -182,7 +182,7 @@
     <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu" />
     <CudaCompile Include="..\src\caffe\util\im2col.cu" />
     <CudaCompile Include="..\src\caffe\util\math_functions.cu" />
-    <CudaCompile Include="..\src\caffe\util\transform.cu" />
+    <CudaCompile Include="..\src\caffe\util\transformation.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\caffe\blob.hpp" />
@@ -216,6 +216,7 @@
     <ClInclude Include="..\include\caffe\layers\cudnn_tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\deconv_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\downpool_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dropout_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dummy_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\eltwise_layer.hpp" />
@@ -244,11 +245,9 @@
     <ClInclude Include="..\include\caffe\layers\power_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\python_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\random_transform_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reduction_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\relu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reshape_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\patch_rank_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\scale_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\sigmoid_cross_entropy_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\sigmoid_layer.hpp" />
@@ -260,7 +259,10 @@
     <ClInclude Include="..\include\caffe\layers\spp_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\threshold_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\tiedconv_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tile_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\ticonv_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\up_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\window_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layer_factory.hpp" />
     <ClInclude Include="..\include\caffe\net.hpp" />

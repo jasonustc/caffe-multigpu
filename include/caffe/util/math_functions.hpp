@@ -49,6 +49,9 @@ void caffe_add_scalar(const int N, const Dtype alpha, Dtype *X);
 template <typename Dtype>
 void caffe_scal(const int N, const Dtype alpha, Dtype *X);
 
+/**
+ * y_i = x_i^2
+ **/
 template <typename Dtype>
 void caffe_sqr(const int N, const Dtype* a, Dtype* y);
 

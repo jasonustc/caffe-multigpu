@@ -7,35 +7,62 @@
 
 #include "boost/algorithm/string.hpp"
 #include "google/protobuf/text_format.h"
-#include "leveldb/db.h"
-#include "leveldb/write_batch.h"
+#include "caffe/util/db.hpp"
 
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
 #include "caffe/net.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
+#include "caffe/util/math_functions.hpp"
 
 using namespace caffe;  // NOLINT(build/namespaces)
+
+#ifdef _MSC_VER
+DEFINE_string(log_dir, "log",
+	"Optional; directory to save log file");
+DEFINE_string(log_name, "caffe.log.",
+	"Optional; name prefix of the log file");
+#endif
+
+DEFINE_bool(sqrt, false,
+	"Optional; if we need to do root square on extracted features.");
+DEFINE_bool(l2_norm, false,
+	"Optional; if we need to do L2 normalization on extracted features.");
 
 template<typename Dtype>
 int feature_extraction_pipeline(int argc, char** argv);
 
 int main(int argc, char** argv) {
-	return feature_extraction_pipeline<float>(argc, argv);
-	//  return feature_extraction_pipeline<double>(argc, argv);
+#ifdef _MSC_VER
+	//set log file directory
+	gflags::ParseCommandLineFlags(&argc, &argv, true);
+	boost::filesystem::create_directory(FLAGS_log_dir);
+	string log_dest = FLAGS_log_dir + "/";
+	::google::SetLogDestination(0, log_dest.c_str());
+	::google::SetLogFilenameExtension(FLAGS_log_name.c_str());
+#endif
+	::google::InitGoogleLogging(argv[0]);
+	::google::SetStderrLogging(0);
+	//return feature_extraction_pipeline<float>(argc, argv);
+	return feature_extraction_pipeline<double>(argc, argv);
+}
+
+template<typename Dtype>
+void L2Normalize(const int dim, Dtype* feat_data){
+	Dtype l2_norm = caffe_cpu_dot<Dtype>(dim, feat_data, feat_data);
+	caffe_scal<Dtype>(dim, Dtype(1. / l2_norm), feat_data);
 }
 
 template<typename Dtype>
 int feature_extraction_pipeline(int argc, char** argv) {
-	::google::InitGoogleLogging(argv[0]);
-	::google::SetStderrLogging(0);
 	const int num_required_args = 6;
 	if (argc < num_required_args) {
 		LOG(ERROR)<<
 			"This program takes in a trained network and an input data layer, and then"
 			" extract features of the input data produced by the net.\n"
-			"Usage: extract_features  pretrained_net_param"
+			"Usage: extract_features  [-log_dir,-log_name,--sqrt,--l2_norm]"
+			" pretrained_net_param"
 			"  feature_extraction_proto_file  extract_feature_blob_name1[,name2,...]"
 			"  save_feature_file_name1[,name2,...]  num_mini_batches  [CPU/GPU]"
 			"  [DEVICE_ID=0]\n"
@@ -116,13 +143,12 @@ int feature_extraction_pipeline(int argc, char** argv) {
 		<< " in the network " << feature_extraction_proto;
 	}
 
-	
-
 	vector<std::ofstream*> feature_dbs;
 	for(int i=0;i<num_features;i++)
 	{
-		LOG(INFO)<<"opening feature files:"<<leveldb_names[i];
-		std::ofstream* db=new std::ofstream(leveldb_names[i]);
+		LOG(INFO) << "opening feature files:" << leveldb_names[i];
+		//output to binary file
+		std::ofstream* db = new std::ofstream(leveldb_names[i], ios::binary);
 		feature_dbs.push_back(db);
 	}
 
@@ -131,7 +157,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
 
 	LOG(INFO)<< "Extacting Features";
 	
-	vector<Blob<float>*> input_vec;
+	vector<Blob<Dtype>*> input_vec;
 	vector<int> image_indices(num_features, 0);
 	for (int batch_index = 0; batch_index < num_mini_batches; ++batch_index) {
 
@@ -140,18 +166,24 @@ int feature_extraction_pipeline(int argc, char** argv) {
 			const boost::shared_ptr<Blob<Dtype> > feature_blob = feature_extraction_net
 				->blob_by_name(blob_names[i]);
 			int batch_size = feature_blob->num();
-//			LOG(INFO) << feature_blob->channels() << "\t" << feature_blob->height() 
-//				<< "\t" << feature_blob->width();
 			int dim_features = feature_blob->count() / batch_size;
-			const Dtype* feature_blob_data;
+			Dtype* feature_blob_data;
 			for (int n = 0; n < batch_size; ++n) {
-				feature_blob_data = feature_blob->cpu_data() +
+				feature_blob_data = feature_blob->mutable_cpu_data() +
 					feature_blob->offset(n);
-				for (int d = 0; d < dim_features; ++d) {
-					*feature_dbs[i]<<feature_blob_data[d]<<' ';   
+				//square root
+				if (FLAGS_sqrt){
+					caffe_powx<Dtype>(dim_features, feature_blob_data,
+						Dtype(0.5), feature_blob_data);
 				}
-				*feature_dbs[i]<<'\n';
-				
+				//l2 norm normalize
+				if (FLAGS_l2_norm){
+					L2Normalize(dim_features, feature_blob_data);
+				}
+				for (int d = 0; d < dim_features; ++d) {
+					*feature_dbs[i] << feature_blob_data[d] << ' ';   
+				}
+//				*feature_dbs[i]<<'\n';
 				++image_indices[i];
 				if (image_indices[i] % 1000 == 0) {
 					LOG(ERROR)<< "Extracted features of " << image_indices[i] <<

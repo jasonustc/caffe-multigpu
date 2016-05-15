@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
 
 template<typename Dtype>
 void L2Normalize(const int dim, Dtype* feat_data){
-	Dtype l2_norm = caffe_cpu_dot<Dtype>(dim, feat_data, feat_data);
+	Dtype l2_norm = caffe_cpu_dot<Dtype>(dim, feat_data, feat_data) + 1e-9;
 	caffe_scal<Dtype>(dim, Dtype(1. / l2_norm), feat_data);
 }
 
@@ -180,9 +180,10 @@ int feature_extraction_pipeline(int argc, char** argv) {
 				if (FLAGS_l2_norm){
 					L2Normalize(dim_features, feature_blob_data);
 				}
-				for (int d = 0; d < dim_features; ++d) {
-					*feature_dbs[i] << feature_blob_data[d] << ' ';   
-				}
+				(*feature_dbs[i]).write((char*)feature_blob_data, sizeof(double)*dim_features);
+//				for (int d = 0; d < dim_features; ++d) {
+//					*feature_dbs[i] << feature_blob_data[d] << ' ';   
+//				}
 //				*feature_dbs[i]<<'\n';
 				++image_indices[i];
 				if (image_indices[i] % 1000 == 0) {

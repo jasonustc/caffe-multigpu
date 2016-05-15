@@ -65,6 +65,7 @@
     <ClCompile Include="..\src\caffe\layers\infogain_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\inner_product_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\input_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\loc_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\log_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\lrn_layer.cpp" />
@@ -73,6 +74,7 @@
     <ClCompile Include="..\src\caffe\layers\mvn_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\neuron_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\pooling_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\power_file_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\power_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prelu_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reduction_layer.cpp" />
@@ -87,6 +89,8 @@
     <ClCompile Include="..\src\caffe\layers\softmax_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\split_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\spp_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\st_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\st_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\threshold_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tile_layer.cpp" />
@@ -144,10 +148,12 @@
     <CudaCompile Include="..\src\caffe\layers\hdf5_output_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\im2col_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\inner_product_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\loc_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\log_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\lrn_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\mvn_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\pooling_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\power_file_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\prelu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\reduction_layer.cu" />
@@ -160,6 +166,8 @@
     <CudaCompile Include="..\src\caffe\layers\softmax_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\softmax_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\split_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\st_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\st_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tanh_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu" />
@@ -215,6 +223,7 @@
     <ClInclude Include="..\include\caffe\layers\infogain_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\inner_product_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\input_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\loc_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\log_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lrn_layer.hpp" />
@@ -223,6 +232,7 @@
     <ClInclude Include="..\include\caffe\layers\mvn_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\neuron_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\pooling_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\power_file_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\power_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\python_layer.hpp" />
@@ -238,6 +248,8 @@
     <ClInclude Include="..\include\caffe\layers\softmax_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\split_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\spp_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\st_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\st_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\threshold_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tile_layer.hpp" />

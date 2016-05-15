@@ -306,7 +306,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 145 (last added: crop_param)
+// LayerParameter next available layer-specific ID: 149 (last added: st_loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -381,11 +381,13 @@ message LayerParameter {
   optional InfogainLossParameter infogain_loss_param = 116;
   optional InnerProductParameter inner_product_param = 117;
   optional InputParameter input_param = 143;
+  optional LocLossParameter loc_loss_param = 147;
   optional LogParameter log_param = 134;
   optional LRNParameter lrn_param = 118;
   optional MemoryDataParameter memory_data_param = 119;
   optional MVNParameter mvn_param = 120;
   optional PoolingParameter pooling_param = 121;
+  optional PowerFileParameter power_file_param = 146;
   optional PowerParameter power_param = 122;
   optional PReLUParameter prelu_param = 131;
   optional PythonParameter python_param = 130;
@@ -395,13 +397,58 @@ message LayerParameter {
   optional ScaleParameter scale_param = 142;
   optional SigmoidParameter sigmoid_param = 124;
   optional SoftmaxParameter softmax_param = 125;
+  optional SpatialTransformerParameter st_param = 145;
   optional SPPParameter spp_param = 132;
+  optional STLossParameter st_loss_param = 148;
   optional SliceParameter slice_param = 126;
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
 }
+
+//Message that stores parameters used to set spatial transformer
+message SpatialTransformerParameter{
+    //How to use the paramter passed by localisation network
+    //TODO: allow other transform types, like projection,...
+    optional string transform_type = 1 [default = "affine"];
+    //sampler type
+    optional string sampler_type = 2 [default = "bilinear"];
+
+    //if not set, keep the same with the input dimension H and W
+    optional int32 output_H = 3;
+    optional int32 output_W = 4;
+
+
+    //if false, only compute dTheta, DO NOT compute dU
+    optional bool to_compute_dU = 5 [default = true];
+
+    //The default value for some parameters
+    optional double theta_1_1 = 6;
+    optional double theta_1_2 = 7;
+    optional double theta_1_3 = 8;
+    optional double theta_2_1 = 9;
+    optional double theta_2_2 = 10;
+    optional double theta_2_3 = 11;
+}
+
+//message that stores parameters for power file
+message PowerFileParameter{
+    optional string shift_file = 1;
+}
+
+//message that stores parameters for Spatial Transformer Loss 
+message STLossParameter{
+    //Indicate the resolution of the output images after ST transformation
+    required int32 output_H = 1;
+    required int32 output_W = 2;
+}
+
+// message that stores parameter for localization loss layer
+message LocLossParameter{
+    required double threshold = 1;
+}
+
 
 // Message that stores parameters used to apply transformation
 // to the data layer's data

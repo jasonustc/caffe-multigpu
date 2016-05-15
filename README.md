@@ -1,6 +1,8 @@
 Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
 supported in this version.
 
+This branch is forked from https://github.com/daerduoCarey/SpatialTransformerLayer, an implementation of Spatitial Transformer Networks.
+
 ## Windows
 Tools:
 

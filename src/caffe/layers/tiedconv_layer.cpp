@@ -8,10 +8,10 @@
 #include <cstdio>
 
 #include "caffe/layer.hpp"
-#include "caffe/layers/tiedconv_layer.hpp"
 #include "caffe/util/im2col.hpp"
 #include "caffe/filler.hpp"
 #include "caffe/util/math_functions.hpp"
+#include "caffe/layers/si_layers.hpp"
 
 namespace caffe {
 
@@ -166,7 +166,7 @@ TiedConvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype> *> &bottom,
       // into column matrix for multplication.
       im2col_cpu(bottom_data + bottom[i]->offset(n), channels_, height_[i],
                  width_[i], kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_,
-                 stride_w_, col_data);
+                 stride_w_, 1, 1, col_data);
       // Take innerproduct for groups.
       for (int g = 0; g < group_; ++g) {
         caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_[i], K_,
@@ -205,7 +205,7 @@ TiedConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype> *> &bottom,
       // First, im2col
       im2col_gpu(bottom_data + bottom[i]->offset(n), channels_, height_[i],
                  width_[i], kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_,
-                 stride_w_, col_data);
+                 stride_w_, 1, 1, col_data);
       // Second, innerproduct with groups.
       for (int g = 0; g < group_; ++g) {
         caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_[i], K_,
@@ -278,7 +278,7 @@ TiedConvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype> *> &top,
 	// data, we will need to recompute them.
 	im2col_cpu(bottom_data + bottom[i]->offset(n), channels_, height_[i],
 		   width_[i], kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_,
-		   stride_w_, col_data);
+		   stride_w_, 1, 1, col_data);
 	// gradient w.r.t. weight. Note that we will accumulate diffs.
 	// AJ: propagate error Delta W_ij = error from above * this_activation^T
         if (this->param_propagate_down_[0]) {
@@ -304,7 +304,7 @@ TiedConvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype> *> &top,
 	  }
 	  // col2im back to the data
 	  col2im_cpu(col_data, channels_, height_[i], width_[i], kernel_h_,
-		     kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_,
+		     kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_, 1, 1,
 		     bottom_diff + bottom[i]->offset(n));
 	}
       }
@@ -361,7 +361,7 @@ TiedConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype> *> &top,
 	// we will need to recompute them.
 	im2col_gpu(bottom_data + bottom[i]->offset(n), channels_, height_[i],
                    width_[i], kernel_h_, kernel_w_, pad_h_, pad_w_,
-                   stride_h_, stride_w_, col_data);
+                   stride_h_, stride_w_, 1, 1,  col_data);
 	// gradient w.r.t. weight. Note that we will accumulate diffs.
         if (this->param_propagate_down_[0]) {
 	  for (int g = 0; g < group_; ++g) {
@@ -385,7 +385,7 @@ TiedConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype> *> &top,
 	  }
 	  // col2im back to the data
 	  col2im_gpu(col_data, channels_, height_[i], width_[i], kernel_h_,
-		     kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_,
+		     kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_, 1, 1,
 		     bottom_diff + bottom[i]->offset(n));
 	}
       }

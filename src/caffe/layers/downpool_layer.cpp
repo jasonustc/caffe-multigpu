@@ -4,16 +4,16 @@
 #include <algorithm>
 
 #include "caffe/layer.hpp"
-#include "caffe/layers/downpool_layer.hpp"
 #include "caffe/util/math_functions.hpp"
 #include "caffe/util/transformation.hpp"
+#include "caffe/layers/si_layers.hpp"
 
 namespace caffe {
 
 template <typename Dtype>
 void DownPoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype> *> &bottom,
                                          const vector<Blob<Dtype> *> &top) {
-  CHECK_EQ(top->size(), 1)
+  CHECK_EQ(top.size(), 1)
       << "DownPooling Layer takes a single blob as output.";
   this->NUM_T_ = this->layer_param_.transformations_size();
   CHECK_EQ(bottom.size(), this->NUM_T_) << "DownPooling Layer's input must be "
@@ -37,11 +37,11 @@ void DownPoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype> *> &bottom,
   top_buffer_.resize(NUM_T_);
   int height_new = 0, width_new = 0;
   // Empty placeholder for 0th scale
-  coord_idx_[0].reset(new Blob<float>(1, 1, 1, 1, false));
+  coord_idx_[0].reset(new Blob<float>(1, 1, 1, 1));
 
   // Blob that will hold the coordinates of inverse transformation (tmp
   // placeholder buffer before cropping)
-  Blob<float> *inverse_coord = new Blob<float>(false);
+  Blob<float> *inverse_coord = new Blob<float>();
 
   for (int i = 1; i < this->NUM_T_; ++i) {
     // Compute Tmat that gives inverse transformations to undo the
@@ -55,11 +55,11 @@ void DownPoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype> *> &bottom,
     // Transforms into canonical shape
     switch (INTERP_) {
     case NN:
-      coord_idx_[i].reset(new Blob<float>(1, 1, HEIGHT_ * WIDTH_, 1, false));
+      coord_idx_[i].reset(new Blob<float>(1, 1, HEIGHT_ * WIDTH_, 1));
       break;
     case BILINEAR:
       coord_idx_[i].reset(
-          new Blob<float>(1, 1, HEIGHT_ * WIDTH_ * 4, 1, false));
+          new Blob<float>(1, 1, HEIGHT_ * WIDTH_ * 4, 1));
       break;
     default:
       LOG(FATAL) << "Unknown pooling method.";
@@ -73,7 +73,7 @@ void DownPoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype> *> &bottom,
                coord_idx_[i]->mutable_cpu_data());
 
     top_buffer_[i].reset(
-        new Blob<Dtype>(NUM_OUTPUT_, CHANNEL_OUTPUT_, HEIGHT_, WIDTH_, false));
+        new Blob<Dtype>(NUM_OUTPUT_, CHANNEL_OUTPUT_, HEIGHT_, WIDTH_));
   }
 
   delete inverse_coord;
@@ -136,12 +136,13 @@ void DownPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype> *> &bottom,
     break;
   }
   // Count usage.
-  int counter_data[NUM_T_];
+  int* counter_data = new int[NUM_T_];
   for (int t = 0; t < NUM_T_; ++t) {
     counter_data[t] = std::count(switch_data, switch_data + top_count, t);
   }
   // Save the % usage info.
   UpdateCounter(counter_data, top_count);
+  delete counter_data;
 }
 
 template <typename Dtype>
@@ -187,9 +188,10 @@ void DownPoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype> *> &bottom,
   // Count usage
   // This will probably slow down GPU bc memory switch data has to be copied
   // over to cpu..
-  int counter_data[NUM_T_];
+  int* counter_data = new int[NUM_T_];
   CountSwitches(switch_data, switch_idx_.count(), NUM_T_, counter_data);
   UpdateCounter(counter_data, top_count);
+  delete counter_data;
 
   // Report("");
   // cv::waitKey(0);

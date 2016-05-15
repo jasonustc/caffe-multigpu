@@ -216,7 +216,6 @@
     <ClInclude Include="..\include\caffe\layers\cudnn_tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\deconv_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\downpool_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dropout_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dummy_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\eltwise_layer.hpp" />
@@ -252,6 +251,7 @@
     <ClInclude Include="..\include\caffe\layers\sigmoid_cross_entropy_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\sigmoid_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\silence_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\si_layers.hpp" />
     <ClInclude Include="..\include\caffe\layers\slice_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\softmax_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\softmax_loss_layer.hpp" />
@@ -259,10 +259,7 @@
     <ClInclude Include="..\include\caffe\layers\spp_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\threshold_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\tiedconv_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tile_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\ticonv_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\up_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\window_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layer_factory.hpp" />
     <ClInclude Include="..\include\caffe\net.hpp" />

@@ -206,6 +206,21 @@ class Blob {
     return cpu_diff()[offset(index)];
   }
 
+  inline void set_data_at(Dtype newData, const int n, const int c, const int h,
+	  const int w){
+	  *(mutable_cpu_data() + offset(n, c, h, w)) = newData;
+  }
+
+  inline void set_diff_at(Dtype newDiff, const int n, const int c, const int h,
+	  const int w){
+	  *(mutable_cpu_diff() + offset(n, c, h, w)) = newDiff;
+  }
+
+  inline void add_diff_at(Dtype newDiff, const int n, const int c, const int h,
+	  const int w){
+	  *(mutable_cpu_diff() + offset(n, c, h, w)) += newDiff;
+  }
+
   inline const shared_ptr<SyncedMemory>& data() const {
     CHECK(data_);
     return data_;

@@ -8,7 +8,7 @@
 #include "caffe/util/im2col.hpp"
 #include "caffe/filler.hpp"
 #include "caffe/util/math_functions.hpp"
-#include "caffe/layers/ticonv_layer.hpp"
+#include "caffe/layers/si_layers.hpp"
 
 namespace caffe {
 

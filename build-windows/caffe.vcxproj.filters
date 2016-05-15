@@ -836,16 +836,7 @@
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\up_layer.hpp">
-      <Filter>include\layers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\ticonv_layer.hpp">
-      <Filter>include\layers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\downpool_layer.hpp">
-      <Filter>include\layers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\tiedconv_layer.hpp">
+    <ClInclude Include="..\include\caffe\layers\si_layers.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
   </ItemGroup>

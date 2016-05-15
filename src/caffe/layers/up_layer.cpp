@@ -2,9 +2,9 @@
 #include <vector>
 
 #include "caffe/layer.hpp"
-#include "caffe/layers/up_layer.hpp"
 #include "caffe/util/math_functions.hpp"
 #include "caffe/util/transformation.hpp"
+#include "caffe/layers/si_layers.hpp"
 
 namespace caffe {
 

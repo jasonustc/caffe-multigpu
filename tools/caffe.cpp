@@ -394,7 +394,6 @@ int time() {
 RegisterBrewFunction(time);
 
 int main(int argc, char** argv) {
-
 #ifdef _MSC_VER
 	//set log file directory
 	gflags::ParseCommandLineFlags(&argc, &argv, false);

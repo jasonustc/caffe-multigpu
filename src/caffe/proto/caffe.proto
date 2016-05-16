@@ -59,6 +59,9 @@ message FillerParameter {
     AVERAGE = 2;
   }
   optional VarianceNorm variance_norm = 8 [default = FAN_IN];
+
+  //store file path for initialization coefficients
+  optional string file = 9;
 }
 
 message NetParameter {

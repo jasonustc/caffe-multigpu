@@ -128,9 +128,6 @@ void TIConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype> *> &top,
                                               const vector<Blob<Dtype> *>& bottom) {
   // Down first
   downpool_layer_->Backward_gpu(top, propagate_down, tiedconv_top_vec_);
-  LOG(INFO) << tiedconv_top_vec_.size();
-  LOG(INFO) << up_top_vec_.size();
-  LOG(INFO) << bottom.size();
   // Tied
   tiedconv_layer_->Backward_gpu(tiedconv_top_vec_, propagate_down,
                                         up_top_vec_);

@@ -263,7 +263,10 @@ TiedConvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype> *> &top,
             1., bias_diff);
       }
     }
-    if (this->param_propagate_down_[0] || propagate_down[i]) {
+	// refined by xu shen, because TIConvolution layer
+	// only have one bottom, so size of propagate_down is 1,
+	// when i > 1, vector will be out of range.
+    if (this->param_propagate_down_[0] || propagate_down[0]) {
       if (!top_diff) {
         top_diff = top[i]->cpu_diff();
       }
@@ -292,7 +295,10 @@ TiedConvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype> *> &top,
 	}
 	// gradient w.r.t. bottom data, if necessary
 	// AJ: error here = W*error from above
-	if (propagate_down[i]) {
+	// refined by xu shen, because TIConvolution layer
+	// only have one bottom, so size of propagate_down is 1,
+	// when i > 1, vector will be out of range.
+	if (propagate_down[0]) {
           if (weight == NULL) {
             weight = this->blobs_[0]->cpu_data();
           }
@@ -346,7 +352,10 @@ TiedConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype> *> &top,
             1., bias_diff);
       }
     }
-    if (this->param_propagate_down_[0] || propagate_down[i]) {
+	// refined by xu shen, because TIConvolution layer
+	// only have one bottom, so size of propagate_down is 1,
+	// when i > 1, vector will be out of range.
+    if (this->param_propagate_down_[0] || propagate_down[0]) {
       if (!top_diff) {
         top_diff = top[i]->gpu_diff();
       }
@@ -373,7 +382,10 @@ TiedConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype> *> &top,
 	  }
 	}
 	// gradient w.r.t. bottom data, if necessary
-	if (propagate_down[i]) {
+	// refined by xu shen, because TIConvolution layer
+	// only have one bottom, so size of propagate_down is 1,
+	// when i > 1, vector will be out of range.
+	if (propagate_down[0]) {
           if (weight == NULL) {
             weight = this->blobs_[0]->gpu_data();
           }

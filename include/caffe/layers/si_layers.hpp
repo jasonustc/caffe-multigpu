@@ -110,7 +110,7 @@ namespace caffe{
 	template <typename Dtype> class DownPoolingLayer : public Layer<Dtype> {
 	public:
 		explicit DownPoolingLayer(const LayerParameter &param)
-			: Layer<Dtype>(param), switch_idx_(0, 0, 0, false) {}
+			: Layer<Dtype>(param){}
 		// Same as Upsample, Reshape does nothing, everythin is done in LayerSetUp.
 		virtual void LayerSetUp(const vector<Blob<Dtype> *> &bottom,
 			const vector<Blob<Dtype> *> &top);

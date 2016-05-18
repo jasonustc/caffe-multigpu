@@ -36,6 +36,7 @@ namespace caffe{
 				caffe_rng_uniform(1, -shift_pixels_y, shift_pixels_y, &curr_shift_y_);
 				TMatFromParam(SHIFT, curr_shift_x_, curr_shift_y_, tmat_cpu_data);
 			}
+			break;
 		//TODO: check if the threshold of the parameters are reasonable
 		case RandTransformParameter_SampleType_GAUSSIAN:
 			if (need_rotation_){
@@ -91,12 +92,12 @@ namespace caffe{
 			need_rotation_ = rotation_ && (Rand(2) == 1);
 			need_shift_ = shift_ && (Rand(2) == 1);
 			//0.5 probability to apply transformations
-            if ((scale_ + shift_ + rotation_) > 1){
-                rand_ = Rand(2);
-            }
-            else{
-                rand_ = 1;
-            }
+			if ((scale_ + shift_ + rotation_) > 1){
+				rand_ = Rand(2);
+			}
+			else{
+				rand_ = 1;
+			}
 		}
 		bool not_need_transform = (!need_shift_ && !need_scale_ && !need_rotation_) 
 			|| this->phase_ == TEST || (needs_rand_ && rand_ == 0);

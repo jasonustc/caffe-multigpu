@@ -44,13 +44,17 @@ int main(int argc, char** argv) {
 #endif
 	::google::InitGoogleLogging(argv[0]);
 	::google::SetStderrLogging(0);
-	//return feature_extraction_pipeline<float>(argc, argv);
-	return feature_extraction_pipeline<double>(argc, argv);
+	return feature_extraction_pipeline<float>(argc, argv);
+	//return feature_extraction_pipeline<double>(argc, argv);
 }
 
+/*
+ * x_i = x_i / ||x||_2
+ */
 template<typename Dtype>
 void L2Normalize(const int dim, Dtype* feat_data){
 	Dtype l2_norm = caffe_cpu_dot<Dtype>(dim, feat_data, feat_data) + 1e-9;
+	l2_norm = sqrt(l2_norm);
 	caffe_scal<Dtype>(dim, Dtype(1. / l2_norm), feat_data);
 }
 
@@ -120,6 +124,8 @@ int feature_extraction_pipeline(int argc, char** argv) {
 	top: "fc7"
 	}
 	*/
+	vector<int> test;
+	LOG(INFO) << test.size();
 	string feature_extraction_proto(argv[++arg_pos]);
 	boost::shared_ptr<Net<Dtype> > feature_extraction_net(
 		new Net<Dtype>(feature_extraction_proto, caffe::TEST));
@@ -148,7 +154,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
 	{
 		LOG(INFO) << "opening feature files:" << leveldb_names[i];
 		//output to binary file
-		std::ofstream* db = new std::ofstream(leveldb_names[i], ios::binary);
+		std::ofstream* db = new std::ofstream(leveldb_names[i]);
 		feature_dbs.push_back(db);
 	}
 
@@ -180,11 +186,11 @@ int feature_extraction_pipeline(int argc, char** argv) {
 				if (FLAGS_l2_norm){
 					L2Normalize(dim_features, feature_blob_data);
 				}
-				(*feature_dbs[i]).write((char*)feature_blob_data, sizeof(double)*dim_features);
-//				for (int d = 0; d < dim_features; ++d) {
-//					*feature_dbs[i] << feature_blob_data[d] << ' ';   
-//				}
-//				*feature_dbs[i]<<'\n';
+//				(*feature_dbs[i]).write((char*)feature_blob_data, sizeof(double)*dim_features);
+				for (int d = 0; d < dim_features; ++d) {
+					*feature_dbs[i] << feature_blob_data[d] << ' ';   
+				}
+				*feature_dbs[i]<<'\n';
 				++image_indices[i];
 				if (image_indices[i] % 1000 == 0) {
 					LOG(ERROR)<< "Extracted features of " << image_indices[i] <<

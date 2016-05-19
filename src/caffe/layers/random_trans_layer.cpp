@@ -193,7 +193,6 @@ namespace caffe{
 		const int count = bottom[0]->count();
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		Dtype* top_data = top[0]->mutable_cpu_data();
-		const int channels = bottom[0]->channels();
 		//randomly decide to apply transformations
 		if (needs_rand_){
 			need_scale_ = scale_ && (Rand(2) == 1);

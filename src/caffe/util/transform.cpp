@@ -44,8 +44,6 @@ namespace caffe{
 		tmat[4] += 1;
 		tmat[8] = 1;
 		tmat[2] = tmat[5] = 0;
-		LOG(INFO) << tmat[6];
-		LOG(INFO) << tmat[7];
 	}
 
 	/*

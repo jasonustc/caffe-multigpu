@@ -339,7 +339,7 @@
     <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\extract_features2files.cpp" />
+    <ClCompile Include="..\test\test_random_transform_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

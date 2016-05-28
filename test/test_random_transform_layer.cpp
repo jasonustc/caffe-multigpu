@@ -9,6 +9,7 @@
 #include "caffe/test/test_gradient_check_util.hpp"
 #include "caffe/test/test_caffe_main.hpp"
 #include "caffe/layers/random_transform_layer.hpp"
+#include "opencv2/opencv.hpp"
 
 
 namespace caffe{
@@ -24,61 +25,47 @@ namespace caffe{
 		void TestSetUp(){
 			shared_ptr<Layer<Dtype>> layer(new RandomTransformLayer<Dtype>(layer_param_));
 			layer->SetUp(bottom_, top_);
-			CHECK_EQ(top_[0]->shape(0), 1);
-			CHECK_EQ(top_[0]->shape(1), 1);
-			CHECK_EQ(top_[0]->shape(2), 4);
-			CHECK_EQ(top_[0]->shape(3), 4);
+//			CHECK_EQ(top_[0]->shape(0), 1);
+//			CHECK_EQ(top_[0]->shape(3), 1);
+//			CHECK_EQ(top_[0]->shape(2), 4);
+//			CHECK_EQ(top_[0]->shape(3), 4);
 		}
 
-		void TestCPUForward(){
+		void TestForward(caffe::Caffe::Brew mode){
 			shared_ptr<Layer<Dtype>> layer(new RandomTransformLayer<Dtype>(layer_param_));
-			Caffe::set_mode(Caffe::CPU);
+			Caffe::set_mode(mode);
 			layer->SetUp(bottom_, top_);
 			layer->Forward(bottom_, top_);
-			const Dtype* x_data = x_->cpu_data();
-			const Dtype* top_data = top_[0]->cpu_data();
-			//check rotation
-			//NOTE: a little bit different with rotation in matlab for small angles
-			for (int i = 0; i < 4; i++){
-				for (int j = 0; j < 4; j++){
-					cout << top_data[i * 4 + j] << "\t";
-				}
-				cout << "\n";
-			}
-//			CHECK_EQ(x_data[0], top_data[6]);
-//			CHECK_EQ(x_data[1], top_data[3]);
-//			CHECK_EQ(x_data[2], top_data[0]);
-//			CHECK_EQ(x_data[3], top_data[7]);
-//			CHECK_EQ(x_data[4], top_data[4]);
-//			CHECK_EQ(x_data[5], top_data[2]);
-//			CHECK_EQ(x_data[6], top_data[8]);
-//			CHECK_EQ(x_data[7], top_data[5]);
-//			CHECK_EQ(x_data[8], top_data[2]);
-		}
-
-		void TestGPUForward(){
-			shared_ptr<Layer<Dtype>> layer(new RandomTransformLayer<Dtype>(layer_param_));
-			layer->SetUp(bottom_, top_);
-			Caffe::set_mode(Caffe::GPU);
+			cv::Mat transImg;
+			x_trans_->ToMat(transImg, CV_8U);
+			cv::imshow("transImg", transImg);
+			cv::imwrite("transImg1.jpg", transImg);
+			cv::waitKey();
 			layer->Forward(bottom_, top_);
-			const Dtype* x_data = x_->cpu_data();
-			const Dtype* top_data = top_[0]->cpu_data();
-			for (int i = 0; i < 4; i++){
-				for (int j = 0; j < 4; j++){
-					cout << top_data[i * 4 + j] << "\t";
-				}
-				cout << "\n";
-			}
-			//check rotation
-//			CHECK_EQ(x_data[0], top_data[6]);
-//			CHECK_EQ(x_data[1], top_data[3]);
-//			CHECK_EQ(x_data[2], top_data[0]);
-//			CHECK_EQ(x_data[3], top_data[7]);
-//			CHECK_EQ(x_data[4], top_data[4]);
-//			CHECK_EQ(x_data[5], top_data[2]);
-//			CHECK_EQ(x_data[6], top_data[8]);
-//			CHECK_EQ(x_data[7], top_data[5]);
-//			CHECK_EQ(x_data[8], top_data[2]);
+			x_trans_->ToMat(transImg, CV_8U);
+			cv::imshow("transImg", transImg);
+			cv::imwrite("transImg2.jpg", transImg);
+			cv::waitKey();
+			layer->Forward(bottom_, top_);
+			x_trans_->ToMat(transImg, CV_8U);
+			cv::imshow("transImg", transImg);
+			cv::imwrite("transImg3.jpg", transImg);
+			cv::waitKey();
+			layer->Forward(bottom_, top_);
+			x_trans_->ToMat(transImg, CV_8U);
+			cv::imshow("transImg", transImg);
+			cv::imwrite("transImg4.jpg", transImg);
+			cv::waitKey();
+			layer->Forward(bottom_, top_);
+			x_trans_->ToMat(transImg, CV_8U);
+			cv::imshow("transImg", transImg);
+			cv::imwrite("transImg5.jpg", transImg);
+			cv::waitKey();
+			layer->Forward(bottom_, top_);
+			x_trans_->ToMat(transImg, CV_8U);
+			cv::imshow("transImg", transImg);
+			cv::imwrite("transImg6.jpg", transImg);
+			cv::waitKey();
 		}
 
 		void TestCPUGradients(){
@@ -92,9 +79,6 @@ namespace caffe{
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
 			LOG(INFO) << top_[0]->count();
 			checker.CheckGradientExhaustive(&layer, bottom_, top_);
-//			for (int i = 0; i < top_[0]->count(); i++){
-//				checker.CheckGradientSingle(&layer, bottom_, top_, 0, 0, i);
-//			}
 		}
 
 		void TestGPUGradients(){
@@ -110,22 +94,8 @@ namespace caffe{
 		
 	protected:
 		void SetUp(){
-			vector<int> x_shape;
-			x_shape.push_back(1);
-			x_shape.push_back(1);
-			x_shape.push_back(4);
-			x_shape.push_back(4);
-			x_->Reshape(x_shape);
-			FillerParameter filler_param;
-			filler_param.set_value(0.1);
-			ConstantFiller<Dtype> filler(filler_param);
-			filler.Fill(x_);
-			Dtype* x_data = x_->mutable_cpu_data();
-			for (int i = 0; i < 4; i++){
-				for (int j = 0; j < 4; j++){
-					x_data[i * 4 + j] = i * 4 + j;
-				}
-			}
+			cv::Mat img = cv::imread("ILSVRC2012_val_00000001.JPEG", true);
+			x_->FromMat(img);
 			bottom_.push_back(x_);
 			top_.push_back(x_trans_);
 			propagate_down_.resize(1, true);
@@ -140,14 +110,19 @@ namespace caffe{
 //			layer_param_.mutable_rand_trans_param()->set_start_scale(0.3);
 //			layer_param_.mutable_rand_trans_param()->set_end_scale(0.7);
 			//gaussian
-			layer_param_.mutable_rand_trans_param()->set_sample_type(RandTransformParameter_SampleType_GAUSSIAN);
-			layer_param_.mutable_rand_trans_param()->set_std_angle(30);
-			layer_param_.mutable_rand_trans_param()->set_std_scale(0.1);
-			layer_param_.mutable_rand_trans_param()->set_std_dx_prop(0.2);
-			layer_param_.mutable_rand_trans_param()->set_std_dy_prop(0.2);
-			layer_param_.mutable_rand_trans_param()->set_max_scale(0.3);
-			layer_param_.mutable_rand_trans_param()->set_max_shift_prop(0.3);
-			layer_param_.mutable_rand_trans_param()->set_alternate(true);
+//			layer_param_.mutable_rand_trans_param()->set_sample_type(RandTransformParameter_SampleType_GAUSSIAN);
+//			layer_param_.mutable_rand_trans_param()->set_std_angle(30);
+//			layer_param_.mutable_rand_trans_param()->set_std_scale(0.1);
+//			layer_param_.mutable_rand_trans_param()->set_std_dx_prop(0.2);
+//			layer_param_.mutable_rand_trans_param()->set_std_dy_prop(0.2);
+//			layer_param_.mutable_rand_trans_param()->set_max_scale(0.3);
+//			layer_param_.mutable_rand_trans_param()->set_max_shift_prop(0.3);
+//			layer_param_.mutable_rand_trans_param()->set_alternate(true);
+			//totally random
+			layer_param_.mutable_rand_trans_param()->set_sample_type(RandTransformParameter_SampleType_UNIFORM);
+			layer_param_.mutable_rand_trans_param()->set_total_random(true);
+			layer_param_.mutable_rand_trans_param()->set_rand_param1(-0.3);
+			layer_param_.mutable_rand_trans_param()->set_rand_param2(0.3);
 		}
 
 		Blob<Dtype>* x_;
@@ -164,11 +139,12 @@ namespace caffe{
 }
 
 int main(int argc, char** argv){
+	::google::InitGoogleLogging(argv[0]);
+	FLAGS_alsologtostderr = true;
+	::google::SetStderrLogging(0);
 	caffe::RandomTransformTest<float> test;
 	test.TestSetUp();
-	test.TestCPUForward();
-	test.TestCPUGradients();
-//	test.TestGPUForward();
-//	test.TestGPUGradients();
+//	test.TestForward(caffe::Caffe::GPU);
+	test.TestForward(caffe::Caffe::CPU);
 	return 0;
 }

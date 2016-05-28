@@ -36,6 +36,12 @@ namespace caffe{
 				caffe_rng_uniform(1, -shift_pixels_y, shift_pixels_y, &curr_shift_y_);
 				TMatFromParam(SHIFT, curr_shift_x_, curr_shift_y_, tmat_cpu_data);
 			}
+			if (total_random_){
+				TMatFromRandom(tmat_cpu_data, caffe::UNIFORM, start_angle_, end_angle_);
+				//change from proportion of shift to #pixels
+				tmat_cpu_data[6] *= Height_;
+				tmat_cpu_data[7] *= Width_;
+			}
 			break;
 		//TODO: check if the threshold of the parameters are reasonable
 		case RandTransformParameter_SampleType_GAUSSIAN:
@@ -66,6 +72,12 @@ namespace caffe{
 				curr_shift_y_ = curr_shift_y_ < max_shift_pixels_height ? curr_shift_y_ : max_shift_pixels_height;
 				curr_shift_y_ = curr_shift_y_ > (-max_shift_pixels_height) ? curr_shift_y_ : (-max_shift_pixels_height);
 				TMatFromParam(SHIFT, curr_shift_x_, curr_shift_y_, tmat_cpu_data);
+			}
+			if (total_random_){
+				TMatFromRandom(tmat_cpu_data, caffe::GAUSSIAN, start_angle_, end_angle_);
+				//change from proportion of shift to #pixels
+				tmat_cpu_data[6] *= Height_;
+				tmat_cpu_data[7] *= Width_;
 			}
 			break;
 		default:
@@ -99,7 +111,8 @@ namespace caffe{
 				rand_ = 1;
 			}
 		}
-		bool not_need_transform = (!need_shift_ && !need_scale_ && !need_rotation_) 
+		bool not_need_transform = (!need_shift_ && !need_scale_ && 
+			!need_rotation_ && !total_random_) 
 			|| this->phase_ == TEST || (needs_rand_ && rand_ == 0);
 		//if there are no random transformations, we just copy bottom data to top blob
 		//in test phase, we don't do any transformations
@@ -120,8 +133,8 @@ namespace caffe{
 		const int count = top[0]->count();
 		const Dtype* top_diff = top[0]->gpu_diff();
 		Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-		bool not_need_transform = (!need_shift_ && !need_scale_ && !need_rotation_)
-			||(needs_rand_ && rand_ == 0);
+		bool not_need_transform = (!need_shift_ && !need_scale_ 
+			&& !need_rotation_ && !total_random_) ||(needs_rand_ && rand_ == 0);
 		//Reset bottom diff.
 		caffe_gpu_set(count, Dtype(0.), bottom_diff);
 		if (propagate_down[0]){

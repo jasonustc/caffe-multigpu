@@ -26,6 +26,28 @@ using std::max;
 
 namespace caffe{
 
+	void TMatFromRandom(float* tmat, RandType randType, float param1, float param2){
+		std::fill(tmat, tmat + 9, 0);
+		switch (randType){
+		case caffe::GAUSSIAN:
+			caffe_rng_gaussian<float>(9, param1, param2, tmat);
+			break;
+		case caffe::UNIFORM:
+			caffe_rng_uniform<float>(9, param1, param2, tmat);
+			break;
+		default:
+			LOG(FATAL) << "Unkown random type";
+			break;
+		}
+		//only add noise to identity matrix
+		tmat[0] += 1;
+		tmat[4] += 1;
+		tmat[8] = 1;
+		tmat[2] = tmat[5] = 0;
+		LOG(INFO) << tmat[6];
+		LOG(INFO) << tmat[7];
+	}
+
 	/*
 	 *Compute the transformation parameters in transform matrix
 	 * 1) trans_type == ROTATION, rotation angle is stored in param1

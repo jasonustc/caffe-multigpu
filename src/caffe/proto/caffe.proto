@@ -448,6 +448,10 @@ message RandTransformParameter{
     // if we need to randomly determine the transform type
     // not apply transformations for all the training samples
     optional bool alternate = 17 [default = false];
+    // if we need to generate totally random parameters
+    optional bool total_random = 18 [default = false];
+    optional float rand_param1 = 19;
+    optional float rand_param2 = 20;
 }
 
 

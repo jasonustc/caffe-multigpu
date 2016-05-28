@@ -842,5 +842,8 @@
     <ClInclude Include="..\include\caffe\layers\patch_rank_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\caffe\util\transform.hpp">
+      <Filter>include\util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -18,10 +18,12 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		Layer<Dtype>::LayerSetUp(bottom, top);
 		sample_type_ = this->layer_param_.rand_trans_param().sample_type();
+		total_random_ = this->layer_param_.rand_trans_param().total_random();
 		CHECK_EQ(bottom.size(), 1) << "RandomTranform Layer only takes one single blob as input.";
 		CHECK_EQ(top.size(), 1) << "RandomTransform Layer only takes one single blob as output.";
 		LOG(INFO) << "Random Transform Layer using border type: " << this->layer_param_.rand_trans_param().border()
 			<< ", using interpolation: " << this->layer_param_.rand_trans_param().interp();
+		LOG_IF(INFO, total_random_) << "Generate totally indenpendent and ranom transform parameters";
 		switch (sample_type_){
 		case RandTransformParameter_SampleType_UNIFORM:
 			rotation_ = this->layer_param_.rand_trans_param().has_start_angle() &&
@@ -90,6 +92,14 @@ namespace caffe{
 			LOG(FATAL) << "Unkown sampling type";
 			break;
 		}
+		if (total_random_){
+			//just use start_angle_ and end_angle_ for buffer
+			//there are already too much parameters...
+			CHECK(this->layer_param_.rand_trans_param().has_rand_param1());
+			CHECK(this->layer_param_.rand_trans_param().has_rand_param2());
+			start_angle_ = this->layer_param_.rand_trans_param().rand_param1();
+			end_angle_ = this->layer_param_.rand_trans_param().rand_param2();
+		}
 		Height_ = bottom[0]->height();
 		Width_ = bottom[0]->width();
 		BORDER_ = static_cast<Border>(this->layer_param_.rand_trans_param().border());
@@ -144,6 +154,12 @@ namespace caffe{
 				caffe_rng_uniform(1, -shift_pixels_y, shift_pixels_y, &curr_shift_y_);
 				TMatFromParam(SHIFT, curr_shift_x_, curr_shift_y_, tmat_data);
 			}
+			if (total_random_){
+				TMatFromRandom(tmat_data, caffe::UNIFORM, start_angle_, end_angle_);
+				//change from proportion of shift to #pixels
+				tmat_data[6] *= Height_;
+				tmat_data[7] *= Width_;
+			}
 			break;
 		case RandTransformParameter_SampleType_GAUSSIAN:
 			if (need_rotation_){
@@ -173,6 +189,12 @@ namespace caffe{
 				curr_shift_y_ = curr_shift_y_ < max_shift_pixels_height ? curr_shift_y_ : max_shift_pixels_height;
 				curr_shift_y_ = curr_shift_y_ > (-max_shift_pixels_height) ? curr_shift_y_ : (-max_shift_pixels_height);
 				TMatFromParam(SHIFT, curr_shift_x_, curr_shift_y_, tmat_data);
+			}
+			if (total_random_){
+				TMatFromRandom(tmat_data, caffe::GAUSSIAN, start_angle_, end_angle_);
+				//change from proportion of shift to #pixels
+				tmat_data[6] *= Height_;
+				tmat_data[7] *= Width_;
 			}
 			break;
 		default:
@@ -206,7 +228,8 @@ namespace caffe{
 				rand_ = 1;
 			}
 		}
-		bool not_need_transform = (!need_shift_ && !need_scale_ && !need_rotation_) 
+		bool not_need_transform = (!need_shift_ && !need_scale_ && 
+			!need_rotation_ && !total_random_) 
 			|| this->phase_ == TEST || (needs_rand_ && rand_ == 0);
 		//if there are no random transformations, we just copy bottom data to top blob
 		//in test phase, we just don't do any transformations
@@ -231,7 +254,8 @@ namespace caffe{
 		const int count = top[0]->count();
 		CHECK_EQ(bottom[0]->count(), top[0]->count());
 		Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-		bool not_need_transform = (!need_shift_ && !need_scale_ && !need_rotation_)
+		bool not_need_transform = (!need_shift_ && !need_scale_ && 
+			!need_rotation_ && !total_random_)
 			||(needs_rand_ && rand_ == 0);
 		//we must set all bottom diffs to zero before the backpropagation
 		caffe_set(count, Dtype(0.), bottom_diff);

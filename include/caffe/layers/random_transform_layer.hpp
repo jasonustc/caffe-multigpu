@@ -72,6 +72,8 @@ namespace caffe{
 		bool rotation_;
 		bool scale_;
 		bool shift_;
+		//if we totally generate transformation matrix randomly and indepently
+		bool total_random_;
 
 		int Height_;
 		int Width_;

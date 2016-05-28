@@ -46,6 +46,12 @@ inline void caffe_memset(const size_t N, const int alpha, void* X) {
 template <typename Dtype>
 void caffe_add_scalar(const int N, const Dtype alpha, Dtype *X);
 
+/*
+ * clip X_is into [lower, higher]
+ */
+template <typename Dtype>
+void caffe_clip(const int N, const Dtype lower, const Dtype higher, Dtype *X);
+
 template <typename Dtype>
 void caffe_scal(const int N, const Dtype alpha, Dtype *X);
 

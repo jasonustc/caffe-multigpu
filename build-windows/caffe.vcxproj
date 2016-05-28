@@ -288,6 +288,7 @@
     <ClInclude Include="..\include\caffe\util\mkl_alternate.hpp" />
     <ClInclude Include="..\include\caffe\util\rng.hpp" />
     <ClInclude Include="..\include\caffe\util\signal_handler.h" />
+    <ClInclude Include="..\include\caffe\util\transform.hpp" />
     <ClInclude Include="..\include\caffe\util\upgrade_proto.hpp" />
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h" />
     <ClInclude Include="..\src\gtest\gtest.h" />

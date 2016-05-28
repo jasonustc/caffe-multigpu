@@ -83,6 +83,15 @@ void caffe_add_scalar(const int N, const double alpha, double* Y) {
 }
 
 template <typename Dtype>
+void caffe_clip(const int N, const Dtype lower, const Dtype higher, Dtype *X){
+	for (int i = 0; i < N; ++i){
+		X[i] = X[i] < lower ? lower : (X[i] > higher ? higher : X[i]);
+	}
+}
+template void caffe_clip(const int N, const float lower, const float higher, float *X);
+template void caffe_clip(const int N, const double lower, const double higher, double *X);
+
+template <typename Dtype>
 void caffe_copy(const int N, const Dtype* X, Dtype* Y) {
   if (X != Y) {
     if (Caffe::mode() == Caffe::GPU) {

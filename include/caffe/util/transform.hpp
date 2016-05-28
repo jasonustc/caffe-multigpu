@@ -26,6 +26,7 @@ namespace caffe{
 
 	enum Direction {RIGHT, LEFT};
 	enum TransType {ROTATION, SCALE, SHIFT};
+	enum RandType { GAUSSIAN, UNIFORM};
 
 	//Crop is zero-padding, CLAMP is border replicate, REFLECT is mirror.
 	enum Border {CROP, CLAMP, REFLECT};
@@ -33,6 +34,14 @@ namespace caffe{
 
 	//compute parameters in transformation matrix by given transform type
 	void TMatFromParam(TransType transType, const float param1, const float param2, float *tmat, bool invert = false);
+	/*
+	 * @brief generate at most 8 totally random parameters for transformation
+	 *        parameters are generated from N(\mu, \sigma^2) or U[a,b]
+	 * @param RandType: UNIFORM or GAUSSIAN
+	 * @param param1: mu for GAUSSIAN and a for UNIFORM
+	 * @param param2: std for GAUSSIAN and b for UNIFORM
+	 */
+	void TMatFromRandom(float* tmat, RandType randType, float param1, float param2);
 
 	//matrix is multiplied to the existing one from the right
 	void AddRotation(const float &angle, float *mat, const Direction dir = RIGHT);

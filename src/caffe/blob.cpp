@@ -584,6 +584,7 @@ void Blob<float>::ToTxt(string file_name, bool write_diff){
 template<typename Dtype>
 void Blob<Dtype>::FromTxt(string file_name){
 	std::ifstream in(file_name.c_str());
+	CHECK(in.is_open());
 	int num, channels, height, width;
 	in >> num;
 	in >> channels;

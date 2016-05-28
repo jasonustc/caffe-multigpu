@@ -9,6 +9,10 @@
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/syncedmem.hpp"
 
+#ifdef USE_OPENCV
+#include "opencv2/opencv.hpp"
+#endif
+
 const int kMaxBlobAxes = 32;
 
 namespace caffe {
@@ -230,6 +234,17 @@ class Blob {
   void FromProto(const BlobProto& proto, bool reshape = true);
   void ToProto(BlobProto* proto, bool write_diff = false) const;
   void ToTxt(string file_name, bool write_diff = false);
+  void FromTxt(string file_name);
+#ifdef USE_OPENCV
+  /*
+   * @param type: type of the opencv mat: CV_8U or CV_32F
+   */
+  void ToMat(cv::Mat& mat, const int depth);
+  /*
+   * For simplicity, only mat with depth CV_8U or CV_32F is allowd
+   */
+  void FromMat(cv::Mat& mat);
+#endif
 
   /// @brief Compute the sum of absolute values (L1 norm) of the data.
   Dtype asum_data() const;

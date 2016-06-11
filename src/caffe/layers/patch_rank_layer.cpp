@@ -163,6 +163,7 @@ namespace caffe{
 		CHECK_GT(split_num_, 0);
 		energy_type_ = this->layer_param_.patch_rank_param().energy_type();
 		consistent_ = this->layer_param_.patch_rank_param().consistent();
+		LOG_IF(INFO, consistent_) << "keep the energy order consistent across channels";
 		for (int i = 0; i < pyramid_height_; ++i){
 			block_infos_.push_back(new Blob<Dtype>());
 			block_offsets_.push_back(new Blob<Dtype>());

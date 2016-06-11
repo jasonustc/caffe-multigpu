@@ -413,7 +413,10 @@ message PatchRankParameter{
     }
     optional EnergyType energy_type = 1 [default = L2];
     optional int32 pyramid_height = 2;
+    //in each level, we split into block_num * block_num local patches
     optional int32 block_num = 3;
+    //if the reordering needs to be consistent across feature maps
+    optional bool consistent = 4 [default = false];
 }
 
 //Message that stores parameters used to do random transformation

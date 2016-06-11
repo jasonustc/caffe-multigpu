@@ -88,6 +88,39 @@ namespace caffe{
 		}
 	}
 
+	/*
+	 * nthreads = num * height * width
+	 */
+	template <typename Dtype>
+	__global__ void MergeAcrossChannel(int nthreads, int num,
+		int channels, int height, int width, Dtype* energy_data){
+		CUDA_KERNEL_LOOP(index, nthreads){
+			int w = index % width;
+			int h = (index / width) % height;
+			int n = index / height / width;
+			Dtype sum = 0;
+			for (int c = 0; c < channels; ++c){
+				sum += energy_data[((n * channels + c) * height + h) * width + w];
+			}
+			for (int c = 0; c < channels; ++c){
+				energy_data[((n * channels + c) * height + h) * width + w] = sum;
+			}
+		}
+	}
+
+	template<typename Dtype>
+	void PatchRankLayer<Dtype>::MergeEnergyAcrossMaps_gpu(){
+		Dtype* energy_data = block_infos_[0]->mutable_gpu_data();
+		int num = block_infos_[0]->num();
+		int channels = block_infos_[0]->channels();
+		int height = block_infos_[0]->height();
+		int width = block_infos_[0]->width();
+		int nthreads = num * height * width;
+		MergeAcrossChannel << <CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS >> >(nthreads,
+			num, channels, height, width, energy_data);
+		CUDA_POST_KERNEL_CHECK;
+	}
+
   /*
    * nthreads = num_ * channels_ * block_num * block_num
    * each thread get energy of blockes of given pyramid level
@@ -157,6 +190,9 @@ namespace caffe{
 			break;
 		default:
 			LOG(FATAL) << "Unkown energy type.";
+		}
+		if (consistent_){
+			MergeEnergyAcrossMaps_gpu();
 		}
 		for (int p = 1; p < pyramid_height_; ++p){
 			int count = block_infos_[p]->count();

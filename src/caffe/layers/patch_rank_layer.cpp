@@ -55,8 +55,32 @@ namespace caffe{
 					}//for (int bw = 0; bw < num_unit_block_; ++bw)
 				}//for (int bh = 0; bh < num_unit_block_; ++bh)
 				energy_data += block_infos_[0]->offset(0, 1);
+				bottom_data += bottom[0]->offset(0, 1);
 			}//for (int c = 0; c < channels_; ++c)
 		}//for (int n = 0; n < num_; ++n)
+	}
+
+	template <typename Dtype>
+	void PatchRankLayer<Dtype>::MergeEnergyAcrossMaps_cpu(){
+		Dtype* energy_data = block_infos_[0]->mutable_cpu_data();
+		const int num = block_infos_[0]->num();
+		const int channels = block_infos_[0]->channels();
+		const int height = block_infos_[0]->height();
+		const int width = block_infos_[0]->width();
+		for (int n = 0; n < num; ++n){
+			for (int h = 0; h < height; ++h){
+				for (int w = 0; w < width; ++w){
+					Dtype sum = 0; 
+					for (int c = 0; c < channels; ++c){
+						sum += energy_data[(c * height + h) * width + w];
+					}
+					for (int c = 0; c < channels; ++c){
+						energy_data[(c * height + h) * width + w] = sum;
+					}
+				}//for (int w = 0; w < width; ++w)
+			}//for (int h = 0; h < height; ++h)
+			energy_data += block_infos_[0]->offset(1);
+		}//for (int n = 0; n < num; ++n)
 	}
 
 	/*
@@ -138,6 +162,7 @@ namespace caffe{
 		split_num_ = this->layer_param_.patch_rank_param().block_num();
 		CHECK_GT(split_num_, 0);
 		energy_type_ = this->layer_param_.patch_rank_param().energy_type();
+		consistent_ = this->layer_param_.patch_rank_param().consistent();
 		for (int i = 0; i < pyramid_height_; ++i){
 			block_infos_.push_back(new Blob<Dtype>());
 			block_offsets_.push_back(new Blob<Dtype>());
@@ -172,6 +197,9 @@ namespace caffe{
 	void PatchRankLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		GetBlockEnergy_cpu(bottom);
+		if (consistent_){
+			MergeEnergyAcrossMaps_cpu();
+		}
 		GetBlockOffset_cpu();
 		const Dtype* offset_w_data = block_offsets_[0]->cpu_data();
 		const Dtype* offset_h_data = block_offsets_[0]->cpu_diff();

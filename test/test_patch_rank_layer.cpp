@@ -75,18 +75,21 @@ namespace caffe{
 			vector<int> x_shape;
 			x_shape.push_back(2);
 			x_shape.push_back(3);
-			x_shape.push_back(9);
-			x_shape.push_back(10);
+			x_shape.push_back(2);
+			x_shape.push_back(2);
 			x_->Reshape(x_shape);
-			FillerParameter filler_param;
-			filler_param.set_value(0.1);
-			ConstantFiller<Dtype> filler(filler_param);
-			filler.Fill(x_);
 			Dtype* x_data = x_->mutable_cpu_data();
-			for (int c = 0; c < 6; ++c){
-				for (int i = 0; i < 9; i++){
-					for (int j = 0; j < 10; j++){
-						x_data[c * 90 + i * 10 + j] = j * 10 + i;
+			for (int c = 0; c < 3; ++c){
+				for (int i = 0; i < 2; i++){
+					for (int j = 0; j < 2; j++){
+						x_data[c * 4 + i * 2 + j] = j * 2 + i;
+					}
+				}
+			}
+			for (int c = 0; c < 3; ++c){
+				for (int i = 0; i < 2; i++){
+					for (int j = 0; j < 2; j++){
+						x_data[12 + c * 4 + i * 2 + j] = i * 2 + j;
 					}
 				}
 			}
@@ -98,7 +101,8 @@ namespace caffe{
 			layer_param_.mutable_patch_rank_param()->set_block_num(2);
 			layer_param_.mutable_patch_rank_param()->set_energy_type(
 				PatchRankParameter_EnergyType_L1);
-			layer_param_.mutable_patch_rank_param()->set_pyramid_height(2);
+			layer_param_.mutable_patch_rank_param()->set_pyramid_height(1);
+			layer_param_.mutable_patch_rank_param()->set_consistent(true);
 		}
 
 		Blob<Dtype>* x_;
@@ -119,9 +123,9 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::PatchRankLayerTest<float> test;
 //	test.TestSetUp();
-//	test.TestForward(caffe::Caffe::CPU);
+	test.TestForward(caffe::Caffe::CPU);
 //	test.TestGradients(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
-	test.TestGradients(caffe::Caffe::GPU);
+//	test.TestGradients(caffe::Caffe::GPU);
 	return 0;
 }

@@ -40,9 +40,12 @@ namespace caffe{
 		 * @brief get energy of given block by norm of activations
 		 **/
 		virtual void GetBlockEnergy_cpu(const vector<Blob<Dtype>*>& bottom);
+		//energy of each block is summed across feature maps
+		void MergeEnergyAcrossMaps_cpu();
 		//not support virtual function?
 //		virtual void GetBlockEnergy_gpu(const vector<Blob<Dtype>*>& bottom);
 		void GetBlockEnergy_gpu(const vector<Blob<Dtype>*>& bottom);
+		void MergeEnergyAcrossMaps_gpu();
 
 		/**
 		 * @brief first split image[start_x, start_y, end_x, end_y] 
@@ -62,6 +65,8 @@ namespace caffe{
 		int num_unit_block_;
 		int num_;
 		int channels_;
+		//if the order across feature maps need to be consistent
+		bool consistent_;
 		PatchRankParameter_EnergyType energy_type_;
 
 		/*
@@ -79,6 +84,7 @@ namespace caffe{
 		 * offset w after patch rank will be saved into data
 		 * offset h after patch rank will be saved into diff
 		 */
+		//NOTE: maybe int is more efficient for memory usage
 		vector<Blob<Dtype>*> block_offsets_;
 
 		Blob<Dtype> test_data_;

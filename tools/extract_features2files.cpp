@@ -154,7 +154,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
 	{
 		LOG(INFO) << "opening feature files:" << leveldb_names[i];
 		//output to binary file
-		std::ofstream* db = new std::ofstream(leveldb_names[i]);
+		std::ofstream* db = new std::ofstream(leveldb_names[i].c_str());
 		feature_dbs.push_back(db);
 	}
 

@@ -806,10 +806,7 @@
     <ClInclude Include="..\include\caffe\layers\rnn_base_layer.hpp">
       <Filter>include\layers\lstm</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\lstm_new_unit_layer.hpp">
-      <Filter>include\layers\lstm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\lstm_new_layer.hpp">
+    <ClInclude Include="..\include\caffe\layers\dec_lstm_layer.hpp">
       <Filter>include\layers\lstm</Filter>
     </ClInclude>
   </ItemGroup>

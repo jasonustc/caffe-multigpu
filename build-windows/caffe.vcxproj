@@ -202,6 +202,7 @@
     <ClInclude Include="..\include\caffe\layers\cudnn_tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\deconv_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\dec_lstm_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dropout_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dummy_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\eltwise_layer.hpp" />
@@ -223,8 +224,6 @@
     <ClInclude Include="..\include\caffe\layers\loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lrn_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lstm_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\lstm_new_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\lstm_new_unit_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lstm_unit_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\memory_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\multinomial_logistic_loss_layer.hpp" />

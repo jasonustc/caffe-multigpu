@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "leveldb/db.h"
+#include "caffe/util/db.hpp"
 #include "boost/scoped_ptr.hpp"
 
 #include "caffe/blob.hpp"

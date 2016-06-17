@@ -123,6 +123,7 @@ namespace caffe{
 			layer_param_.mutable_rand_trans_param()->set_total_random(true);
 			layer_param_.mutable_rand_trans_param()->set_rand_param1(-0.3);
 			layer_param_.mutable_rand_trans_param()->set_rand_param2(0.3);
+			layer_param_.mutable_rand_trans_param()->set_alternate(true);
 		}
 
 		Blob<Dtype>* x_;
@@ -144,7 +145,7 @@ int main(int argc, char** argv){
 	::google::SetStderrLogging(0);
 	caffe::RandomTransformTest<float> test;
 	test.TestSetUp();
-//	test.TestForward(caffe::Caffe::GPU);
-	test.TestForward(caffe::Caffe::CPU);
+	test.TestForward(caffe::Caffe::GPU);
+//	test.TestForward(caffe::Caffe::CPU);
 	return 0;
 }

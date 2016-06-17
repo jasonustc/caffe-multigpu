@@ -105,9 +105,11 @@ namespace caffe{
 		BORDER_ = static_cast<Border>(this->layer_param_.rand_trans_param().border());
 		INTERP_ = static_cast<Interp>(this->layer_param_.rand_trans_param().interp());
 		InitRand();
-		need_scale_ = scale_;
-		need_rotation_ = rotation_;
-		need_shift_ = shift_;
+		need_scale_ = scale_ && !total_random_;
+		need_rotation_ = rotation_ && !total_random_;
+		need_shift_ = shift_ && !total_random_;
+		CHECK(need_scale_ || need_rotation_ || need_shift_ || total_random_)
+			<< "at least 1 type of transform should be setted";
 	}
 
 	template <typename Dtype>
@@ -221,7 +223,7 @@ namespace caffe{
 			need_rotation_ = rotation_ && (Rand(2) == 1);
 			need_shift_ = shift_ && (Rand(2) == 1);
             // keep 0.5 probability to apply transformations
-			if ((scale_ + rotation_ + shift_) > 1){
+			if (total_random_ || (scale_ + rotation_ + shift_) > 1){
 				rand_ = Rand(2);
 			}
 			else{

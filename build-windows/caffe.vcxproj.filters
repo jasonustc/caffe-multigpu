@@ -31,11 +31,8 @@
     <Filter Include="include\layers">
       <UniqueIdentifier>{802fafb2-be05-4b9a-94f3-27b9b5cddcb0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\layers\lstm">
-      <UniqueIdentifier>{1b48e598-b0d7-45a7-a3d3-fb73a82ccefc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\layers\lstm">
-      <UniqueIdentifier>{89470449-cbc8-4116-a7e9-607613f7043a}</UniqueIdentifier>
+    <Filter Include="src\solvers">
+      <UniqueIdentifier>{dd1d1f47-2a1a-4945-99b8-16e9ab761e98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -316,14 +313,23 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\lstm_unit_layer.cpp">
-      <Filter>src\layers\lstm</Filter>
+    <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
+      <Filter>src\solvers</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\lstm_layer.cpp">
-      <Filter>src\layers\lstm</Filter>
+    <ClCompile Include="..\src\caffe\solvers\adagrad_solver.cpp">
+      <Filter>src\solvers</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\rnn_base_layer.cpp">
-      <Filter>src\layers\lstm</Filter>
+    <ClCompile Include="..\src\caffe\solvers\adam_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\nesterov_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
+      <Filter>src\solvers</Filter>
     </ClCompile>
     <ClCompile Include="..\src\caffe\layers\dec_lstm_layer.cpp">
       <Filter>src\layers\lstm</Filter>
@@ -486,8 +492,23 @@
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\lstm_unit_layer.cu">
-      <Filter>src\layers\lstm</Filter>
+    <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\adagrad_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\adam_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\nesterov_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\rmsprop_solver.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu">
+      <Filter>src\solvers</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

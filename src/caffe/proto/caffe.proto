@@ -408,8 +408,8 @@ message LayerParameter {
 message RecurrentParameter{
     // if we use groundtruth x_t for prediction of x_{t+1}
     optional bool conditional = 1 [default = true];
-    // if we decoding in an reversed order
-    optional bool reverse = 2 [default = true];
+    // the decode output dim
+    optional int32 output_dim = 2;
 }
 
 // Message that stores parameters used to apply transformation

@@ -36,6 +36,9 @@ namespace caffe {
 		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 			const vector<Blob<Dtype>*>& top);
 
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
 		virtual inline const char* type() const { return "LSTM"; }
 
 		virtual vector<Blob<Dtype>*> RecurrentOutput()
@@ -47,7 +50,12 @@ namespace caffe {
 			return output;
 		}
 
+
 	protected:
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 		virtual void RecurrentForward(const int t);
 		virtual void RecurrentBackward(const int t);
 		virtual void CopyRecurrentOutput()
@@ -82,6 +90,8 @@ namespace caffe {
 		}
 
 		int bias_term_;
+		bool out_ct_;
+
 		//Data blobs
 		shared_ptr<Blob<Dtype> > C0_;
 		shared_ptr<Blob<Dtype> > H0_;
@@ -108,6 +118,12 @@ namespace caffe {
 		// lstm_unit_h_ layer
 		shared_ptr<LSTMUnitLayer<Dtype> > lstm_unit_;
 		vector<shared_ptr<Blob<Dtype> > > C_;
+
+		// concat_ct_ layer, used for decoding LSTM
+		shared_ptr<ConcatLayer<Dtype> > concat_ct_;
+		shared_ptr<SplitLayer<Dtype> > split_c_;
+		vector<shared_ptr<Blob<Dtype> > > C_1_;
+		vector<shared_ptr<Blob<Dtype> > > C_2_;
 	};
 }  // namespace caffe
 

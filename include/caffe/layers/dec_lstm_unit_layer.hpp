@@ -1,3 +1,10 @@
+/********************************************************************************
+** Copyright(c) 2016 USTC All Rights Reserved.
+** auth£º Xu Shen
+** mail£º shenxuustc@gmail.com
+** date£º 2016/06/22
+** desc£º DLSTMUnit layer
+*********************************************************************************/
 #ifndef CAFFE_DEC_LSTM_UNIT_LAYER_
 #define CAFFE_DEC_LSTM_UNIT_LAYER_
 
@@ -26,7 +33,7 @@ namespace caffe{
 		explicit DLSTMUnitLayer<Dtype>(const LayerParameter& param)
 			: Layer<Dtype>(param){}
 
-		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
 			const vector<Blob<Dtype>*>& top);
 		virtual inline const char* type() const { return "DLSTMUnit"; }
 

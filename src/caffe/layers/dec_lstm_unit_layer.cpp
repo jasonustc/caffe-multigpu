@@ -30,7 +30,7 @@ namespace caffe{
 			CHECK_EQ(1, bottom[i]->shape(0));
 			CHECK_EQ(num_instances, bottom[i]->shape(1));
 		}
-		hidden_dim_ = bottom[0]->shape[2];
+		hidden_dim_ = bottom[0]->shape(2);
 		CHECK_EQ(4 * hidden_dim_, bottom[1]->shape(2));
 		top[0]->ReshapeLike(*bottom[0]);
 		top[1]->ReshapeLike(*bottom[0]);
@@ -45,8 +45,8 @@ namespace caffe{
 		const int x_dim = 4 * hidden_dim_;
 		const Dtype* C_prev = bottom[0]->cpu_data();
 		const Dtype* X = bottom[1]->cpu_data();
-		const Dtype* C = top[0]->cpu_data();
-		const Dtype* H = top[1]->cpu_data();
+		Dtype* C = top[0]->mutable_cpu_data();
+		Dtype* H = top[1]->mutable_cpu_data();
 		for (int n = 0; n < num; ++n){
 			for (int d = 0; d < hidden_dim_; ++d){
 				const Dtype i = sigmoid(X[d]);

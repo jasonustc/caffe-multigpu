@@ -87,9 +87,9 @@ namespace caffe{
 			const Dtype tanh_c = tanh(c);
 			Dtype* X_diff_offset = X_diff + 4 * dim * n;
 			Dtype* i_diff = X_diff_offset + d;
-			Dtype* f_diff = X_diff_offset + hidden_dim_ + d;
-			Dtype* o_diff = X_diff_offset + 2 * hidden_dim_ + d;
-			Dtype* g_diff = X_diff_offset + 3 * hidden_dim_ + d;
+			Dtype* f_diff = X_diff_offset + dim + d;
+			Dtype* o_diff = X_diff_offset + 2 * dim + d;
+			Dtype* g_diff = X_diff_offset + 3 * dim + d;
 			Dtype* c_prev_diff = C_prev_diff + d;
 			Dtype h_diff = H_diff[d];
 			Dtype c_diff = C_diff[d];
@@ -124,7 +124,7 @@ namespace caffe{
 		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom){
 		const Dtype* C_prev = bottom[0]->gpu_data();
 		const Dtype* X = bottom[1]->gpu_data();
-		Dtype* X_acts = X_acts_.gpu_data();
+		Dtype* X_acts = X_acts_.mutable_gpu_data();
 		const Dtype* H_diff = top[1]->gpu_diff();
 		const Dtype* C_diff = top[0]->gpu_diff();
 		const Dtype* C = top[0]->gpu_data();
@@ -137,12 +137,16 @@ namespace caffe{
 		DLSTMActsForward<Dtype> << <CAFFE_GET_BLOCKS(x_count), CAFFE_CUDA_NUM_THREADS >> >(
 			x_count, hidden_dim_, X, X_acts);
 		CUDA_POST_KERNEL_CHECK;
-		DLSTMUnitBackward<Dtype> << <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS> >> (
+		DLSTMUnitBackward<Dtype> // NOLINT_NEXT_LINE(whitespace/operators)
+			<< <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>> > (
 			count, hidden_dim_, C_prev, X, C, C_diff, H_diff, C_prev_diff, X_acts_diff);
 		CUDA_POST_KERNEL_CHECK;
-		DLSTMActsBackward<Dtype> << <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS> >> (
+		DLSTMActsBackward<Dtype> // NOLINT_NEXT_LINE(whitespace/operators)
+			<< <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>> > (
 			x_count, hidden_dim_, X_acts, X_acts_diff, X_diff);
 		CUDA_POST_KERNEL_CHECK;
 	}
+
+	INSTANTIATE_LAYER_GPU_FUNCS(DLSTMUnitLayer);
 
 } // namespace caffe

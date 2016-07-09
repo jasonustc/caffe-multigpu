@@ -13,30 +13,24 @@
 #include <utility>
 #include <vector>
 
-#include "caffe/util/db.hpp"
 #include "boost/scoped_ptr.hpp"
 
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
-#include "caffe/net.hpp"
 
 #include "caffe/layers/slice_layer.hpp"
 #include "caffe/layers/concat_layer.hpp"
-
-#include "caffe/layers/argmax_layer.hpp"
-#include "caffe/layers/reshape_layer.hpp"
-#include "caffe/layers/embed_layer.hpp"
 #include "caffe/layers/inner_product_layer.hpp"
+#include "caffe/layers/split_layer.hpp"
 
 namespace caffe{
 	/*
 	 * for implementation of DLSTM
 	 * input:
 	 *      c_init_, h_init_, cont_, X_ (if conditional)
-	 * here cont_ is used to infer the decoding sequence length, this
-	 * is needed to deal with variour sequence length in X_
+	 * TODO: deal with changed continuation indicators accross different batches
 	 */
 	template <typename Dtype>
 	class DRNNBaseLayer : public Layer<Dtype>{
@@ -45,6 +39,8 @@ namespace caffe{
 			: Layer<Dtype>(param){}
 
 		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
 			const vector<Blob<Dtype>*>& top);
 
 		virtual inline int MinBottomBlobs() const { return 3; }
@@ -63,26 +59,16 @@ namespace caffe{
 			const vector<bool>& propagate_down,
 			const vector<Blob<Dtype>*>& bottom);
 
-		virtual inline void InferSeqLengths(Blob<Dtype>* cont);
-
-		virtual void RecurrentForward(const int t) = 0;
-		virtual void RecurrentBackward(const int t) = 0;
-		virtual void ReorderDecodeInput(const vector<Blob<Dtype>*>& bottom);
-		virtual void ReorderDecodeOutpout(const Blob<Dtype>* cont);
+		virtual void RecurrentForward(const int t, const int cont_t, const int seq_id) = 0;
+		virtual void RecurrentBackward(const int t, const int cont_t, const int seq_id) = 0;
 		virtual void ShareWeight() = 0;
-		//NOTE: maybe not needed
-		virtual int GetHiddenDim() = 0;
 
 		int hidden_dim_;
 		//number of sequences
 		int num_seq_;
 		int T_;
-		bool reverse_;
 		bool conditional_;
-
-		// to infer length of seqences from cont_
-		// NOTE: may not need
-		vector<int> seq_lens_;
+		int output_dim_;
 
 		// slice_h_ layer
 		shared_ptr<SliceLayer<Dtype> > slice_h_;
@@ -96,17 +82,25 @@ namespace caffe{
 		shared_ptr<SliceLayer<Dtype> > slice_x_;
 		vector<shared_ptr<Blob<Dtype> > > X_;
 
-		// concat_h_ layer
-		shared_ptr<ConcatLayer<Dtype> > concat_h_dec_;
-		vector<shared_ptr<Blob<Dtype> > > H_DEC_;
-		
-		// internal split layers
-		vector<shared_ptr<SplitLayer<Dtype> > > split_layers_;
+		// concat_y_ layer
+		shared_ptr<ConcatLayer<Dtype> > concat_y_;
 
-		// To store the buffer of the output
-		vector<shared_ptr<Blob<Dtype> > > decode_output_;
-		vector<shared_ptr<Blob<Dtype> > > decode_input_;
+		// innerproduct layer to produce output
+		shared_ptr<InnerProductLayer<Dtype> > ip_h_;
+		vector<shared_ptr<Blob<Dtype> > > Y_;
+		
+		// output predictions
+		// if not conditional, we need to feed prediction of last 
+		// time as current input
+		shared_ptr<SplitLayer<Dtype> >  split_y_;
+		vector<shared_ptr<Blob<Dtype> > > Y_1_;
+		vector<shared_ptr<Blob<Dtype> > > Y_2_;
+
+		// zero blob for the input of the beginning
 		shared_ptr<Blob<Dtype> > zero_blob_;
+
+		// hidden states
+		vector<shared_ptr<Blob<Dtype> > > H_;
 	};
 }
 

@@ -1,3 +1,10 @@
+/********************************************************************************
+** Copyright(c) 2016 USTC All Rights Reserved.
+** auth£º Xu Shen
+** mail£º shenxuustc@gmail.com
+** date£º 2016/06/22
+** desc£º DLSTM layer
+*********************************************************************************/
 #ifndef CAFFE_DEC_LSTM_LAYER_HPP_
 #define CAFFE_DEC_LSTM_LAYER_HPP_
 
@@ -10,8 +17,8 @@
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/net.hpp"
 
-#include "caffe/layers/rnn_base_layer.hpp"
-#include "caffe/layers/lstm_unit_layer.hpp"
+#include "caffe/layers/drnn_base_layer.hpp"
+#include "caffe/layers/dec_lstm_unit_layer.hpp"
 
 #include "caffe/layers/slice_layer.hpp"
 #include "caffe/layers/split_layer.hpp"
@@ -22,50 +29,51 @@
 namespace caffe{
 	/*
 	 * @brief Implementation of Decoding LSTM
+	 * TODO: deal with param_propagate_down_ and propagate_down
 	 */
 	template <typename Dtype>
-	class DLSTMLayer : public RNNBaseLayer<Dtype>{
+	class DLSTMLayer : public DRNNBaseLayer<Dtype>{
 	public:
 		explicit DLSTMLayer(const LayerParameter& param)
 			: DRNNBaseLayer<Dtype>(param){}
 		virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 			const vector<Blob<Dtype>*>& top);
+		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+
 		virtual inline const char* type() const { return "DLSTM"; }
-		//C0_, H0_
-		virtual inline int ExactNumBottomBlobs() const { return 2; }
+		//C0_, H0_, X_ if needed
+		virtual inline int MinBottomBlobs() const { return 2; }
+		virtual inline int MaxBottomBlobs() const { return 3; }
 
 	protected:
-		virtual void RecurrentForward(const int t);
-		virtual void RecurrentBackward(const int t);
-		virtual void ReverseForward();
-		virtual void ReverseBackward();
+		virtual void RecurrentForward(const int t, const int cont_t, const int seq_id);
+		virtual void RecurrentBackward(const int t, const int cont_t, const int seq_id);
 
 		virtual void ShareWeight(){
-			ip_g_->blobs()[0]->ShareData(*(blobs_[0]));
-			ip_g_->blobs()[0]->ShareDiff(*(blobs_[0]));
+			ip_h_->blobs()[0]->ShareData(*(blobs_[0]));
+			ip_h_->blobs()[0]->ShareDiff(*(blobs_[0]));
+			ip_g_->blobs()[0]->ShareData(*(blobs_[1]));
+			ip_g_->blobs()[0]->ShareDiff(*(blobs_[1]));
 			if (bias_term_){
-				ip_g_->blobs()[1]->ShareData(*(blobs_[1]));
-				ip_g_->blobs()[1]->ShareDiff(*(blobs_[1]));
+				ip_h_->blobs()[1]->ShareData(*(blobs_[2]));
+				ip_h_->blobs()[1]->ShareDiff(*(blobs_[2]));
+				ip_g_->blobs()[1]->ShareData(*(blobs_[3]));
+				ip_g_->blobs()[1]->ShareDiff(*(blobs_[3]));
 			}
 		}
 
 		int bias_term_;
 
-		//Data blobs
-		shared_ptr<Blob<Dtype> > C0_;
-		shared_ptr<Blob<Dtype> > H0_;
-
 		//Layers
 		// split_h_ layer
 		// split LSTMUnit output (h_1, h_2, ..., h_T)
+		// one for output and one for input of next cell
 		shared_ptr<SplitLayer<Dtype> > split_h_;
-		//what is this for?
 		vector<shared_ptr<Blob<Dtype> > > H_1_;
 		vector<shared_ptr<Blob<Dtype> > > H_2_;
 
-		// scale_h_ layer
-		shared_ptr<ScaleLayer<Dtype> > scale_h_;
-		vector<shared_ptr<Blob<Dtype> > >  SH_;
+		// if not conditional_, we need to feed h into next cell as input
 
 		// concat_h_ layer
 		// concat i_x and i_h
@@ -76,7 +84,7 @@ namespace caffe{
 		shared_ptr<InnerProductLayer<Dtype> > ip_g_;
 		vector<shared_ptr<Blob<Dtype> > > G_;
 
-		// lstm_unit_h_ layer
+		// dlstm_unit_h_ layer
 		shared_ptr<DLSTMUnitLayer<Dtype> > dlstm_unit_;
 		vector<shared_ptr<Blob<Dtype> > > C_;
 	};

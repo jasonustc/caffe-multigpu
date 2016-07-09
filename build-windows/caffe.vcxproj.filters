@@ -312,6 +312,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="..\src\caffe\layers\random_trans_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
@@ -321,6 +322,8 @@
     <ClCompile Include="..\src\caffe\layers\patch_rank_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
+=======
+>>>>>>> master
     <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
@@ -339,7 +342,10 @@
     <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="..\tools\caffe.cpp" />
+=======
+>>>>>>> master
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -495,6 +501,7 @@
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
+<<<<<<< HEAD
     <CudaCompile Include="..\src\caffe\layers\random_trans_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
@@ -504,6 +511,8 @@
     <CudaCompile Include="..\src\caffe\layers\patch_rank_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
+=======
+>>>>>>> master
     <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu">
       <Filter>src\solvers</Filter>
     </CudaCompile>

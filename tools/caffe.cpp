@@ -49,9 +49,9 @@ DEFINE_string(sighup_effect, "snapshot",
              "snapshot, stop or none.");
 
 #ifdef _MSC_VER
-DEFINE_string(log_dir, "log directory",
+DEFINE_string(log_dir, "log",
 	"Optional; directory to save log file");
-DEFINE_string(log_name, "log file name",
+DEFINE_string(log_name, "caffe.log.",
 	"Optional; name prefix of the log file");
 #endif
 

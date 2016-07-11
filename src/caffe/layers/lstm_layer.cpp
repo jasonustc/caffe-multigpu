@@ -185,20 +185,18 @@ namespace caffe {
 	void LSTMLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		RNNBaseLayer<Dtype>::Reshape(bottom, top);
-		const vector<int> h_shape{
-			1,
-			bottom[0]->shape(1),
-			hidden_dim_
-		};
 		//length of the sequence has changed
 		if (H_.size() != C_.size()){
+			const vector<int> h_shape{
+				1,
+				bottom[0]->shape(1),
+				hidden_dim_
+			};
 			C_.resize(T_);
+			C_1_.resize(T_);
 			for (int t = 0; t < T_; ++t)
 			{
 				C_[t].reset(new Blob<Dtype>(h_shape));
-			}
-			C_1_.resize(T_);
-			for (int t = 0; t < T_; ++t){
 				C_1_[t].reset(new Blob<Dtype>(h_shape));
 			}
 			if (out_ct_){
@@ -213,7 +211,7 @@ namespace caffe {
 					C_1_[t]->ShareDiff(*(C_[t].get()));
 				}
 			}
-		}
+		}// if (H_.size() != C_.size())
 	}
 
 	template <typename Dtype>

@@ -37,8 +37,8 @@ namespace caffe{
 			const vector<Blob<Dtype>*>& top);
 		virtual inline const char* type() const { return "DLSTMUnit"; }
 
-		//c_{t-1}(D), X_{t-1}(4D) 
-		virtual inline int ExactNumBottomBlobs() const { return 3; }
+		//c_{t-1}(D), X_{t-1}(4D)
+		virtual inline int ExactNumBottomBlobs() const { return 2; }
 		virtual inline int ExactNumTopBlobs() const { return 2; }
 
 	protected:

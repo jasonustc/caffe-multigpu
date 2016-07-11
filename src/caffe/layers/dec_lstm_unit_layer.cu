@@ -17,7 +17,7 @@ namespace caffe{
 
 	template <typename Dtype>
 	__device__ Dtype relu(Dtype x){
-		return x > 0 ? x : 0;
+		return (x > 0 ? x : 0);
 	}
 
 	template <typename Dtype>
@@ -43,13 +43,13 @@ namespace caffe{
 			const int d = index % dim;
 			const Dtype* X_offset = X + 4 * dim * n;
 			const Dtype i = X_offset[d];
-			const Dtype f = X_offset[dim + d];
+			const Dtype f = X_offset[1 * dim + d];
 			const Dtype o = X_offset[2 * dim + d];
 			const Dtype g = X_offset[3 * dim + d];
-			const Dtype c = f * C_prev[d] + i * g;
-			C[d] = c;
+			const Dtype c = f * C_prev[index] + i * g;
+			C[index] = c;
 			const Dtype tanh_c = tanh(c);
-			H[d] = o * tanh_c;
+			H[index] = o * tanh_c;
 		}
 	}
 
@@ -63,9 +63,11 @@ namespace caffe{
 		Dtype* H = top[1]->mutable_gpu_data();
 		const int count = bottom[0]->count();
 		const int x_count = bottom[1]->count();
+		// NOLINT_NEXT_LINE(whitespace/operators)
 		DLSTMActsForward<Dtype> << <CAFFE_GET_BLOCKS(x_count), CAFFE_CUDA_NUM_THREADS >> >(
 			x_count, hidden_dim_, X, X_acts);
 		CUDA_POST_KERNEL_CHECK;
+		// NOLINT_NEXT_LINE(whitespace/operators)
 		DLSTMUnitForward<Dtype> << < CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
 			count, hidden_dim_, C_prev, X_acts, C, H);
 		CUDA_POST_KERNEL_CHECK;
@@ -78,27 +80,28 @@ namespace caffe{
 		CUDA_KERNEL_LOOP(index, nthreads){
 			const int n = index / dim;
 			const int d = index % dim;
-			const Dtype* X_offset = X + 4 * dim * n;
+			const int offset = 4 * dim * n;
+			const Dtype* X_offset = X + offset;
+			Dtype* X_diff_offset = X_diff + offset;
 			const Dtype i = X_offset[d];
-			const Dtype f = X_offset[dim + d];
+			const Dtype f = X_offset[1 * dim + d];
 			const Dtype o = X_offset[2 * dim + d];
 			const Dtype g = X_offset[3 * dim + d];
-			const Dtype c = C[d];
+			const Dtype c = C[index];
 			const Dtype tanh_c = tanh(c);
-			Dtype* X_diff_offset = X_diff + 4 * dim * n;
 			Dtype* i_diff = X_diff_offset + d;
-			Dtype* f_diff = X_diff_offset + dim + d;
+			Dtype* f_diff = X_diff_offset + 1 * dim + d;
 			Dtype* o_diff = X_diff_offset + 2 * dim + d;
 			Dtype* g_diff = X_diff_offset + 3 * dim + d;
-			Dtype* c_prev_diff = C_prev_diff + d;
-			Dtype h_diff = H_diff[d];
-			Dtype c_diff = C_diff[d];
+			Dtype* c_prev_diff = C_prev_diff + index;
+			Dtype h_diff = H_diff[index];
+			Dtype c_diff = C_diff[index];
 			//accumulate diff bp from c_t and h_t
-			const Dtype c_term_diff = c_diff + h_diff * (1 - tanh_c * tanh_c);
+			const Dtype c_term_diff = c_diff + h_diff * o * (1 - tanh_c * tanh_c);
 			*c_prev_diff = c_term_diff * f;
 			*g_diff = c_term_diff * i;
 			*o_diff = tanh_c * h_diff;
-			*f_diff = c_term_diff * C_prev[d];
+			*f_diff = c_term_diff * C_prev[index];
 			*i_diff = c_term_diff * g;
 		}
 	}
@@ -125,13 +128,13 @@ namespace caffe{
 		const Dtype* C_prev = bottom[0]->gpu_data();
 		const Dtype* X = bottom[1]->gpu_data();
 		Dtype* X_acts = X_acts_.mutable_gpu_data();
-		const Dtype* H_diff = top[1]->gpu_diff();
 		const Dtype* C_diff = top[0]->gpu_diff();
+		const Dtype* H_diff = top[1]->gpu_diff();
 		const Dtype* C = top[0]->gpu_data();
-		Dtype* X_diff = bottom[1]->mutable_gpu_diff();
 		Dtype* X_acts_diff = X_acts_.mutable_gpu_diff();
+		Dtype* X_diff = bottom[1]->mutable_gpu_diff();
 		Dtype* C_prev_diff = bottom[0]->mutable_gpu_diff();
-		const int count = top[1]->count();
+		const int count = top[0]->count();
 		const int x_count = bottom[1]->count();
 		//why do forward of action of X again?
 		DLSTMActsForward<Dtype> << <CAFFE_GET_BLOCKS(x_count), CAFFE_CUDA_NUM_THREADS >> >(
@@ -139,7 +142,7 @@ namespace caffe{
 		CUDA_POST_KERNEL_CHECK;
 		DLSTMUnitBackward<Dtype> // NOLINT_NEXT_LINE(whitespace/operators)
 			<< <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>> > (
-			count, hidden_dim_, C_prev, X, C, C_diff, H_diff, C_prev_diff, X_acts_diff);
+			count, hidden_dim_, C_prev, X_acts, C, C_diff, H_diff, C_prev_diff, X_acts_diff);
 		CUDA_POST_KERNEL_CHECK;
 		DLSTMActsBackward<Dtype> // NOLINT_NEXT_LINE(whitespace/operators)
 			<< <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>> > (

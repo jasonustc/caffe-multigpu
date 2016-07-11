@@ -95,7 +95,7 @@ namespace caffe{
 				Dtype h_diff = H_diff[d];
 				Dtype c_diff = C_diff[d];
 				//accumulate diff bp from c_t and h_t
-				const Dtype c_term_diff = c_diff + h_diff * (1 - tanh_c * tanh_c);
+				const Dtype c_term_diff = c_diff + h_diff * o * (1 - tanh_c * tanh_c);
 				*c_prev_diff = c_term_diff * f;
 				*g_diff = c_term_diff * i * (1 - g * g);
 				*o_diff = (1 - o) * o * tanh_c * h_diff;

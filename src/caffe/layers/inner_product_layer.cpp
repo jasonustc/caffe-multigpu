@@ -136,6 +136,7 @@ void InnerProductLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           M_, K_, N_,
           (Dtype)1., top_diff, this->blobs_[0]->cpu_data(),
           (Dtype)0., bottom[0]->mutable_cpu_diff());
+	  bottom[0]->ToTxt("bottom_0");
     }
   }
 }

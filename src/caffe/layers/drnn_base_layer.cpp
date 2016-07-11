@@ -10,32 +10,32 @@ namespace caffe{
 	template <typename Dtype>
 	void DRNNBaseLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		// num_seq_, #streams, Dim_
-		// H0_
+		// H0_: num_seq_, #streams, hidden_dim_
 		CHECK_EQ(3, bottom[0]->num_axes());
-		// C0_
+		// C0_: num_seq_, #streams, hidden_dim_
 		CHECK_EQ(3, bottom[1]->num_axes());
 		// cont_: (T_, #streams) 
 		CHECK_EQ(2, bottom[2]->num_axes());
-		CHECK_EQ(bottom[0]->shape(0), bottom[2]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
-//		CHECK(bottom[0]->shape() == bottom[1]->shape());
+		CHECK(bottom[0]->shape() == bottom[1]->shape());
+		CHECK_EQ(bottom[0]->shape(1), 1) << "Currently, only 1 stream decoding is supported";
 		conditional_ = this->layer_param_.recurrent_param().conditional();
 		LOG_IF(INFO, conditional_) << "Decode input is groundtruth input sequence";
 		output_dim_ = this->layer_param_.recurrent_param().output_dim();
 		vector<int> x_shape(3, 1);
 		if (conditional_){
-			//X_
+			//X_: T_, #streams, X_dim_
 			CHECK_EQ(3, bottom[3]->num_axes());
 			CHECK_EQ(bottom[2]->shape(0), bottom[3]->shape(0));
 			CHECK_EQ(bottom[2]->shape(1), bottom[3]->shape(1));
 			//shapes of blobs
 			x_shape[1] = bottom[3]->shape(1);
 			x_shape[2] = bottom[3]->shape(2);
+			X_dim_ = bottom[3]->shape(2);
 		}
 		hidden_dim_ = bottom[0]->shape(2);
-		num_seq_ = bottom[0]->shape(0);
 		T_ = bottom[2]->shape(0);
+		num_seq_ = bottom[0]->shape(0);
 
 		const vector<int> h_shape{
 			1,
@@ -86,6 +86,7 @@ namespace caffe{
 			const vector<Blob<Dtype>*> slice_x_top(T_, X_[0].get());
 			slice_x_.reset(new SliceLayer<Dtype>(slice_param));
 			slice_x_->SetUp(slice_x_bottom, slice_x_top);
+			LOG(INFO) << slice_x_top[0]->shape_string();
 		}
 		
 		// setup ip_h_ layer
@@ -104,6 +105,7 @@ namespace caffe{
 		ip_h_param.mutable_inner_product_param()->set_axis(2);
 		ip_h_.reset(new InnerProductLayer<Dtype>(ip_h_param));
 		ip_h_->SetUp(ip_h_bottom, ip_h_top);
+		ip_h_->blobs()[0]->ToTxt("ip_h_weight");
 
 		// if not conditional, setup split_y_ layer
 		Y_1_.resize(T_);
@@ -133,7 +135,7 @@ namespace caffe{
 		}
 
 		// setup concat_y_ layer
-		// Top
+		// Bottom && Top
 		vector<Blob<Dtype>*> concat_y_bottom(T_, NULL);
 		for (int t = 0; t < T_; ++t){
 			concat_y_bottom[t] = Y_1_[t].get();
@@ -159,27 +161,30 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		// check in every iteration, to deal with changed 
 		// number of sequences in a batch
-		// num_seq_, #streams, Dim_
-		// TODO: maybe we need to check consistancy between cont_ 
-		// and C0_ and X0_
-		// H0_
+		// H0_: T_, #streams, hidden_dim_
 		CHECK_EQ(3, bottom[0]->num_axes());
-		// C0_
+		CHECK_EQ(bottom[0]->shape(2), hidden_dim_)
+			<< "H0_ feat dim incompatible with dlstm parameters.";
+		// C0_: T_, #streams, hidden_dim_
 		CHECK_EQ(3, bottom[1]->num_axes());
+		CHECK_EQ(bottom[1]->shape(2), hidden_dim_)
+			<< "C0_ feat dim incompatible with dlstm parameters.";
+		CHECK(bottom[0]->shape() == bottom[1]->shape());
 		// cont_: (T_, #streams) 
 		CHECK_EQ(2, bottom[2]->num_axes());
-		CHECK_EQ(bottom[0]->shape(0), bottom[2]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
-//		CHECK_EQ(bottom[0]->shape(), bottom[1]->shape());
+		CHECK_EQ(bottom[0]->shape(1), 1) << "Currently, only 1 stream decoding is supported";
 		vector<int> x_shape(3, 1);
 		if (conditional_){
-			//X_
+			//X_: T_, #streams, X_dim_
 			CHECK_EQ(3, bottom[3]->num_axes());
 			CHECK_EQ(bottom[2]->shape(0), bottom[3]->shape(0));
 			CHECK_EQ(bottom[2]->shape(1), bottom[3]->shape(1));
 			//shapes of blobs
 			x_shape[1] = bottom[3]->shape(1);
 			x_shape[2] = bottom[3]->shape(2);
+			CHECK_EQ(bottom[3]->shape(2), X_dim_)
+				<< "X feat dim incompatible with dlstm parameters.";
 		}
 		const vector<int> h_shape{
 			1,
@@ -191,16 +196,26 @@ namespace caffe{
 			bottom[0]->shape(1),
 			output_dim_
 		};
+		// because ip_g_ and ip_y_ is for element blob, their bottom and top
+		// shape will not change, so we don't need to reshape them here
 		if (bottom[0]->shape(0) != num_seq_){
 			num_seq_ = bottom[0]->shape(0);
 			H0_.resize(num_seq_);
 			for (int n = 0; n < num_seq_; ++n){
 				H0_[n].reset(new Blob<Dtype>(h_shape));
 			}
+			// reshape slice_h_
+			const vector<Blob<Dtype>*> slice_h_bottom(1, bottom[0]);
+			const vector<Blob<Dtype>*> slice_h_top(num_seq_, H0_[0].get());
+			slice_h_->Reshape(slice_h_bottom, slice_h_top);
 			C0_.resize(num_seq_);
 			for (int n = 0; n < num_seq_; ++n){
 				C0_[n].reset(new Blob<Dtype>(h_shape));
 			}
+			// reshape slice_c_
+			const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[1]);
+			const vector<Blob<Dtype>*> slice_c_top(num_seq_, C0_[0].get());
+			slice_c_->Reshape(slice_c_bottom, slice_c_top);
 		}
 		if (bottom[2]->shape(0) != T_){
 			T_ = bottom[2]->shape(0);
@@ -209,6 +224,10 @@ namespace caffe{
 				for (int t = 0; t < T_; ++t){
 					X_[t].reset(new Blob<Dtype>(x_shape));
 				}
+				// reshape slice_x_
+				const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[3]);
+				const vector<Blob<Dtype>*> slice_x_top(T_, X_[0].get());
+				slice_x_->Reshape(slice_x_bottom, slice_x_top);
 			}
 			Y_.resize(T_);
 			H_.resize(T_);
@@ -221,7 +240,6 @@ namespace caffe{
 				Y_1_[t].reset(new Blob<Dtype>(y_shape));
 			}
 			if (!conditional_){
-				// Top
 				Y_2_.resize(T_);
 				for (int t = 0; t < T_; ++t){
 					Y_2_[t].reset(new Blob<Dtype>(y_shape));
@@ -233,6 +251,13 @@ namespace caffe{
 					Y_1_[t]->ShareDiff(*(Y_[t].get()));
 				}
 			}
+			// reshape concat_y_
+			vector<Blob<Dtype>*> concat_y_bottom(T_, NULL);
+			for (int t = 0; t < T_; ++t){
+				concat_y_bottom[t] = Y_1_[t].get();
+			}
+			const vector<Blob<Dtype>*> concat_y_top(1, top[0]);
+			concat_y_->Reshape(concat_y_bottom, concat_y_top);
 		}
 		vector<int> top_shape{
 			T_,
@@ -265,7 +290,7 @@ namespace caffe{
 
 		// 3. slice_x_ if needed
 		if (conditional_){
-			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[2]);
+			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[3]);
 			vector<Blob<Dtype>*> slice_x_top(T_, NULL);
 			for (int t = 0; t < T_; ++t){
 				slice_x_top[t] = X_[t].get();
@@ -319,12 +344,13 @@ namespace caffe{
 		concat_y_->Backward(concat_y_top,
 			vector<bool>(T_, true),
 			concat_y_bottom);
+		Y_1_[4]->ToTxt("y_1_", true);
 
 		// for all sequence, run decode LSTM
-		int seq_id = -1;
+		int seq_id = num_seq_;
 		for (int t = T_ - 1; t >= 0; --t){
 			if (cont_data[t] == 0){
-				seq_id++;
+				seq_id--;
 			}
 			// 10. split_y_ if needed
 			if (!conditional_){
@@ -334,17 +360,20 @@ namespace caffe{
 					Y_2_[t].get()
 				};
 				split_y_->Backward(
-					split_y_bottom,
+					split_y_top,
 					vector<bool>(1, true),
-					split_y_top);
+					split_y_bottom);
 			}
 			// 9. ip_h_
 			const vector<Blob<Dtype>*> ip_h_bottom(1, H_[t].get());
 			const vector<Blob<Dtype>*> ip_h_top(1, Y_[t].get());
+			Y_[t]->ToTxt("Y_t_");
+			ip_h_->blobs()[0]->ToTxt("ip_h_back_weight");
 			ip_h_->Backward(
-				ip_h_bottom, 
+				ip_h_top, 
 				vector<bool>(1, true),
-				ip_h_top);
+				ip_h_bottom);
+			H_[t]->ToTxt("H_t_", true);
 			this->RecurrentBackward(t, cont_data[t], seq_id);
 		}
 

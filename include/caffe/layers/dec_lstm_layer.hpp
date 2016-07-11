@@ -42,9 +42,6 @@ namespace caffe{
 			const vector<Blob<Dtype>*>& top);
 
 		virtual inline const char* type() const { return "DLSTM"; }
-		//C0_, H0_, X_ if needed
-		virtual inline int MinBottomBlobs() const { return 2; }
-		virtual inline int MaxBottomBlobs() const { return 3; }
 
 	protected:
 		virtual void RecurrentForward(const int t, const int cont_t, const int seq_id);

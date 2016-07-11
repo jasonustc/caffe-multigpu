@@ -47,7 +47,8 @@ namespace caffe {
 			const vector<Blob<Dtype>*>& top);
 
 		virtual inline int ExactNumBottomBlobs() const { return 2; }
-		virtual inline int ExactNumTopBlobs() const { return 1; }
+		virtual inline int MinTopBlobs() const { return 1; }
+		virtual inline int MaxTopBlobs() const { return 2; }
 
 		virtual inline bool AllowForceBackward(const int bottom_index) const {
 			// Can't propagate to sequence continuation indicators.
@@ -70,6 +71,7 @@ namespace caffe {
 		
 		int hidden_dim_;
 		int T_;
+		int X_dim_;
 		// slice_x_ layer
 		shared_ptr<SliceLayer<Dtype> > slice_x_;
 		vector<shared_ptr<Blob<Dtype> > > X_;

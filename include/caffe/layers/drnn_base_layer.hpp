@@ -59,16 +59,17 @@ namespace caffe{
 			const vector<bool>& propagate_down,
 			const vector<Blob<Dtype>*>& bottom);
 
+		// the child class should implement this
 		virtual void RecurrentForward(const int t, const int cont_t, const int seq_id) = 0;
 		virtual void RecurrentBackward(const int t, const int cont_t, const int seq_id) = 0;
 		virtual void ShareWeight() = 0;
 
 		int hidden_dim_;
-		//number of sequences
-		int num_seq_;
 		int T_;
 		bool conditional_;
 		int output_dim_;
+		int X_dim_;
+		int num_seq_;
 
 		// slice_h_ layer
 		shared_ptr<SliceLayer<Dtype> > slice_h_;

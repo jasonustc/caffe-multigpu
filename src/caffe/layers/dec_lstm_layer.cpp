@@ -43,6 +43,21 @@ namespace caffe{
 			hidden_dim_ * 4
 		};
 
+		// setup split_h_ layer
+		H_1_.resize(T_);
+		H_2_.resize(T_);
+		for (int t = 0; t < T_; ++t){
+			H_1_[t].reset(new Blob<Dtype>(h_shape));
+			H_2_[t].reset(new Blob<Dtype>(h_shape));
+		}
+		const vector<Blob<Dtype>*> split_h_bottom(1, H_[0].get());
+		const vector<Blob<Dtype>*> split_h_top{
+			H_1_[0].get(),
+			H_2_[0].get()
+		};
+		split_h_.reset(new SplitLayer<Dtype>(LayerParameter()));
+		split_h_->SetUp(split_h_bottom, split_h_top);
+
 		// setup concat_ layer
 		// Bottom && Top
 		XH_.resize(T_);
@@ -123,14 +138,18 @@ namespace caffe{
 		// length of sequence has changed
 		if (C_.size() != H_.size()){
 			C_.resize(T_);
+			H_1_.resize(T_);
+			H_2_.resize(T_);
 			for (int t = 0; t < T_; ++t){
 				C_[t].reset(new Blob<Dtype>(h_shape));
+				H_1_[t].reset(new Blob<Dtype>(h_shape));
+				H_2_[t].reset(new Blob<Dtype>(h_shape));
 			}
 		}
 	}
 
 	template <typename Dtype>
-	void DLSTMLayer<Dtype>::RecurrentForward(const int t, const int cont_t, 
+	void DLSTMLayer<Dtype>::RecurrentForward(const int t, const int cont_t,
 		const int seq_id){
 		// 4. concat input_t and h_{t - 1}
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);

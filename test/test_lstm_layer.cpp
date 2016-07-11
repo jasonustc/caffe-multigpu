@@ -8,23 +8,23 @@
 #include "caffe/filler.hpp"
 #include "caffe/test/test_gradient_check_util.hpp"
 #include "caffe/test/test_caffe_main.hpp"
-#include "caffe/layers/dec_lstm_layer.hpp"
-#include "caffe/layers/dec_lstm_unit_layer.hpp"
+#include "caffe/layers/lstm_layer.hpp"
+#include "caffe/layers/lstm_unit_layer.hpp"
 
 
 namespace caffe{
 	template <typename Dtype>
-	class DLSTMLayerTest{
+	class LSTMLayerTest{
 	public:
-		DLSTMLayerTest() : c0_(new Blob<Dtype>()), h0_(new Blob<Dtype>()),
-			x_(new Blob<Dtype>()), cont_(new Blob<Dtype>()), y_(new Blob<Dtype>()){
+		LSTMLayerTest() : x_(new Blob<Dtype>()), cont_(new Blob<Dtype>()), 
+			h_(new Blob<Dtype>()), c_(new Blob<Dtype>()){
 			this->SetUp();
 		}
 
-		~DLSTMLayerTest(){ delete x_; delete c0_; delete h0_; delete cont_; }
+		~LSTMLayerTest(){ delete x_;  delete cont_; delete h_; delete c_; }
 
 		void TestSetUp(){
-			shared_ptr<Layer<Dtype>> layer(new DLSTMLayer<Dtype>(layer_param_));
+			shared_ptr<Layer<Dtype>> layer(new LSTMLayer<Dtype>(layer_param_));
 			layer->SetUp(bottom_, top_);
 			CHECK_EQ(top_[0]->shape(0), 5);
 			CHECK_EQ(top_[0]->shape(1), 1);
@@ -32,7 +32,7 @@ namespace caffe{
 		}
 
 		void TestForward(Caffe::Brew mode){
-			shared_ptr<Layer<Dtype>> layer(new DLSTMLayer<Dtype>(layer_param_));
+			shared_ptr<Layer<Dtype>> layer(new LSTMLayer<Dtype>(layer_param_));
 			Caffe::set_mode(mode);
 			layer->SetUp(bottom_, top_);
 			layer->Forward(bottom_, top_);
@@ -48,12 +48,14 @@ namespace caffe{
 
 
 		void TestGradients(Caffe::Brew mode){
-			// test DLSTMUnitLayer first
-			DLSTMUnitLayer<Dtype>* layer_unit = new DLSTMUnitLayer<Dtype>(LayerParameter());
+			// test LSTMUnitLayer first
+			LSTMUnitLayer<Dtype>* layer_unit = new LSTMUnitLayer<Dtype>(LayerParameter());
 			vector<int> c_shape{ 1, 1, 3 };
 			vector<int> x_shape{ 1, 1, 12 };
+			vector<int> cont_shape{ 1, 1 };
 			Blob<Dtype>* c = new Blob<Dtype>(c_shape);
 			Blob<Dtype>* x = new Blob<Dtype>(x_shape);
+			Blob<Dtype>* cont = new Blob<Dtype>(cont_shape);
 			Blob<Dtype>* c_top = new Blob<Dtype>();
 			Blob<Dtype>* h_top = new Blob<Dtype>();
 			FillerParameter fill_param;
@@ -62,44 +64,29 @@ namespace caffe{
 			Filler<Dtype>* filler = GetFiller<Dtype>(fill_param);
 			filler->Fill(c);
 			filler->Fill(x);
-			const vector<Blob<Dtype>*> unit_bottom{ c, x };
+			Dtype* cont_data = cont->mutable_cpu_data();
+			cont_data[0] = 1;
+			const vector<Blob<Dtype>*> unit_bottom{ c, x , cont};
 			const vector<Blob<Dtype>*> unit_top{ c_top, h_top };
 			Caffe::set_mode(mode);
 			GradientChecker<Dtype> checker(0.01, 0.001);
-			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top);
-			// then DLSTM Layer
-			DLSTMLayer<Dtype> layer(layer_param_);
+			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top, 0);
+			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top, 1);
+			// then LSTM Layer
+			LSTMLayer<Dtype> layer(layer_param_);
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
-			checker.CheckGradientExhaustive(&layer, bottom_, top_, 1);
-			checker.CheckGradientExhaustive(&layer, bottom_, top_, 3);
 		}
 
 
 	protected:
 		void SetUp(){
-			vector<int> c0_shape;
-			c0_shape.push_back(2);
-			c0_shape.push_back(1);
-			c0_shape.push_back(2);
-			c0_->Reshape(c0_shape);
-			h0_->Reshape(c0_shape);
-			Dtype* c0_data = c0_->mutable_cpu_data();
-			Dtype* h0_data = h0_->mutable_cpu_data();
-			vector<int> x_shape = c0_shape;
-			x_shape[0] = 5;
-			x_shape[2] = 3;
+			vector<int> x_shape{5, 1, 2};
 			x_->Reshape(x_shape);
 			Dtype* x_data = x_->mutable_cpu_data();
 			vector<int> cont_shape{ x_shape[0], x_shape[1] };
 			cont_->Reshape(cont_shape);
 			Dtype* cont_data = cont_->mutable_cpu_data();
-			for (int c = 0; c < 2; ++c){
-				for (int j = 0; j < 2; j++){
-					c0_data[c * 2 + j] = j * 2 + c;
-					h0_data[c * 2 + j] = c * 0.1;
-				}
-			}
 			for (int c = 0; c < 5; ++c){
 				if (c == 0 || c == 2){
 					cont_data[c] = 0;
@@ -115,12 +102,11 @@ namespace caffe{
 			}
 
 			//set bottom && top
-			bottom_.push_back(c0_);
-			bottom_.push_back(h0_);
-			bottom_.push_back(cont_);
 			bottom_.push_back(x_);
-			top_.push_back(y_);
-			propagate_down_.resize(3, true);
+			bottom_.push_back(cont_);
+			top_.push_back(h_);
+			top_.push_back(c_);
+			propagate_down_.resize(1, true);
 
 			// set layer_param_
 			layer_param_.mutable_inner_product_param()->set_num_output(3);
@@ -128,14 +114,11 @@ namespace caffe{
 			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
-			layer_param_.mutable_recurrent_param()->set_conditional(true);
-			layer_param_.mutable_recurrent_param()->set_output_dim(4);
 		}
 
-		Blob<Dtype>* c0_;
-		Blob<Dtype>* h0_;
 		Blob<Dtype>* x_;
-		Blob<Dtype>* y_;
+		Blob<Dtype>* h_;
+		Blob<Dtype>* c_;
 		Blob<Dtype>* cont_;
 
 		vector<Blob<Dtype>*> bottom_;
@@ -150,10 +133,10 @@ namespace caffe{
 int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
-	caffe::DLSTMLayerTest<float> test;
+	caffe::LSTMLayerTest<float> test;
 //	test.TestSetUp();
 //	test.TestForward(caffe::Caffe::CPU);
-//	test.TestGradients(caffe::Caffe::CPU);
+	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);
 	return 0;

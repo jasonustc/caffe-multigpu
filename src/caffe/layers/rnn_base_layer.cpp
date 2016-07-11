@@ -17,6 +17,7 @@ namespace caffe {
 
 		hidden_dim_ = this->GetHiddenDim();
 		T_ = bottom[0]->shape(0);
+		X_dim_ = bottom[0]->shape(2);
 
 		// shapes of blobs
 		const vector<int> x_shape {
@@ -87,6 +88,8 @@ namespace caffe {
 		CHECK_EQ(2, bottom[1]->num_axes());
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
+		CHECK_EQ(bottom[0]->shape(2), X_dim_)
+			<< "input feat dim do not compatible with lstm paramters";
 		if (bottom[0]->shape(0) != T_){
 			T_ = bottom[0]->shape(0);
 
@@ -105,21 +108,33 @@ namespace caffe {
 				1,
 				bottom[0]->shape(1)
 			};
+
+			// reshape slice_x_
 			X_.resize(T_);
-			for (int t = 0; t < T_; ++t)
-			{
+			for (int t = 0; t < T_; ++t){
 				X_[t].reset(new Blob<Dtype>(x_shape));
 			}
+			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[0]);
+			const vector<Blob<Dtype>*> slice_x_top(T_, X_[0].get());
+			slice_x_->Reshape(slice_x_bottom, slice_x_top);
+
+			// reshape slice_cont_
 			CONT_.resize(T_);
-			for (int t = 0; t < T_; ++t)
-			{
+			for (int t = 0; t < T_; ++t){
 				CONT_[t].reset(new Blob<Dtype>(cont_shape));
 			}
+			const vector<Blob<Dtype>*> slice_cont_bottom(1, bottom[1]);
+			const vector<Blob<Dtype>*> slice_cont_top(T_, CONT_[0].get());
+			slice_cont_->Reshape(slice_cont_bottom, slice_cont_top);
+
+			// reshape concat_ht_
 			H_.resize(T_);
-			for (int t = 0; t < T_; ++t)
-			{
+			for (int t = 0; t < T_; ++t){
 				H_[t].reset(new Blob<Dtype>(h_shape));
 			}
+			const vector<Blob<Dtype>*> concat_ht_bottom(T_, H_[0].get());
+			const vector<Blob<Dtype>*> concat_ht_top(1, top[0]);
+			concat_ht_->Reshape(concat_ht_bottom, concat_ht_top);
 		}
 		vector<int> top_shape = bottom[0]->shape();
 		top_shape[2] = hidden_dim_;

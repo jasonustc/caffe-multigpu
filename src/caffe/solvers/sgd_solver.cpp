@@ -213,7 +213,24 @@ template <typename Dtype>
 void SGDSolver<Dtype>::ComputeUpdateValue(int param_id, Dtype rate) {
   const vector<Blob<Dtype>*>& net_params = this->net_->learnable_params();
   const vector<float>& net_params_lr = this->net_->params_lr();
-  Dtype momentum = this->param_.momentum();
+  // add linear momentum strategy
+  Dtype momentum; 
+  if (this->param_.momentum()){
+	  momentum = this->param_.momentum();
+  }
+  else if(this->param_.re() && this->param_.rs() && this->param_.mom_inc_iter()){
+	  CHECK_LT(this->param_.rs(), this->param_.re());
+	  if (this->iter_ > this->param_.mom_inc_iter()){
+		  momentum = this->param_.re();
+	  }
+	  else{
+		  Dtype w = Dtype(this->iter_) / Dtype(this->param_.mom_inc_iter());
+		  momentum = w *  this->param_.re() + (1 - w) * this->param_.rs();
+	  }
+  }
+  else{
+	  LOG(FATAL) << "either momemtum or (re, rs, mom_inc_iter) should be set";
+  }
   Dtype local_rate = rate * net_params_lr[param_id];
   //used in similarity based merge of parameters
   int refresh_step_size = this->param_.refresh_step_size();

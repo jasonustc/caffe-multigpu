@@ -32,7 +32,7 @@
       <UniqueIdentifier>{802fafb2-be05-4b9a-94f3-27b9b5cddcb0}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\solvers">
-      <UniqueIdentifier>{b6c10336-564a-4940-a0f9-9ab393a41c36}</UniqueIdentifier>
+      <UniqueIdentifier>{dd1d1f47-2a1a-4945-99b8-16e9ab761e98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -312,9 +312,6 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\sim_merge_layer.cpp">
-      <Filter>src\layers</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
@@ -325,6 +322,12 @@
       <Filter>src\solvers</Filter>
     </ClCompile>
     <ClCompile Include="..\src\caffe\solvers\nesterov_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
     <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp">
@@ -487,9 +490,6 @@
       <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu">
-      <Filter>src\layers</Filter>
-    </CudaCompile>
-    <CudaCompile Include="..\src\caffe\layers\sim_merge_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu">
@@ -823,9 +823,6 @@
     </ClInclude>
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\sim_merge_layer.hpp">
-      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

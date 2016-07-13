@@ -272,6 +272,16 @@ void Net<Dtype>::Init(const NetParameter& in_param) {
   ShareWeights();
   debug_info_ = param.debug_info();
   LOG_IF(INFO, Caffe::root_solver()) << "Network initialization done.";
+
+  // load merge parameter settings 
+  for (int i = 0; i < param.merge_param_size(); ++i){
+	  MergeParamSpec merge_param_i = param.merge_param(i);
+	  merge_blob_names_.push_back(merge_param_i.name());
+	  merge_props_.push_back(merge_param_i.prop());
+	  merge_axis_.push_back(merge_param_i.axis());
+	  merge_fillers_.push_back(GetFiller<Dtype>(merge_param_i.filler()));
+	  sims_.push_back(new Blob<Dtype>());
+  }
 }
 
 template <typename Dtype>
@@ -947,6 +957,33 @@ void Net<Dtype>::ShareWeights() {
     params_[i]->ShareData(*params_[param_owners_[i]]);
     params_[i]->ShareDiff(*params_[param_owners_[i]]);
   }
+}
+
+template <typename Dtype>
+void Net<Dtype>::MergeAndRefreshWeights(){
+	CHECK(this->phase_ == TRAIN) 
+		<< "merge and refresh weights can only be executed during training";
+	const int num_merge_param = merge_blob_names_.size();
+	for (int i = 0; i < num_merge_param; ++i){
+		string param_name = merge_blob_names_[i];
+		CHECK(param_names_index_.find(param_name) != param_names_index_.end())
+			<< "not a valid param name, please make sure the merge param name "
+			<< param_name << " is in the net parameter names";
+		int param_id = param_names_index_[param_name];
+		Blob<Dtype>* param_blob = params_[param_id].get();
+		Filler<Dtype>* param_filler = merge_fillers_[i];
+		Blob<Dtype>* param_sim = sims_[i];
+		const int axis = merge_axis_[i];
+		const Dtype merge_prop = merge_props_[i];
+		if (Caffe::mode() == Caffe::GPU){
+			merge_sim_weights_gpu<Dtype>(param_blob, param_sim, merge_prop, param_filler,
+				axis, param_name);
+		}
+		else{
+			merge_sim_weights_cpu<Dtype>(param_blob, param_sim, merge_prop, param_filler,
+				axis, param_name);
+		}
+	}
 }
 
 template <typename Dtype>

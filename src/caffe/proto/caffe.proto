@@ -61,6 +61,14 @@ message FillerParameter {
   optional VarianceNorm variance_norm = 8 [default = FAN_IN];
 }
 
+// Specifies mergeing parameters during training(name, proportion, etc...).
+message MergeParamSpec {
+    optional string name = 1; // parameter name
+    optional float prop = 2; // proportions of rows to be merged
+    optional FillerParameter filler = 3; // filler for re-initialization
+    optional int32 axis = 4; // axis of a single input weight
+}
+
 message NetParameter {
   optional string name = 1; // consider giving the network a name
   // DEPRECATED. See InputParameter. The input blobs to the network.
@@ -87,6 +95,9 @@ message NetParameter {
   // Net::Backward, and Net::Update.
   optional bool debug_info = 7 [default = false];
 
+  // specify the parameters need to be merged during training
+  repeated MergeParamSpec merge_param = 9;
+
   // The layers that make up the net.  Each of their configurations, including
   // connectivity and behavior, is specified as a LayerParameter.
   repeated LayerParameter layer = 100;  // ID 100 so layers are printed last.
@@ -98,7 +109,7 @@ message NetParameter {
 // NOTE
 // Update the next available ID when you add a new SolverParameter field.
 //
-// SolverParameter next available ID: 44 (last added: mom_inc_iter)
+// SolverParameter next available ID: 45 (last added: refresh_step_size)
 message SolverParameter {
   //////////////////////////////////////////////////////////////////////////////
   // Specifying the train and test networks
@@ -116,7 +127,7 @@ message SolverParameter {
 
   //the step size to refresh diffs, i.e. set history diff to 0s
   //this is needed for similarity based parameter merge
-  optional int32 refresh_step_size = 41 [default = 0]; 
+  optional int32 refresh_step_size = 44 [default = 0]; 
 
   // Proto filename for the train net, possibly combined with one or more
   // test nets.

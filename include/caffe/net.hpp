@@ -11,6 +11,8 @@
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
+#include "caffe/filler.hpp"
+#include "caffe/util/sim_merge.hpp"
 
 namespace caffe {
 
@@ -98,6 +100,12 @@ class Net {
    * called manually.
    */
   void ShareWeights();
+
+  /**
+   * @brief Merge similar rows in weights, and reinitialize them.
+   * This is a way to push the neural network to learn more independent features.
+   */
+  void MergeAndRefreshWeights();
 
   /**
    * @brief For an already initialized net, implicitly copies (i.e., using no
@@ -307,6 +315,14 @@ class Net {
   bool debug_info_;
   /// The root net that actually holds the shared layers in data parallelism
   const Net* const root_net_;
+
+  /// The param name that need to be merged and refreshed
+  vector<string> merge_blob_names_;
+  vector<Dtype> merge_props_;
+  vector<int> merge_axis_;
+  vector<Filler<Dtype>*> merge_fillers_;
+  vector<Blob<Dtype>*> sims_;
+
   DISABLE_COPY_AND_ASSIGN(Net);
 };
 

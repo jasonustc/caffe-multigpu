@@ -337,6 +337,9 @@
       <Filter>src\solvers</Filter>
     </ClCompile>
     <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\src\caffe\util\sim_merge.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -509,6 +512,9 @@
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu">
       <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\util\sim_merge.cu">
+      <Filter>src\util</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
@@ -823,6 +829,12 @@
     </ClInclude>
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\sim_merge_layer.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\util\sim_merge.hpp">
+      <Filter>include\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

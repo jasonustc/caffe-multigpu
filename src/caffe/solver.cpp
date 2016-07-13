@@ -106,6 +106,13 @@ void Solver<Dtype>::InitTrainNet() {
   } else {
     net_.reset(new Net<Dtype>(net_param, root_solver_->net_.get()));
   }
+
+  // setting for similarity-based weights merge
+  merge_step_ = param_.refresh_step_size();
+  need_merge_weight_ = merge_step_ ? true : false;
+  if (need_merge_weight_){
+	  CHECK_LT(merge_step_, param_.max_iter());
+  }
 }
 
 template <typename Dtype>
@@ -252,6 +259,11 @@ void Solver<Dtype>::Step(int iters) {
     }
     ApplyUpdate();
 
+	// get the similairty between weights and merge them if needed
+	if (need_merge_weight_ && (iter_ % merge_step_ == 0)){
+		net_->MergeAndRefreshWeights();
+	}
+
     // Increment the internal iter_ counter -- its value should always indicate
     // the number of times the weights have been updated.
     ++iter_;
@@ -270,7 +282,7 @@ void Solver<Dtype>::Step(int iters) {
       // Break out of training loop.
       break;
     }
-  }
+  }// while (iter_ < stop_iter)
 }
 
 template <typename Dtype>

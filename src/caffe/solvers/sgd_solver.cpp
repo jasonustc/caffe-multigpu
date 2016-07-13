@@ -238,7 +238,8 @@ void SGDSolver<Dtype>::ComputeUpdateValue(int param_id, Dtype rate) {
   switch (Caffe::mode()) {
   case Caffe::CPU: {
 	  if (refresh_step_size && (this->iter_ % refresh_step_size == 0)){
-		  //clear history and current diff
+		  // clear history and current diff
+		  // used in similarity based paramter merge
 		  caffe_set<Dtype>(net_params[param_id]->count(),
 			  Dtype(0), history_[param_id]->mutable_cpu_data());
 		  caffe_set<Dtype>(net_params[param_id]->count(),
@@ -257,7 +258,8 @@ void SGDSolver<Dtype>::ComputeUpdateValue(int param_id, Dtype rate) {
   case Caffe::GPU: {
 #ifndef CPU_ONLY
 	  if (refresh_step_size && (this->iter_ % refresh_step_size == 0)){
-		  //clear history and current diff
+		  // clear history and current diff
+		  // used in similarity based paramter merge
 		  caffe_gpu_set<Dtype>(net_params[param_id]->count(),
 			  Dtype(0), history_[param_id]->mutable_gpu_data());
 		  caffe_gpu_set<Dtype>(net_params[param_id]->count(),

@@ -558,30 +558,6 @@ void Blob<float>::ToProto(BlobProto* proto, bool write_diff) const {
 }
 
 template <>
-void Blob<double>::ToTxt(string file_name, bool write_diff){
-	const int count = this->count_;
-	std::ofstream out(file_name.c_str());
-	CHECK(out.is_open());
-	out << this->num() << "\t" << this->channels() << "\t" <<
-		this->height() << "\t" << this->width() << "\n";
-	for (int i = 0; i < count; ++i){
-		out << this->cpu_data()[i] << "\n";
-	}
-	out.close();
-	if (write_diff){
-		string diff_file = file_name + "_diff";
-		std::ofstream out_diff(diff_file.c_str());
-		CHECK(out_diff.is_open());
-		out_diff << this->num() << "\t" << this->channels() << "\t" <<
-			this->height() << "\t" << this->width() << "\n";
-		for (int i = 0; i < count; ++i){
-			out_diff << this->cpu_diff()[i] << "\n";
-		}
-		out_diff.close();
-	}
-}
-
-template <>
 void Blob<float>::ToTxt(string file_name, bool write_diff){
 	const int count = this->count_;
 	std::ofstream out(file_name.c_str());

@@ -276,7 +276,12 @@ void Net<Dtype>::Init(const NetParameter& in_param) {
   // load merge parameter settings 
   for (int i = 0; i < param.merge_param_size(); ++i){
 	  MergeParamSpec merge_param_i = param.merge_param(i);
-	  merge_blob_names_.push_back(merge_param_i.name());
+	  string param_name = merge_param_i.name();
+	  CHECK(param_names_index_.find(param_name) != param_names_index_.end())
+			<< "not a valid param name, please make sure the merge param name \""
+			<< param_name << "\" is in the net parameter names";
+	  LOG(INFO) << "merge param: \"" << param_name << "\"";
+	  merge_blob_names_.push_back(param_name);
 	  merge_props_.push_back(merge_param_i.prop());
 	  merge_axis_.push_back(merge_param_i.axis());
 	  merge_fillers_.push_back(GetFiller<Dtype>(merge_param_i.filler()));
@@ -966,9 +971,6 @@ void Net<Dtype>::MergeAndRefreshWeights(){
 	const int num_merge_param = merge_blob_names_.size();
 	for (int i = 0; i < num_merge_param; ++i){
 		string param_name = merge_blob_names_[i];
-		CHECK(param_names_index_.find(param_name) != param_names_index_.end())
-			<< "not a valid param name, please make sure the merge param name \""
-			<< param_name << "\" is in the net parameter names";
 		int param_id = param_names_index_[param_name];
 		Blob<Dtype>* param_blob = params_[param_id].get();
 		Filler<Dtype>* param_filler = merge_fillers_[i];

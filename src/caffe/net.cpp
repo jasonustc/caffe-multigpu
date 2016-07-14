@@ -967,8 +967,8 @@ void Net<Dtype>::MergeAndRefreshWeights(){
 	for (int i = 0; i < num_merge_param; ++i){
 		string param_name = merge_blob_names_[i];
 		CHECK(param_names_index_.find(param_name) != param_names_index_.end())
-			<< "not a valid param name, please make sure the merge param name "
-			<< param_name << " is in the net parameter names";
+			<< "not a valid param name, please make sure the merge param name \""
+			<< param_name << "\" is in the net parameter names";
 		int param_id = param_names_index_[param_name];
 		Blob<Dtype>* param_blob = params_[param_id].get();
 		Filler<Dtype>* param_filler = merge_fillers_[i];

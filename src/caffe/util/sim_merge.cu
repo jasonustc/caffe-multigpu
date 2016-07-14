@@ -34,7 +34,8 @@ namespace caffe{
 		//dim_{axis} * dim_{axis+1} * ... is the number of weights for a single output
 		const int K = weight->count(axis);
 		CHECK_GT(K, 1) << "similarity can only be computed between vectors";
-		const vector<int> sim_shape{ N, N };
+		// N x N
+		const vector<int> sim_shape(2, N);
 		sim->Reshape(sim_shape);
 		Dtype* weight_data = weight->mutable_gpu_data();
 		//to save memory, put history similarity in data

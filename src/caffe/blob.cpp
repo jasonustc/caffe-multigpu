@@ -600,13 +600,11 @@ void Blob<Dtype>::FromTxt(string file_name){
 	Dtype* blob_data = this->mutable_cpu_data();
 	const int count = this->count_;
 	int n = 0;
-	for (int i = 0; i < count; ++i){
-		in >> feat;
-		blob_data[i] = feat;
-		n++;
+	while (in >> feat){
+		blob_data[n++] = feat;
 	}
 	in.close();
-	CHECK_EQ(count, this->count_) << "the # of elements in shape are not equal to"
+	CHECK_EQ(n, this->count_) << "the # of elements in shape are not equal to"
 		<< " # of data read.";
 }
 

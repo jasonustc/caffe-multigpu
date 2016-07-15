@@ -410,6 +410,8 @@ message RecurrentParameter{
     optional bool conditional = 1 [default = true];
     // the decode output dim
     optional int32 output_dim = 2;
+    // the predict sequence length
+    optional int32 pred_length = 3;
 }
 
 // Message that stores parameters used to apply transformation

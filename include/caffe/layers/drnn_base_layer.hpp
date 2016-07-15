@@ -97,8 +97,8 @@ namespace caffe{
 		vector<shared_ptr<Blob<Dtype> > > Y_1_;
 		vector<shared_ptr<Blob<Dtype> > > Y_2_;
 
-		// zero blob for the input of the beginning
-		shared_ptr<Blob<Dtype> > zero_blob_;
+		// start blob for the input of the beginning
+		shared_ptr<Blob<Dtype> > start_blob_;
 
 		// hidden states
 		vector<shared_ptr<Blob<Dtype> > > H_;

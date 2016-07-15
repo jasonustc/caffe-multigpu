@@ -79,7 +79,9 @@
     <ClCompile Include="..\src\caffe\layers\neuron_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\power_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\pred_lstm_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prelu_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\prnn_base_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reduction_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\relu_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reshape_layer.cpp" />
@@ -125,7 +127,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_lstm_layer.cpp" />
+    <ClCompile Include="..\tools\caffe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -253,7 +255,9 @@
     <ClInclude Include="..\include\caffe\layers\neuron_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\pooling_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\power_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\pred_lstm_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\prnn_base_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\python_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reduction_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\relu_layer.hpp" />

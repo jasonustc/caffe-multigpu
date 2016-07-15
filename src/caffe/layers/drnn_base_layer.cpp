@@ -86,7 +86,6 @@ namespace caffe{
 			const vector<Blob<Dtype>*> slice_x_top(T_, X_[0].get());
 			slice_x_.reset(new SliceLayer<Dtype>(slice_param));
 			slice_x_->SetUp(slice_x_bottom, slice_x_top);
-			LOG(INFO) << slice_x_top[0]->shape_string();
 		}
 		
 		// setup ip_h_ layer
@@ -105,7 +104,6 @@ namespace caffe{
 		ip_h_param.mutable_inner_product_param()->set_axis(2);
 		ip_h_.reset(new InnerProductLayer<Dtype>(ip_h_param));
 		ip_h_->SetUp(ip_h_bottom, ip_h_top);
-		ip_h_->blobs()[0]->ToTxt("ip_h_weight");
 
 		// if not conditional, setup split_y_ layer
 		Y_1_.resize(T_);
@@ -149,10 +147,10 @@ namespace caffe{
 
 		// setup zero_blob_ for beginning of the input
 		if (conditional_){
-			zero_blob_.reset(new Blob<Dtype>(x_shape));
+			start_blob_.reset(new Blob<Dtype>(x_shape));
 		}
 		else{
-			zero_blob_.reset(new Blob<Dtype>(y_shape));
+			start_blob_.reset(new Blob<Dtype>(y_shape));
 		}
 	}
 
@@ -344,7 +342,6 @@ namespace caffe{
 		concat_y_->Backward(concat_y_top,
 			vector<bool>(T_, true),
 			concat_y_bottom);
-		Y_1_[4]->ToTxt("y_1_", true);
 
 		// for all sequence, run decode LSTM
 		int seq_id = num_seq_;
@@ -367,13 +364,10 @@ namespace caffe{
 			// 9. ip_h_
 			const vector<Blob<Dtype>*> ip_h_bottom(1, H_[t].get());
 			const vector<Blob<Dtype>*> ip_h_top(1, Y_[t].get());
-			Y_[t]->ToTxt("Y_t_");
-			ip_h_->blobs()[0]->ToTxt("ip_h_back_weight");
 			ip_h_->Backward(
 				ip_h_top, 
 				vector<bool>(1, true),
 				ip_h_bottom);
-			H_[t]->ToTxt("H_t_", true);
 			this->RecurrentBackward(t, cont_data[t], seq_id);
 		}
 

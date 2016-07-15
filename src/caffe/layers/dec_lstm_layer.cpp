@@ -130,17 +130,31 @@ namespace caffe{
 	void DLSTMLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		DRNNBaseLayer<Dtype>::Reshape(bottom, top);
-		const vector<int> h_shape{
+		//TODO: reshape XH_ and G_
+		// length of sequence has changed
+		if (C_.size() != H_.size()){
+			const vector<int> h_shape{
 			1,
 			bottom[0]->shape(1),
 			hidden_dim_
-		};
-		// length of sequence has changed
-		if (C_.size() != H_.size()){
+			};
+
+			vector<int> xh_shape(3, 1);
+			xh_shape[1] = bottom[0]->shape(1);
+			xh_shape[2] = hidden_dim_ + output_dim_;
+
+			vector<int> gate_shape(3, 1);
+			gate_shape[1] = bottom[0]->shape(1);
+			gate_shape[2] = hidden_dim_ * 4;
+
+			XH_.resize(T_);
+			G_.resize(T_);
 			C_.resize(T_);
 			H_1_.resize(T_);
 			H_2_.resize(T_);
 			for (int t = 0; t < T_; ++t){
+				XH_[t].reset(new Blob<Dtype>(xh_shape));
+				G_[t].reset(new Blob<Dtype>(gate_shape));
 				C_[t].reset(new Blob<Dtype>(h_shape));
 				H_1_[t].reset(new Blob<Dtype>(h_shape));
 				H_2_[t].reset(new Blob<Dtype>(h_shape));
@@ -155,17 +169,17 @@ namespace caffe{
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
 		if (!cont_t){
 			// begin of a sequence
-			concat_bottom[0] = H0_[seq_id].get();
-			concat_bottom[1] = zero_blob_.get();
+			concat_bottom[0] = start_blob_.get();
+			concat_bottom[1] = H0_[seq_id].get();
 		}
 		else{
-			concat_bottom[0] = H_2_[t - 1].get();
 			if (conditional_){
-				concat_bottom[1] = X_[t - 1].get();
+				concat_bottom[0] = X_[t - 1].get();
 			}
 			else{
-				concat_bottom[1] = Y_2_[t - 1].get();
+				concat_bottom[0] = Y_2_[t - 1].get();
 			}
+			concat_bottom[1] = H_2_[t - 1].get();
 		}
 		vector<Blob<Dtype>*> concat_top(1, XH_[t].get());
 		concat_->Forward(concat_bottom, concat_top);
@@ -237,17 +251,17 @@ namespace caffe{
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
 		if (!cont_t){
 			// begin of a sequence
-			concat_bottom[0] = H0_[seq_id].get();
-			concat_bottom[1] = zero_blob_.get();
+			concat_bottom[0] = start_blob_.get();
+			concat_bottom[1] = H0_[seq_id].get();
 		}
 		else{
-			concat_bottom[0] = H_2_[t - 1].get();
 			if (conditional_){
-				concat_bottom[1] = X_[t - 1].get();
+				concat_bottom[0] = X_[t - 1].get();
 			}
 			else{
-				concat_bottom[1] = Y_2_[t - 1].get();
+				concat_bottom[0] = Y_2_[t - 1].get();
 			}
+			concat_bottom[1] = H_2_[t - 1].get();
 		}
 		vector<Blob<Dtype>*> concat_top(1, XH_[t].get());
 		concat_->Backward(

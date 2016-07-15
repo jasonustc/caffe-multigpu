@@ -585,20 +585,27 @@ template<typename Dtype>
 void Blob<Dtype>::FromTxt(string file_name){
 	std::ifstream in(file_name.c_str());
 	CHECK(in.is_open());
-	int num, channels, height, width;
-	in >> num;
-	in >> channels;
-	in >> height;
-	in >> width;
+	string shape_str;
+	std::getline(in, shape_str);
+	int dim;
+	std::stringstream ss;
+	ss << shape_str;
+	vector<int> blob_shape;
+	while (ss >> dim){
+		blob_shape.push_back(dim);
+	}
+	CHECK_LE(blob_shape.size(), 4) << "blob only support at most 4 dims";
 	Dtype feat;
-	int count = num * channels * height * width;
-	this->Reshape(num, channels, height, width);
+	this->Reshape(blob_shape);
 	Dtype* blob_data = this->mutable_cpu_data();
-	for (int i = 0; i < count; ++i){
-		in >> feat;
-		blob_data[i] = feat;
+	const int count = this->count_;
+	int n = 0;
+	while (in >> feat){
+		blob_data[n++] = feat;
 	}
 	in.close();
+	CHECK_EQ(n, this->count_) << "the # of elements in shape are not equal to"
+		<< " # of data read.";
 }
 
 #ifdef USE_OPENCV

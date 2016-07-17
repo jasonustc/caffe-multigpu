@@ -57,6 +57,8 @@ namespace caffe{
 		void GetIndex(const vector<Blob<Dtype>*>& bottom);
 
 		Blob<int> index_;
+		int outer_dim_;
+		int inner_dim_;
 	};
 }
 

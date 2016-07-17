@@ -11,14 +11,13 @@ namespace caffe{
 		const Dtype* bottom_data = bottom[0]->gpu_data();
 		Dtype* top_data = top[0]->mutable_gpu_data();
 		this->GetIndex(bottom);
-		const int* forward_index = index_.cpu_data();
-		Dtype* top_offset;
-		int inner_dim = bottom[0]->count(0, 2);
-		int outer_dim = bottom[0]->count(2);
-		for (int i = 0; i < inner_dim; ++i){
-			bottom_data += i * outer_dim;
-			top_offset = top_data + static_cast<int>(forward_index[i]) * outer_dim;
-			caffe_copy(outer_dim, bottom_data, top_offset);
+		const int* index_data = index_.cpu_data();
+		int outer_dim_ = bottom[0]->count(0, 2);
+		int inner_dim_ = bottom[0]->count(2);
+		for (int i = 0; i < outer_dim_; ++i){
+			bottom_data += i * inner_dim_;
+			top_data += index_data[i] * inner_dim_;
+			caffe_copy(inner_dim_, bottom_data, top_data);
 		}
 	}
 
@@ -27,17 +26,13 @@ namespace caffe{
 		const vector<bool>& propagate_down,
 		const vector<Blob<Dtype>*>& top){
 		if (propagate_down[0]){
-			const int inner_dim = bottom[0]->count(0, 2);
-			const int outer_dim = bottom[0]->count(2);
 			const Dtype* top_diff = top[0]->gpu_diff();
 			Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-			const int* backward_index = index_.cpu_diff();
-			Dtype* bottom_offset;
-			for (int i = 0; i < inner_dim; ++i){
-				top_diff += i * outer_dim;
-				bottom_offset = bottom_diff + static_cast<int>(backward_index[i]) 
-					* outer_dim;
-				caffe_copy(outer_dim, top_diff, bottom_offset);
+			const int* index_data = index_.cpu_data();
+			for (int i = 0; i < outer_dim_; ++i){
+				bottom_diff += i * inner_dim_;
+				top_diff += index_data[i] * inner_dim_;
+				caffe_copy(inner_dim_, top_diff, bottom_diff);
 			}
 		}
 	}

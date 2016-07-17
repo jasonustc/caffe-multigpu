@@ -16,7 +16,10 @@
 namespace caffe{
 	/**
 	 * @brief get the end of input sequence
-	 * used for decoding LSTM
+	 * NOTE: two assumptions:
+	 *       1. the first element is the beginning of a sequence
+	 *       2. the last element is the end of a sequence
+	 * used for decoding LSTM or prediction LSTM
 	 **/
 	template <typename Dtype>
 	class SeqEndLayer : public Layer<Dtype>{

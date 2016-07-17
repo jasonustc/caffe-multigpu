@@ -10,40 +10,52 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		CHECK_EQ(bottom[1]->num_axes(), 2);
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
-		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
+		for (int i = 0; i < bottom.size(); ++i){
+			CHECK_EQ(bottom[i]->shape(1), 1)
+				<< "Currently, we only support 1 stream data processing";
+		}
 	}
 
 	template <typename Dtype>
 	void ReverseSeqLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		// T_, #streams
+		// T_
 		CHECK_EQ(bottom[1]->num_axes(), 2);
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
-		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
+		for (int i = 0; i < bottom.size(); ++i){
+			CHECK_EQ(bottom[i]->shape(1), 1)
+				<< "Currently, we only support 1 stream data processing";
+		}
 		top[0]->ReshapeLike(*(bottom[0]));
+		vector<int> index_shape = bottom[1]->shape();
+		index_.Reshape(index_shape);
 	}
 
 	template <typename Dtype>
 	void ReverseSeqLayer<Dtype>::GetIndex(const vector<Blob<Dtype>*>& bottom){
 		const Dtype* cont_data = bottom[1]->cpu_data();
-		int* forward_index = index_.mutable_cpu_data();
-		int* backward_index = index_.mutable_cpu_diff();
-		int seq_begin;
+		int* index_data = index_.mutable_cpu_data();
+		int seq_begin = 0;
 		const int T = bottom[1]->shape(0);
-		const int N = bottom[1]->shape(1);
-		for (int n = 0; n < N; ++n){
-			seq_begin = 0;
-			for (int t = 1; t < T; ++t){
-				if (cont_data[t * T + n] == 0){
-					int seq_len = t - seq_begin;
-					for (int i = 0; i < seq_len; ++i){
-						int top_t = seq_len - i - 1 + seq_begin;
-						forward_index[t * T + n] = top_t * N + n;
-						backward_index[top_t * N + n] = t * T + n;
-					}
+		for (int t = 1; t < T; ++t){
+			if (cont_data[t] == 0){
+				int seq_len = t - seq_begin;
+				for (int i = 0; i < seq_len; ++i){
+					int top_t = seq_len - i - 1 + seq_begin;
+					index_data[seq_begin + i] = top_t;
 				}
+				seq_begin = t;
 			}
 		}
+		// last sequence
+		if (seq_begin < (T - 1)){
+			int seq_len = (T - 1) - seq_begin;
+			for (int i = 0; i < seq_len; ++i){
+				int top_t = seq_len - i - 1 + seq_begin;
+				index_data[seq_begin + i] = top_t;
+			}
+		}
+		index_.ToTxt("index");
 	}
 
 	template <typename Dtype>
@@ -51,15 +63,14 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		Dtype* top_data = top[0]->mutable_cpu_data();
-		const int* forward_index = index_.cpu_data();
 		this->GetIndex(bottom);
-		const int inner_dim = bottom[0]->count(0, 2);
-		const int outer_dim = bottom[0]->count(2);
-		Dtype* top_offset;
-		for (int i = 0; i < inner_dim; ++i){
-			bottom_data += i * outer_dim;
-			top_offset = top_data + static_cast<int>(forward_index[i]) * outer_dim;
-			caffe_copy(outer_dim, bottom_data, top_offset);
+		outer_dim_ = bottom[0]->count(0, 2);
+		inner_dim_ = bottom[0]->count(2);
+		const int* index_data = index_.cpu_data();
+		for (int i = 0; i < outer_dim_; ++i){
+			bottom_data += i * inner_dim_;
+			top_data += index_data[i] * inner_dim_;
+			caffe_copy(inner_dim_, bottom_data, top_data);
 		}
 	}
 
@@ -67,17 +78,13 @@ namespace caffe{
 	void ReverseSeqLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom){
 		if (propagate_down[0]){
-			const int inner_dim = bottom[0]->count(0, 2);
-			const int outer_dim = bottom[0]->count(2);
 			const Dtype* top_diff = top[0]->cpu_diff();
 			Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-			const int* backward_index = index_.cpu_diff();
-			Dtype* bottom_offset;
-			for (int i = 0; i < inner_dim; ++i){
-				top_diff += i * outer_dim;
-				bottom_offset = bottom_diff + static_cast<int>(backward_index[i]) 
-					* outer_dim;
-				caffe_copy(outer_dim, top_diff, bottom_offset);
+			const int* index_data = index_.cpu_data();
+			for (int i = 0; i < outer_dim_; ++i){
+				bottom_diff += i * inner_dim_;
+				top_diff += index_data[i] * inner_dim_;
+				caffe_copy(inner_dim_, top_diff, bottom_diff);
 			}
 		}
 	}

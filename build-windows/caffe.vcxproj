@@ -82,6 +82,7 @@
     <ClCompile Include="..\src\caffe\layers\pred_lstm_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prelu_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prnn_base_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\rbm_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reduction_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\relu_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reshape_layer.cpp" />
@@ -100,6 +101,7 @@
     <ClCompile Include="..\src\caffe\layers\tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\threshold_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tile_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\video_unroll_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\window_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layer_factory.cpp" />
     <ClCompile Include="..\src\caffe\net.cpp" />
@@ -127,7 +129,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_reverse_seq_layer.cpp" />
+    <ClCompile Include="..\tools\caffe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -168,6 +170,7 @@
     <CudaCompile Include="..\src\caffe\layers\pooling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\prelu_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\rbm_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\reduction_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\relu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\reverse_seq_layer.cu" />
@@ -259,6 +262,7 @@
     <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\prnn_base_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\python_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\rbm_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reduction_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\relu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reshape_layer.hpp" />
@@ -277,6 +281,7 @@
     <ClInclude Include="..\include\caffe\layers\tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\threshold_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tile_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\video_unroll_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\window_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layer_factory.hpp" />
     <ClInclude Include="..\include\caffe\net.hpp" />

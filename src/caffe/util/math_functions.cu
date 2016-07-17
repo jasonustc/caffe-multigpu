@@ -371,6 +371,55 @@ DEFINE_AND_INSTANTIATE_GPU_UNARY_FUNC(sign, y[index] = (Dtype(0) < x[index])
                                       - (x[index] < Dtype(0)));
 DEFINE_AND_INSTANTIATE_GPU_UNARY_FUNC(sgnbit, y[index] = signbit(x[index]));
 
+template <typename Dtype>
+__global__ void thred_kernel(const int n, const Dtype* p, unsigned int* r){
+	CUDA_KERNEL_LOOP(index, n){
+		r[index] = r[index] < static_cast<unsigned int>(p[index] * UINT_MAX);
+	}
+}
+
+//compatible with Dtype format
+template <typename Dtype>
+__global__ void thred_kernel(const int n, const Dtype* p, Dtype* r){
+	CUDA_KERNEL_LOOP(index, n){
+		r[index] = r[index] < static_cast<Dtype>(p[index]);
+	}
+}
+
+//p[i] = P(r[i]=1)
+template <>
+void caffe_gpu_rng_bernoulli<float>(const int n, const float* p, unsigned int* r){
+	//generate n unsigned int random numbers in [0, UINT_MAX] and put into r
+	CURAND_CHECK(curandGenerate(Caffe::curand_generator(), r, n));
+	// NOLINT_NEXT_LINE(spaces/operators)
+	thred_kernel<float> << <CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS >> >(n, p, r);
+}
+
+template <>
+void caffe_gpu_rng_bernoulli<float>(const int n, const float* p, float* r){
+	//generate uniformly distributed floating values in [0, 1)
+	CURAND_CHECK(curandGenerateUniform(Caffe::curand_generator(), r, n));
+	// NOLINT_NEXT_LINE(spaces/operators)
+	thred_kernel<float> << <CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS >> >(n, p, r);
+}
+
+template <>
+void caffe_gpu_rng_bernoulli<double>(const int n, const double* p, double* r){
+	//generate uniformly distributed double values in [0, 1)
+	CURAND_CHECK(curandGenerateUniformDouble(Caffe::curand_generator(), r, n));
+	// NOLINT_NEXT_LINE(spaces/operators)
+	thred_kernel<double> << <CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS >> >(n, p, r);
+}
+
+template <>
+void caffe_gpu_rng_bernoulli<double>(const int n, const double* p, unsigned int* r){
+	//generate n unsigned int random numbers in [0, UINT_MAX] and put into r
+	CURAND_CHECK(curandGenerate(Caffe::curand_generator(), r, n));
+	// NOLINT_NEXT_LINE(spaces/operators)
+	thred_kernel<double> << <CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS >> >(n, p, r);
+}
+
+
 void caffe_gpu_rng_uniform(const int n, unsigned int* r) {
   CURAND_CHECK(curandGenerate(Caffe::curand_generator(), r, n));
 }

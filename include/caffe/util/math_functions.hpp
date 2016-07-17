@@ -86,6 +86,9 @@ template <typename Dtype>
 void caffe_rng_bernoulli(const int n, const Dtype p, unsigned int* r);
 
 template <typename Dtype>
+void caffe_rng_bernoulli(const int n, const Dtype* p, Dtype* r);
+
+template <typename Dtype>
 void caffe_exp(const int n, const Dtype* a, Dtype* y);
 
 template <typename Dtype>
@@ -227,6 +230,15 @@ void caffe_gpu_rng_gaussian(const int n, const Dtype mu, const Dtype sigma,
 
 template <typename Dtype>
 void caffe_gpu_rng_bernoulli(const int n, const Dtype p, int* r);
+
+template <typename Dtype>
+void caffe_gpu_rng_bernoulli(const int n, const Dtype* p, int* r);
+
+template <typename Dtype>
+void caffe_gpu_rng_bernoulli(const int n, const Dtype* p, unsigned int* r);
+
+template <typename Dtype>
+void caffe_gpu_rng_bernoulli(const int n, const Dtype* p, Dtype* r);
 
 template <typename Dtype>
 void caffe_gpu_dot(const int n, const Dtype* x, const Dtype* y, Dtype* out);

@@ -49,13 +49,12 @@ namespace caffe{
 		}
 		// last sequence
 		if (seq_begin < (T - 1)){
-			int seq_len = (T - 1) - seq_begin;
+			int seq_len = T - seq_begin;
 			for (int i = 0; i < seq_len; ++i){
 				int top_t = seq_len - i - 1 + seq_begin;
 				index_data[seq_begin + i] = top_t;
 			}
 		}
-		index_.ToTxt("index");
 	}
 
 	template <typename Dtype>
@@ -64,13 +63,14 @@ namespace caffe{
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		Dtype* top_data = top[0]->mutable_cpu_data();
 		this->GetIndex(bottom);
-		outer_dim_ = bottom[0]->count(0, 2);
-		inner_dim_ = bottom[0]->count(2);
+		const int outer_dim = bottom[0]->count(0, 2);
+		const int inner_dim = bottom[0]->count(2);
 		const int* index_data = index_.cpu_data();
-		for (int i = 0; i < outer_dim_; ++i){
-			bottom_data += i * inner_dim_;
-			top_data += index_data[i] * inner_dim_;
-			caffe_copy(inner_dim_, bottom_data, top_data);
+		Dtype* top_offset;
+		for (int i = 0; i < outer_dim; ++i){
+			top_offset = top_data + index_data[i] * inner_dim;
+			caffe_copy<Dtype>(inner_dim, bottom_data, top_offset);
+			bottom_data += inner_dim;
 		}
 	}
 
@@ -81,10 +81,13 @@ namespace caffe{
 			const Dtype* top_diff = top[0]->cpu_diff();
 			Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
 			const int* index_data = index_.cpu_data();
-			for (int i = 0; i < outer_dim_; ++i){
-				bottom_diff += i * inner_dim_;
-				top_diff += index_data[i] * inner_dim_;
-				caffe_copy(inner_dim_, top_diff, bottom_diff);
+			const int outer_dim = bottom[0]->count(0, 2);
+			const int inner_dim = bottom[0]->count(2);
+			const Dtype* top_diff_offset;
+			for (int i = 0; i < outer_dim; ++i){
+				top_diff_offset = top_diff + index_data[i] * inner_dim;
+				caffe_copy(inner_dim, top_diff_offset, bottom_diff);
+				bottom_diff += inner_dim;
 			}
 		}
 	}

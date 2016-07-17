@@ -309,7 +309,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 146 (last added:  recurrent_pram)
+// LayerParameter next available layer-specific ID: 148 (last added: // video_unroll_pram)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -392,6 +392,7 @@ message LayerParameter {
   optional PowerParameter power_param = 122;
   optional PReLUParameter prelu_param = 131;
   optional PythonParameter python_param = 130;
+  optional RBMParameter rbm_param = 146;
   optional RecurrentParameter recurrent_param = 145;
   optional ReductionParameter reduction_param = 136;
   optional ReLUParameter relu_param = 123;
@@ -404,7 +405,32 @@ message LayerParameter {
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
+  optional VideoUnrollParameter video_unroll_param = 147;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// Message that stores parameters to generate continuous indicators for video
+message VideoUnrollParameter{
+    optional uint32 frame_channels = 1 [default = 3];
+}
+
+//Message that stores parameters used to calculate rbm loss
+message RBMParameter{
+    optional int32 num_output = 1;
+    optional FillerParameter weight_filler = 2;
+    optional FillerParameter bias_filler = 3;
+    enum SampleType{
+        BERNOULLI = 1;
+        GAUSSUIAN = 2;
+    }
+    optional SampleType sample_type = 4[default = BERNOULLI];
+    // The first axis to be lumped into a single inner product computation;
+    // all preceding axes are retained in the output.
+    // May be negative to index from the end (e.g., -1 for the last axis).
+    // here default to reshape the bottom to be N * (C * H * W)
+    optional int32 axis = 5[default = 1];
+    //number of CD times, CD-k algorithm
+    optional int32 num_iteration = 6[default = 1];
 }
 
 // Message that stores parameters for LSTM Layer

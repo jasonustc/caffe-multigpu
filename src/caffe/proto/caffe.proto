@@ -309,7 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 145 (last added: crop_param)
+// LayerParameter next available layer-specific ID: 146 (last added:
+// triplet_loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -403,7 +404,15 @@ message LayerParameter {
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
+  optional TripletParameter triplet_loss_param = 145;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// Message that stores parameters used to compute triplet loss
+message TripletParameter{
+    optional float margin = 1[default = 0]; // margin for hinge loss
+    // (axis, axis+1, ...) is a single feature vector
+    optional uint32 axis = 2[default = 1];
 }
 
 // Message that stores parameters used to apply transformation

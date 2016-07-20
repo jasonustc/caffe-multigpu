@@ -34,6 +34,9 @@
     <Filter Include="src\solvers">
       <UniqueIdentifier>{dd1d1f47-2a1a-4945-99b8-16e9ab761e98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\liblinear">
+      <UniqueIdentifier>{f697e02e-b506-4bb8-ad23-582f5a0067c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\caffe\layers\absval_layer.cpp">
@@ -330,9 +333,18 @@
     <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe.cpp" />
     <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
       <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\deep_aesth.cpp" />
+    <ClCompile Include="..\src\liblinear\linear.cpp">
+      <Filter>src\liblinear</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\liblinear\tron.cpp">
+      <Filter>src\liblinear</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\liblinear\predict.cpp">
+      <Filter>src\liblinear</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -826,6 +838,18 @@
     </ClInclude>
     <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp">
       <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\deep_aesth.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\liblinear\linear.h">
+      <Filter>src\liblinear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\liblinear\tron.h">
+      <Filter>src\liblinear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\liblinear\predict.h">
+      <Filter>src\liblinear</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

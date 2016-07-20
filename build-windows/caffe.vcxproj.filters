@@ -331,6 +331,9 @@
       <Filter>src\solvers</Filter>
     </ClCompile>
     <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -503,6 +506,9 @@
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu">
       <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\triplet_loss_layer.cu">
+      <Filter>src\layers</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
@@ -817,6 +823,9 @@
     </ClInclude>
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp">
+      <Filter>include\layers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

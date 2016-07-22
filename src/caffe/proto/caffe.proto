@@ -98,7 +98,7 @@ message NetParameter {
 // NOTE
 // Update the next available ID when you add a new SolverParameter field.
 //
-// SolverParameter next available ID: 41 (last added: type)
+// SolverParameter next available ID: 44 (last added: mom_inc_iter)
 message SolverParameter {
   //////////////////////////////////////////////////////////////////////////////
   // Specifying the train and test networks
@@ -173,6 +173,9 @@ message SolverParameter {
   optional float gamma = 9; // The parameter to compute the learning rate.
   optional float power = 10; // The parameter to compute the learning rate.
   optional float momentum = 11; // The momentum value.
+  optional float re = 41; // The start value for linearly increased momentum
+  optional float rs = 42; // The end value for linearly increased momentum
+  optional int32 mom_inc_iter = 43; // number of iterations for linear momentum
   optional float weight_decay = 12; // The weight decay.
   // regularization types supported: L1 and L2
   // controlled by weight_decay
@@ -306,7 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 145 (last added: crop_param)
+// LayerParameter next available layer-specific ID: 146 (last added:
+// triplet_loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -400,7 +404,15 @@ message LayerParameter {
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
+  optional TripletParameter triplet_loss_param = 145;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// Message that stores parameters used to compute triplet loss
+message TripletParameter{
+    optional float margin = 1[default = 0]; // margin for hinge loss
+    // (axis, axis+1, ...) is a single feature vector
+    optional uint32 axis = 2[default = 1];
 }
 
 // Message that stores parameters used to apply transformation

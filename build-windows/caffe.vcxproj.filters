@@ -32,7 +32,7 @@
       <UniqueIdentifier>{802fafb2-be05-4b9a-94f3-27b9b5cddcb0}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\solvers">
-      <UniqueIdentifier>{88853fb4-7b70-451a-ac11-5890720abc78}</UniqueIdentifier>
+      <UniqueIdentifier>{dd1d1f47-2a1a-4945-99b8-16e9ab761e98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -312,7 +312,6 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\extract_features2files.cpp" />
     <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
@@ -331,6 +330,13 @@
     <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\util\file_proc_util.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\extract_feat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -503,6 +509,9 @@
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu">
       <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\triplet_loss_layer.cu">
+      <Filter>src\layers</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
@@ -817,6 +826,15 @@
     </ClInclude>
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\util\feat_extractor.hpp">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\util\file_proc_util.h">
+      <Filter>include\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

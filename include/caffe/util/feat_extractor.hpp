@@ -209,8 +209,6 @@ namespace caffe{
 			net_->Forward();
 			Blob<Dtype>* blob = net_->blob_by_name(blob_name).get();
 			const Dtype* blob_data = blob->cpu_data();
-			const Dtype* first = blob->cpu_data();
-			const Dtype* second = blob->cpu_data() + blob->offset(1);
 			const int img_count = blob->count(1);
 			for (size_t i = 0; i < blob->shape(0); ++i){
 				std::ofstream out_feat;

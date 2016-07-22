@@ -33,12 +33,28 @@ namespace caffe{
 	public:
 		FeatExtractor(string net_file, string model_file, string feat_path,
 			Caffe::Brew mode = Caffe::CPU){
+			if (mode == Caffe::GPU){
+				LOG(INFO) << "using GPU";
+				// just use default GPU 0
+				Caffe::SetDevice(0);
+			}
+			else{
+				LOG(INFO) << "using CPU";
+			}
 			Init(net_file, model_file, mode);
 			feat_path_ = feat_path;
 			single_file_ = true;
 		}
 
 		FeatExtractor(string net_file, string model_file, Caffe::Brew mode = Caffe::CPU){
+			if (mode == Caffe::GPU){
+				// just use default GPU 0
+				Caffe::SetDevice(0);
+				LOG(INFO) << "using GPU";
+			}
+			else{
+				LOG(INFO) << "using CPU";
+			}
 			Init(net_file, model_file, mode);
 			single_file_ = false;
 		}
@@ -103,8 +119,9 @@ namespace caffe{
 			}
 			else{
 				input_shape_change_ = true;
-				CHECK_EQ(batch_size_, 1) << "Since the input shape changes for every sample, "
-					<< "batch_size should be set to 1";
+				batch_size_ = 1;
+				LOG(INFO) << "Since the input shape changes for every sample, "
+					<< "batch_size was set to 1";
 			}
 		}
 

@@ -13,28 +13,32 @@ DEFINE_string(model_file, "bvlc_reference_caffenet.caffemodel",
 DEFINE_string(feat_file, "",
 	"optional, if provided, feats of all the images will be put into this file\n" \
 	"if not, feats will be saved independently into xxx.jpg.feat");
+DEFINE_string(mode, "CPU",
+	"optional, use CPU or GPU");
 
 using namespace caffe;
 
 int main(int argc, char** argv){
 	if (argc < 3){
-		gflags::SetUsageMessage("Usage: extract_deep_aesth_feat.exe file_path[image_path, index_file, or folder_path] "
+		gflags::SetUsageMessage("Usage: extract_feat.exe file_path[image_path, index_file, or folder_path] "
 			" blob_name \n"
 			" please notice that index_file should be one line an image and with an .txt extension\n");
-		gflags::ShowUsageWithFlagsRestrict(*argv, "extract_deep_aesth_feat");
+		gflags::ShowUsageWithFlagsRestrict(*argv, "extract_feat");
 		return -1;
 	}
+	::google::InitGoogleLogging(argv[0]);
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 	FLAGS_logtostderr = true;
 	CHECK(check_file_type(FLAGS_net_file) == 2);
 	CHECK(check_file_type(FLAGS_model_file) == 2);
 	FeatExtractor<float>* feat_extractor;
+	Caffe::Brew mode = (FLAGS_mode == "GPU") ? Caffe::GPU : Caffe::CPU;
 	if (FLAGS_feat_file.size()){
 		feat_extractor = new FeatExtractor<float>(FLAGS_net_file, 
-			FLAGS_model_file, FLAGS_feat_file);
+			FLAGS_model_file, FLAGS_feat_file, mode);
 	}
 	else{
-		feat_extractor = new FeatExtractor<float>(FLAGS_net_file, FLAGS_model_file);
+		feat_extractor = new FeatExtractor<float>(FLAGS_net_file, FLAGS_model_file, mode);
 	}
 	string file_path = argv[1];
 	string blob_name = argv[2];

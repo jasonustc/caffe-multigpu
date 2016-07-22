@@ -117,11 +117,12 @@
     <ClCompile Include="..\src\caffe\util\math_functions.cpp" />
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
+    <ClCompile Include="..\src\deep_aesth_util.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
     <ClCompile Include="..\src\liblinear\linear.cpp" />
     <ClCompile Include="..\src\liblinear\predict.cpp" />
     <ClCompile Include="..\src\liblinear\tron.cpp" />
-    <ClCompile Include="..\tools\deep_aesth.cpp" />
+    <ClCompile Include="..\tools\extract_deep_aesth_feat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -288,6 +289,7 @@
     <ClInclude Include="..\include\caffe\util\signal_handler.h" />
     <ClInclude Include="..\include\caffe\util\upgrade_proto.hpp" />
     <ClInclude Include="..\include\deep_aesth.hpp" />
+    <ClInclude Include="..\include\deep_aesth_util.hpp" />
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h" />
     <ClInclude Include="..\src\gtest\gtest.h" />
     <ClInclude Include="..\src\liblinear\linear.h" />
@@ -360,7 +362,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin</OutDir>
-    <TargetName>Test</TargetName>
+    <TargetName>MainBuild</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

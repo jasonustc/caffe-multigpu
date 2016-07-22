@@ -14,6 +14,7 @@
 #include "caffe/data_transformer.hpp"
 #include "caffe/layers/input_layer.hpp"
 #include "../src/liblinear/predict.h"
+#include "deep_aesth_util.hpp"
 
 using namespace caffe;
 using namespace cv;
@@ -41,6 +42,7 @@ public:
 		net_input_ = net_->blob_by_name("data").get();
 		buf_file_ = "buf";
 		pred_file_ = "score";
+		svm_model_file_ = "DCNN_Aesth.xml";
 	}
 
 	void LoadImage(string image_path){
@@ -83,23 +85,56 @@ public:
 		}
 	}
 
-	void GetFeat(string blob_name){
+	void GetFeatFromIndexFile(string index_path, string blob_name){
+		std::ifstream in_path(index_path.c_str());
+		CHECK(in_path.is_open());
+		in_path.close();
+		vector<string> fileList;
+		LoadPathFromFile(index_path, fileList);
+		for (size_t i = 0; i < fileList.size(); i++){
+			LoadImage(fileList[i]);
+			GetFeat(blob_name, fileList[i] + ".feat");
+			LOG_IF(INFO, (i % 1000 == 0)) << "Loaded " << i << " images";
+		}
+	}
+
+	void GetFeatFromFolder(string foler_path, string blob_name){
+		vector<string> fileList;
+		ListFilesInDir(foler_path, fileList);
+		for (size_t i = 0; i < fileList.size(); i++){
+			LoadImage(fileList[i]);
+			GetFeat(blob_name, fileList[i] + ".feat");
+			LOG_IF(INFO, (i % 1000 == 0)) << "Loaded " << i << " images";
+		}
+	}
+
+	void GetFeatFromImage(string img_path, string blob_name){
+		LoadImage(img_path);
+		GetFeat(blob_name, img_path + ".feat");
+	}
+
+	void GetFeat(string blob_name, string feat_path){
 		CHECK(net_->has_blob(blob_name));
 		net_->Forward();
 		Blob<Dtype>* blob = net_->blob_by_name(blob_name).get();
 		const Dtype* blob_data = blob->cpu_data();
-		std::ofstream out_feat(buf_file_.c_str());
+		std::ofstream out_feat(feat_path.c_str(), std::ios::binary);
+		CHECK(out_feat.is_open());
 		// fake label
-		out_feat << "+1" << "\t";
+//		out_feat << "+1" << "\t";
 		for (int i = 0; i < blob->count(); ++i){
 			Dtype data = blob_data[i];
 			// only non-zero data will be kept
-			if (abs(data) > 1e-10){
-				out_feat << (i + 1) << ":" << data << "\t";
-			}
+//			if (abs(data) > 1e-10){
+//				out_feat << (i + 1) << ":" << data << "\t";
+//			}
+			out_feat.write((char*)(&data), sizeof(Dtype));
 		}
-		out_feat << "\n";
 		out_feat.close();
+	}
+
+	void GetFeat(string blob_name){
+		this->GetFeat(blob_name, this->buf_file_.c_str());
 	}
 
 	float GetScore(){
@@ -111,9 +146,8 @@ public:
 			fprintf(stderr, "can't open input file %s\n", buf_file_.c_str());
 			exit(1);
 		}
-		output = fopen(pred_file_.c_str(), "r");
-		string model_file = "DCNN_Aesth.xml";
-		float score = liblinear_predict(input, output, model_file.c_str(), predict_probability);
+		output = fopen(pred_file_.c_str(), "w");
+		float score = liblinear_predict(input, output, svm_model_file_.c_str(), predict_prob_);
 		return score;
 	}
 
@@ -130,6 +164,7 @@ public:
 		image_blocks_[5] = image(Range(image.rows / 4, image.rows * 3 / 4),
 			Range(image.cols / 4, image.cols * 3 / 4));
 	}
+
 protected:
 	Net<Dtype>* net_;
 	Blob<Dtype>* net_input_;
@@ -137,10 +172,11 @@ protected:
 	vector<Mat> image_blocks_;
 	string buf_file_;
 	string pred_file_;
+	string svm_model_file_;
 	int new_height_;
 	int new_width_;
 	int crop_size_;
 	string root_folder_;
 	bool is_color_;
-	bool predict_probability = false;
+	bool predict_prob_ = false;
 };

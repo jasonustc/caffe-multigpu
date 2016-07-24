@@ -1,45 +1,18 @@
-Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
-supported in this version.
+---
+input: image + 5 local blocks  
 
-## Windows
-Tools:
+feature: bvlc_reference_caffenet.caffemodel, fc7
 
-1. Visual Studio 2013
+related_materials: http://pan.baidu.com/s/1o7Pz3vG
 
-2. Cuda 7.5 (**you should install cuda after the installation of Visual Studio 2013 to incorporate cuda vs integration into VS**)
+evaluate_dataset: AVA ( 19308 train, 19308 test)
 
-3. OpenCV 2.4.9
+performance:  Accuracy: 83.5%
 
-4. Boost
+license: unrestricted
 
-Steps:
+---
 
-1. Copy folder \$3rdparty (http://pan.baidu.com/s/1ge3nKRp) and \$bin (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
-
-2. Configure the environment variables: \$BOOST_1_56_0, \$OPENCV_2_4_9
-
-3. Compile the caffe.sln in VS2013
-
-Notes:
-
-1. Currently Caffe works with cuDNN_v3 or cuDNN_v4 (**The current settings in caffe.sln do not use cuDNN**)
-
-You need copy More details at https://github.com/BVLC/caffe/tree/windows
-
-## Linux
-
-Please follow the official tutorials here: http://caffe.berkeleyvision.org/installation.html 
-
-## License and Citation
-
-Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
-The BVLC reference models are released for unrestricted use.
-
-Please cite Caffe in your publications if it helps your research:
-
-    @article{jia2014caffe,
-      Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
-      Journal = {arXiv preprint arXiv:1408.5093},
-      Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
-      Year = {2014}
-    }
+related code are here:
+- [liblinear](https://github.com/jasonustc/caffe-multigpu/tree/deep_aesth/src/liblinear)
+- [feature_extractor](https://github.com/jasonustc/caffe-multigpu/blob/deep_aesth/include/deep_aesth.hpp)

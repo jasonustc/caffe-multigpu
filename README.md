@@ -10,7 +10,6 @@ evaluate_dataset: AVA ( 19308 train, 19308 test)
 performance:  Accuracy: 83.5%
 
 license: unrestricted
-
 ---
 
 related code are here:

@@ -157,6 +157,7 @@ namespace caffe{
 				TMatFromParam(SHIFT, curr_shift_x_, curr_shift_y_, tmat_data);
 			}
 			if (total_random_){
+				// TODO: allow for independent control of the 6 parameters
 				TMatFromRandom(tmat_data, caffe::UNIFORM, start_angle_, end_angle_);
 				//change from proportion of shift to #pixels
 				tmat_data[6] *= Height_;
@@ -193,6 +194,7 @@ namespace caffe{
 				TMatFromParam(SHIFT, curr_shift_x_, curr_shift_y_, tmat_data);
 			}
 			if (total_random_){
+				// TODO: allow for independent control of the 6 parameters
 				TMatFromRandom(tmat_data, caffe::GAUSSIAN, start_angle_, end_angle_);
 				//change from proportion of shift to #pixels
 				tmat_data[6] *= Height_;

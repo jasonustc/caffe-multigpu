@@ -312,7 +312,6 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="..\src\caffe\layers\random_trans_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
@@ -322,8 +321,6 @@
     <ClCompile Include="..\src\caffe\layers\patch_rank_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-=======
->>>>>>> master
     <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
@@ -342,17 +339,10 @@
     <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClCompile Include="..\tools\caffe.cpp" />
-=======
->>>>>>> master
-=======
     <ClCompile Include="..\tools\caffe.cpp" />
     <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
->>>>>>> master
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -508,7 +498,6 @@
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
-<<<<<<< HEAD
     <CudaCompile Include="..\src\caffe\layers\random_trans_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
@@ -518,8 +507,6 @@
     <CudaCompile Include="..\src\caffe\layers\patch_rank_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
-=======
->>>>>>> master
     <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu">
       <Filter>src\solvers</Filter>
     </CudaCompile>
@@ -855,7 +842,6 @@
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="..\include\caffe\layers\random_transform_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
@@ -865,10 +851,8 @@
     <ClInclude Include="..\include\caffe\util\transform.hpp">
       <Filter>include\util</Filter>
     </ClInclude>
-=======
     <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
->>>>>>> master
   </ItemGroup>
 </Project>

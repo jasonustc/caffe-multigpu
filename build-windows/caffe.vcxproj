@@ -92,6 +92,7 @@
     <ClCompile Include="..\src\caffe\layers\tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\threshold_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tile_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\window_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layer_factory.cpp" />
     <ClCompile Include="..\src\caffe\net.cpp" />
@@ -174,6 +175,7 @@
     <CudaCompile Include="..\src\caffe\layers\tanh_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\triplet_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu" />
     <CudaCompile Include="..\src\caffe\solvers\adagrad_solver.cu" />
     <CudaCompile Include="..\src\caffe\solvers\adam_solver.cu" />
@@ -261,6 +263,7 @@
     <ClInclude Include="..\include\caffe\layers\tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\threshold_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tile_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\window_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layer_factory.hpp" />
     <ClInclude Include="..\include\caffe\net.hpp" />
@@ -394,6 +397,7 @@
       <PreprocessorDefinitions>_USE_CUDNN;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;USE_LEVELDB;USE_LMDB;USE_OPENCV;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../include;../src;$(CUDA_PATH_V7_5)/include;$(OPENCV_2_4_9)/include;$(OPENCV_2_4_9)/include/opencv;$(BOOST_1_56_0);../3rdparty/include;../3rdparty/include/openblas;../3rdparty/include/hdf5;../3rdparty/include/lmdb;../3rdparty/include/pthread;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -343,8 +343,15 @@
       <Filter>src\solvers</Filter>
     </ClCompile>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClCompile Include="..\tools\caffe.cpp" />
 =======
+>>>>>>> master
+=======
+    <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
 >>>>>>> master
   </ItemGroup>
   <ItemGroup>
@@ -530,6 +537,9 @@
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu">
       <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\triplet_loss_layer.cu">
+      <Filter>src\layers</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
@@ -845,6 +855,7 @@
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\include\caffe\layers\random_transform_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
@@ -854,5 +865,10 @@
     <ClInclude Include="..\include\caffe\util\transform.hpp">
       <Filter>include\util</Filter>
     </ClInclude>
+=======
+    <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+>>>>>>> master
   </ItemGroup>
 </Project>

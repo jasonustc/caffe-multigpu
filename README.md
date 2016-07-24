@@ -3,7 +3,7 @@
 
 - feature: bvlc_reference_caffenet.caffemodel, fc7
 
-- related_materials: http://pan.baidu.com/s/1o7Pz3vG
+- related_materials: http://pan.baidu.com/s/1o7Pz3vG, please copy "model_227.xml", "image_val.prototxt", "bvlc_reference_caffenet.caffemodel" into the same folder with the executable file.
 
 - evaluate_dataset: AVA ( 19308 train, 19308 test)
 

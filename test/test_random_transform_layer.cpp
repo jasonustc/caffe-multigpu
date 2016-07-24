@@ -146,6 +146,6 @@ int main(int argc, char** argv){
 	caffe::RandomTransformTest<float> test;
 	test.TestSetUp();
 	test.TestForward(caffe::Caffe::GPU);
-//	test.TestForward(caffe::Caffe::CPU);
+	test.TestForward(caffe::Caffe::CPU);
 	return 0;
 }

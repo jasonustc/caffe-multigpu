@@ -37,7 +37,7 @@ static char* readline(FILE *input)
 	return line;
 }
 
-float do_predict(FILE *input, FILE *output)
+float do_predict(FILE *input)
 {
 	int correct = 0;
 	int total = 0;
@@ -66,10 +66,12 @@ float do_predict(FILE *input, FILE *output)
 		labels=(int *) malloc(nr_class*sizeof(int));
 		get_labels(model_,labels);
 		prob_estimates = (double *) malloc(nr_class*sizeof(double));
-//		fprintf(output,"labels");
-//		for(j=0;j<nr_class;j++)
-//			fprintf(output," %d",labels[j]);
-//		fprintf(output,"\n");
+		/*
+		fprintf(output,"labels");
+		for(j=0;j<nr_class;j++)
+			fprintf(output," %d",labels[j]);
+		fprintf(output,"\n");
+		*/
 		free(labels);
 	}
 
@@ -132,44 +134,52 @@ float do_predict(FILE *input, FILE *output)
 		{
 			int j;
 			predict_label = predict_probability(model_,x,prob_estimates);
-//			fprintf(output,"%g",predict_label);
+			/*
+			fprintf(output,"%g",predict_label);
 			for (j = 0; j < model_->nr_class; j++){
-//				fprintf(output, " %g", prob_estimates[j]);
+				fprintf(output, " %g", prob_estimates[j]);
 				printf("%f\t", prob_estimates[j]);
 			}
+			fprintf(output,"\n");
+			*/
 			return prob_estimates[0];
-//			fprintf(output,"\n");
 		}
 		else
 		{
 			predict_label = predict(model_,x);
+			/*
 			printf("%f\n", predict_label);
+			fprintf(output,"%g\n",predict_label);
+			*/
 			return predict_label;
-//			fprintf(output,"%g\n",predict_label);
 		}
 
-//		if(predict_label == target_label)
-//			++correct;
-//		error += (predict_label-target_label)*(predict_label-target_label);
-//		sump += predict_label;
-//		sumt += target_label;
-//		sumpp += predict_label*predict_label;
-//		sumtt += target_label*target_label;
-//		sumpt += predict_label*target_label;
-//		++total;
+		/*
+		if(predict_label == target_label)
+			++correct;
+		error += (predict_label-target_label)*(predict_label-target_label);
+		sump += predict_label;
+		sumt += target_label;
+		sumpp += predict_label*predict_label;
+		sumtt += target_label*target_label;
+		sumpt += predict_label*target_label;
+		++total;
+       */
 	}
-//	if(check_regression_model(model_))
-//	{
-//		info("Mean squared error = %g (regression)\n",error/total);
-//		info("Squared correlation coefficient = %g (regression)\n",
-//			((total*sumpt-sump*sumt)*(total*sumpt-sump*sumt))/
-//			((total*sumpp-sump*sump)*(total*sumtt-sumt*sumt))
-//			);
-//	}
-//	else
-//		info("Accuracy = %g%% (%d/%d)\n",(double) correct/total*100,correct,total);
-//	if(flag_predict_probability)
-//		free(prob_estimates);
+	/*
+	if(check_regression_model(model_))
+	{
+		info("Mean squared error = %g (regression)\n",error/total);
+		info("Squared correlation coefficient = %g (regression)\n",
+			((total*sumpt-sump*sumt)*(total*sumpt-sump*sumt))/
+			((total*sumpp-sump*sump)*(total*sumtt-sumt*sumt))
+			);
+	}
+	else
+		info("Accuracy = %g%% (%d/%d)\n",(double) correct/total*100,correct,total);
+	*/
+	if(flag_predict_probability)
+		free(prob_estimates);
 }
 
 void exit_with_help()
@@ -183,8 +193,7 @@ void exit_with_help()
 	exit(1);
 }
 
-float liblinear_predict(FILE* input, FILE* output, const char* model_file,
-	bool pred_prob)
+float liblinear_predict(FILE* input, const char* model_file, bool pred_prob)
 {
 	flag_predict_probability = pred_prob;
 	if((model_=load_model(model_file))==0)
@@ -194,11 +203,10 @@ float liblinear_predict(FILE* input, FILE* output, const char* model_file,
 	}
 
 	x = (struct feature_node *) malloc(max_nr_attr*sizeof(struct feature_node));
-	float score = do_predict(input, output);
+	float score = do_predict(input);
 	free_and_destroy_model(&model_);
 	free(line);
 	free(x);
 	fclose(input);
-//	fclose(output);
 	return score;
 }

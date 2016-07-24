@@ -14,6 +14,12 @@ DEFINE_string(net_file, "imagenet_val.prototxt",
 	"net model file for feature extraction");
 DEFINE_string(model_file, "bvlc_reference_caffenet.caffemodel",
 	"trained parameter model");
+DEFINE_bool(sqrt, false,
+	"Optional; if we need to do root square on extracted features.");
+DEFINE_bool(l2_norm, false,
+	"Optional; if we need to do L2 normalization on extracted features.");
+DEFINE_string(svm_model, "model_227.xml",
+	"The svm model to classify aesthetic photos.");
 
 
 int main(int argc, char** argv){
@@ -22,32 +28,42 @@ int main(int argc, char** argv){
 	deep_aesth.LoadImage("newHigh\\27.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("newHigh\\34.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("newHigh\\41.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("newHigh\\51.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("newHigh\\64.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("newHigh\\66.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("newHigh\\67.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("temp.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("test.png");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	deep_aesth.LoadImage("view\\134.jpg");
 	deep_aesth.GetFeat("fc7");
 	score = deep_aesth.GetScore();
+	std::cout << score << "\n";
 	return 0;
 }

@@ -122,7 +122,7 @@
     <ClCompile Include="..\src\liblinear\linear.cpp" />
     <ClCompile Include="..\src\liblinear\predict.cpp" />
     <ClCompile Include="..\src\liblinear\tron.cpp" />
-    <ClCompile Include="..\tools\extract_deep_aesth_feat.cpp" />
+    <ClCompile Include="..\tools\deep_aesth.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />

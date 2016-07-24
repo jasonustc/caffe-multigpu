@@ -42,7 +42,9 @@ public:
 		net_input_ = net_->blob_by_name("data").get();
 		buf_file_ = "buf";
 		pred_file_ = "score";
-		svm_model_file_ = "DCNN_Aesth.xml";
+		svm_model_file_ = FLAGS_svm_model;
+		this->SetL2Norm(FLAGS_l2_norm);
+		this->SetSqrt(FLAGS_sqrt);
 	}
 
 	void LoadImage(string image_path){
@@ -94,7 +96,7 @@ public:
 		for (size_t i = 0; i < fileList.size(); i++){
 			LoadImage(fileList[i]);
 			GetFeat(blob_name, fileList[i] + ".feat");
-			LOG_IF(INFO, (i % 1000 == 0)) << "Loaded " << i << " images";
+			LOG_IF(INFO, ((i + 1) % 1000 == 0)) << "Loaded " << i << " images";
 		}
 	}
 
@@ -104,7 +106,7 @@ public:
 		for (size_t i = 0; i < fileList.size(); i++){
 			LoadImage(fileList[i]);
 			GetFeat(blob_name, fileList[i] + ".feat");
-			LOG_IF(INFO, (i % 1000 == 0)) << "Loaded " << i << " images";
+			LOG_IF(INFO, ((i + 1) % 1000 == 0)) << "Loaded " << i << " images";
 		}
 	}
 
@@ -113,41 +115,52 @@ public:
 		GetFeat(blob_name, img_path + ".feat");
 	}
 
-	void GetFeat(string blob_name, string feat_path){
+	void GetFeat(string blob_name, string feat_path, const bool binary = true){
 		CHECK(net_->has_blob(blob_name));
 		net_->Forward();
 		Blob<Dtype>* blob = net_->blob_by_name(blob_name).get();
 		const Dtype* blob_data = blob->cpu_data();
-		std::ofstream out_feat(feat_path.c_str(), std::ios::binary);
-		CHECK(out_feat.is_open());
-		// fake label
-//		out_feat << "+1" << "\t";
-		for (int i = 0; i < blob->count(); ++i){
-			Dtype data = blob_data[i];
-			// only non-zero data will be kept
-//			if (abs(data) > 1e-10){
-//				out_feat << (i + 1) << ":" << data << "\t";
-//			}
-			out_feat.write((char*)(&data), sizeof(Dtype));
+		if (sqrt_){
+			caffe_powx<Dtype>(blob->count(), blob->mutable_cpu_data(),
+				Dtype(0.5), blob->mutable_cpu_data());
 		}
-		out_feat.close();
+		if (l2_norm_){
+			this->L2Normalize(blob->count(), blob->mutable_cpu_data());
+		}
+		if (binary){
+			std::ofstream out_feat(feat_path.c_str(), std::ios::binary);
+			CHECK(out_feat.is_open());
+			out_feat.write((char*)(blob_data), sizeof(Dtype)* blob->count());
+			out_feat.close();
+		}
+		else{
+			std::ofstream out_feat(feat_path.c_str());
+			CHECK(out_feat.is_open());
+			// fake label
+			out_feat << "+1";
+			for (int i = 0; i < blob->count(); ++i){
+				if (abs(blob_data[i]) > 1e-10){
+					out_feat << "\t" << i + 1 << ":" << blob_data[i];
+				}
+			}
+			out_feat << "\n";
+			out_feat.close();
+		}
 	}
 
 	void GetFeat(string blob_name){
-		this->GetFeat(blob_name, this->buf_file_.c_str());
+		this->GetFeat(blob_name, this->buf_file_.c_str(), false);
 	}
 
 	float GetScore(){
 		FILE* input;
-		FILE* output;
 		input = fopen(buf_file_.c_str(), "r");
 		if (input == NULL)
 		{
 			fprintf(stderr, "can't open input file %s\n", buf_file_.c_str());
 			exit(1);
 		}
-		output = fopen(pred_file_.c_str(), "w");
-		float score = liblinear_predict(input, output, svm_model_file_.c_str(), predict_prob_);
+		float score = liblinear_predict(input, svm_model_file_.c_str(), predict_prob_);
 		return score;
 	}
 
@@ -165,7 +178,29 @@ public:
 			Range(image.cols / 4, image.cols * 3 / 4));
 	}
 
+	void SetSqrt(const bool sqrt){
+		this->sqrt_ = sqrt;
+		LOG_IF(INFO, sqrt) << "will do square root of features";
+		LOG_IF(INFO, !sqrt) << "will not do square root of features";
+	}
+	void SetL2Norm(const bool l2_norm){
+		this->l2_norm_ = l2_norm;
+		LOG_IF(INFO, l2_norm) << "will do l2 normalization of features";
+		LOG_IF(INFO, !l2_norm) << "will not do l2 normalization of features";
+	}
+
 protected:
+
+	/*
+	* x_i = x_i / ||x||_2
+	*/
+	template<typename Dtype>
+	void L2Normalize(const int dim, Dtype* feat_data){
+		Dtype l2_norm = caffe_cpu_dot<Dtype>(dim, feat_data, feat_data) + 1e-9;
+		l2_norm = sqrt(l2_norm);
+		caffe_scal<Dtype>(dim, Dtype(1. / l2_norm), feat_data);
+	}
+
 	Net<Dtype>* net_;
 	Blob<Dtype>* net_input_;
 	shared_ptr<DataTransformer<Dtype> > data_transformer_;
@@ -178,5 +213,7 @@ protected:
 	int crop_size_;
 	string root_folder_;
 	bool is_color_;
-	bool predict_prob_ = false;
+	bool predict_prob_ = true;
+	bool sqrt_ = false;
+	bool l2_norm_ = false;
 };

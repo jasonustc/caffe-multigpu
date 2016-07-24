@@ -10,6 +10,10 @@ DEFINE_string(net_file, "imagenet_val.prototxt",
 	"net model file for feature extraction");
 DEFINE_string(model_file, "bvlc_reference_caffenet.caffemodel",
 	"trained parameter model");
+DEFINE_bool(sqrt, false,
+	"Optional; if we need to do root square on extracted features.");
+DEFINE_bool(l2_norm, false,
+	"Optional; if we need to do L2 normalization on extracted features.");
 
 int main(int argc, char** argv){
 	if (argc < 3){

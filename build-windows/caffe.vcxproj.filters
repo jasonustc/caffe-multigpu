@@ -345,10 +345,10 @@
     <ClCompile Include="..\src\liblinear\predict.cpp">
       <Filter>src\liblinear</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\extract_deep_aesth_feat.cpp" />
     <ClCompile Include="..\src\deep_aesth_util.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\deep_aesth.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

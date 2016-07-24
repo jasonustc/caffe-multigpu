@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <vector>
 
-float liblinear_predict(FILE* input, FILE* output, const char* model_file,
-	bool pred_prob);
+float liblinear_predict(FILE* input, const char* model_file, bool pred_prob);
 
 #endif 

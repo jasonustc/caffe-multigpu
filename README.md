@@ -15,3 +15,23 @@
 - [liblinear](https://github.com/jasonustc/caffe-multigpu/tree/deep_aesth/src/liblinear)
 - [feature_extractor](https://github.com/jasonustc/caffe-multigpu/blob/deep_aesth/include/deep_aesth.hpp)
 - [main](https://github.com/jasonustc/caffe-multigpu/blob/deep_aesth/tools/deep_aesth.cpp)
+
+### Reference
+
+@inproceedings{DBLP:conf/mmm/DongSLT15,
+  author    = {Zhe Dong and
+               Xu Shen and
+               Houqiang Li and
+               Xinmei Tian},
+  title     = {Photo Quality Assessment with {DCNN} that Understands Image Well},
+  booktitle = {MultiMedia Modeling - 21st International Conference, {MMM} 2015, Sydney,
+               NSW, Australia, January 5-7, 2015, Proceedings, Part {II}},
+  pages     = {524--535},
+  year      = {2015},
+  crossref  = {DBLP:conf/mmm/2015-2},
+  url       = {http://dx.doi.org/10.1007/978-3-319-14442-9_57},
+  doi       = {10.1007/978-3-319-14442-9_57},
+  timestamp = {Mon, 05 Jan 2015 11:28:22 +0100},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/conf/mmm/DongSLT15},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}

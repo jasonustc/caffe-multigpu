@@ -19,13 +19,9 @@
 ### Reference
 
     @inproceedings{DBLP:conf/mmm/DongSLT15,
-      author    = {Zhe Dong and
-               Xu Shen and
-               Houqiang Li and
-               Xinmei Tian},
+      author    = {Zhe Dong and Xu Shen and Houqiang Li and Xinmei Tian},
       title     = {Photo Quality Assessment with {DCNN} that Understands Image Well},
-      booktitle = {MultiMedia Modeling - 21st International Conference, {MMM} 2015, Sydney,
-               NSW, Australia, January 5-7, 2015, Proceedings, Part {II}},
+      booktitle = {MMM},
       pages     = {524--535},
       year      = {2015}
     }

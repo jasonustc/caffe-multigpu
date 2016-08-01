@@ -14,6 +14,7 @@ namespace bp = boost::python;
 #include "boost/algorithm/string.hpp"
 #include "caffe/caffe.hpp"
 #include "caffe/util/signal_handler.h"
+#include "caffe/util/math_functions.hpp"
 
 using caffe::Blob;
 using caffe::Caffe;
@@ -402,6 +403,7 @@ int main(int argc, char** argv) {
 	::google::SetLogDestination(0, log_dest.c_str());
 	::google::SetLogFilenameExtension(FLAGS_log_name.c_str());
 #endif
+	google::InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging).
   FLAGS_alsologtostderr = 1;
   // Set version

@@ -225,6 +225,9 @@ template <typename Dtype>
 void caffe_gpu_log(const int n, const Dtype* a, Dtype* y);
 
 template <typename Dtype>
+void caffe_gpu_sqr(const int n, const Dtype* a, Dtype* y);
+
+template <typename Dtype>
 void caffe_gpu_powx(const int n, const Dtype* a, const Dtype b, Dtype* y);
 
 // caffe_gpu_rng_uniform with two arguments generates integers in the range

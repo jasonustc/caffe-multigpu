@@ -8,7 +8,7 @@ namespace caffe{
 	void LatentLossLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		CHECK(bottom[0]->shape() == bottom[1]->shape()) << "mu and sigma must \
-														   			have the same shape";
+			have the same shape";
 		//loss layer output a scalar, 0 shape
 		vector<int> shape(0);
 		top[0]->Reshape(shape);

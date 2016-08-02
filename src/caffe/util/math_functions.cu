@@ -327,7 +327,8 @@ void caffe_gpu_exp<double>(const int N, const double* a, double* y) {
 template <typename Dtype>
 __global__ void log_kernel(const int n, const Dtype* a, Dtype* y) {
   CUDA_KERNEL_LOOP(index, n) {
-    y[index] = log(a[index]);
+	  // make sure positive for log
+    y[index] = log(a[index] + 1e-20);
   }
 }
 

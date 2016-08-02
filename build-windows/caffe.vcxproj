@@ -119,7 +119,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\tools\extract_feat.cpp" />
+    <ClCompile Include="..\tools\convert_feat_label_line.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />

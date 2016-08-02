@@ -28,7 +28,6 @@ namespace caffe{
 	__global__ void LatentLoss_Backward_kernel(const int n, const Dtype coeff, const Dtype* sigma_data,
 		Dtype* sigma_diff_data){
 		CUDA_KERNEL_LOOP(index, n){
-			//TODO: check if data is not zero
 			//first load to local device memory to save some time
 			Dtype sig = max(sigma_data[index], Dtype(FLT_MIN));
 			sigma_diff_data[index] = coeff *(sig - 1 / sig);

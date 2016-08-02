@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 146 (last added:
-// triplet_loss_param)
+// LayerParameter next available layer-specific ID: 147 (last added:
+// noise_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -389,6 +389,7 @@ message LayerParameter {
   optional LRNParameter lrn_param = 118;
   optional MemoryDataParameter memory_data_param = 119;
   optional MVNParameter mvn_param = 120;
+  optional NoiseParameter noise_param = 146;
   optional PoolingParameter pooling_param = 121;
   optional PowerParameter power_param = 122;
   optional PReLUParameter prelu_param = 131;
@@ -406,6 +407,23 @@ message LayerParameter {
   optional TileParameter tile_param = 138;
   optional TripletParameter triplet_loss_param = 145;
   optional WindowDataParameter window_data_param = 129;
+}
+
+//Message that stores parameters used to generate random noise
+message NoiseParameter{
+    enum NoiseType{
+        GAUSSIAN = 1;
+        UNIFORM = 2;
+    }
+    optional NoiseType noise_type = 1[default = GAUSSIAN]; //noise type
+    //noise parameters
+    optional float alpha = 2[default = 0];
+    optional float beta = 3[default = 0.01];
+    enum ApplyType{
+        MULTIPLY = 1;
+        ADD = 2;
+    }
+    optional ApplyType apply_type = 4[default = ADD]; //apply type
 }
 
 // Message that stores parameters used to compute triplet loss

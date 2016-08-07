@@ -556,6 +556,8 @@
       <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\rbm_layer.cu">
+        <Filter>src\layers</Filter>
+    </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\triplet_loss_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>

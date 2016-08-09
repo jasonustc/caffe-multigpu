@@ -70,6 +70,7 @@ namespace caffe{
 		int output_dim_;
 		int X_dim_;
 		int num_seq_;
+		bool delay_;
 
 		// slice_h_ layer
 		shared_ptr<SliceLayer<Dtype> > slice_h_;

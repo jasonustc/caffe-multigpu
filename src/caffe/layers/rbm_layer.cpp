@@ -14,7 +14,7 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		//TODO: implement CD-k not only CD-1 in current version
 		num_iteration_ = this->layer_param_.rbm_param().num_iteration();
-		CHECK_GE(num_iteration_, 1) << "iteration times should be larger than 1.";
+		CHECK_GE(num_iteration_, 1) << "iteration times should be at least 1.";
 		const int num_output = this->layer_param_.rbm_param().num_output();
 		bias_term_ = this->layer_param_.rbm_param().has_bias_filler();
 		N_ = num_output;

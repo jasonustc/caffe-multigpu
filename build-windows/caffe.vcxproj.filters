@@ -556,7 +556,7 @@
       <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\rbm_layer.cu">
-        <Filter>src\layers</Filter>
+      <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\triplet_loss_layer.cu">
       <Filter>src\layers</Filter>
@@ -912,6 +912,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\local_lstm_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
   </ItemGroup>

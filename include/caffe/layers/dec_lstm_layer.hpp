@@ -30,6 +30,8 @@ namespace caffe{
 	/*
 	 * @brief Implementation of Decoding LSTM
 	 * TODO: deal with param_propagate_down_ and propagate_down
+	 * if decoding a sentence, the input is X_[0], X_[1], ...
+	 * if decoding a video, the input is \hat{0}, X_[0], X_[1], ...
 	 */
 	template <typename Dtype>
 	class DLSTMLayer : public DRNNBaseLayer<Dtype>{

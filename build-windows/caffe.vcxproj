@@ -264,6 +264,7 @@
     <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\prnn_base_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\python_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\local_lstm_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\rbm_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reduction_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\relu_layer.hpp" />

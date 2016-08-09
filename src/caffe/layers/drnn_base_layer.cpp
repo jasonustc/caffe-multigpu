@@ -152,6 +152,10 @@ namespace caffe{
 		else{
 			start_blob_.reset(new Blob<Dtype>(y_shape));
 		}
+		// if we need to delay the decoding input for 1 timestep
+		// e.g. for decoding video sequence, we need a delay
+		// for decoding sentence, we do not need a delay
+		delay_ = this->layer_param_.recurrent_param().delay();
 	}
 
 	template <typename Dtype>

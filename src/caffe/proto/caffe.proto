@@ -443,6 +443,8 @@ message RecurrentParameter{
     optional int32 output_dim = 2;
     // the predict sequence length
     optional int32 pred_length = 3;
+    // 1 timestep delay when feeding the decoding input 
+    optional bool delay = 4 [default = true];
 }
 
 // Message that stores parameters used to compute triplet loss

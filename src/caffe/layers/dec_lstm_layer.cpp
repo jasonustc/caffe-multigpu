@@ -169,12 +169,14 @@ namespace caffe{
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
 		if (!cont_t){
 			// begin of a sequence
-			concat_bottom[0] = start_blob_.get();
+			/// concat_bottom[0] = start_blob_.get();
+			concat_bottom[0] = this->delay_ ? start_blob_.get() : X_[t].get();
 			concat_bottom[1] = H0_[seq_id].get();
 		}
 		else{
 			if (conditional_){
-				concat_bottom[0] = X_[t - 1].get();
+				/// concat_bottom[0] = X_[t - 1].get();
+				concat_bottom[0] = this->delay_ ? X_[t - 1].get() : X_[t].get();
 			}
 			else{
 				concat_bottom[0] = Y_2_[t - 1].get();
@@ -251,12 +253,14 @@ namespace caffe{
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
 		if (!cont_t){
 			// begin of a sequence
-			concat_bottom[0] = start_blob_.get();
+			/// concat_bottom[0] = start_blob_.get();
+			concat_bottom[0] = this->delay_ ? start_blob_.get() : X_[t].get();
 			concat_bottom[1] = H0_[seq_id].get();
 		}
 		else{
 			if (conditional_){
-				concat_bottom[0] = X_[t - 1].get();
+				/// concat_bottom[0] = X_[t - 1].get();
+				concat_bottom[0] = this->delay_ ? X_[t - 1].get() : X_[t].get();
 			}
 			else{
 				concat_bottom[0] = Y_2_[t - 1].get();

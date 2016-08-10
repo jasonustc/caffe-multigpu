@@ -15,25 +15,36 @@ namespace caffe {
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
 
-		hidden_dim_ = this->GetHiddenDim();
+		this->hidden_dim_ = this->GetHiddenDim();
 		T_ = bottom[0]->shape(0);
 		X_dim_ = bottom[0]->shape(2);
 
 		// shapes of blobs
+    /*
 		const vector<int> x_shape {
 			1, 
 			bottom[0]->shape(1),
 			bottom[0]->shape(2)
-		};
+		};*/
+		vector<int> x_shape(3, 1);
+		x_shape[1] = bottom[0]->shape(1);
+		x_shape[2] = bottom[0]->shape(2);
+    /*
 		const vector<int> h_shape{
 			1,
 			bottom[0]->shape(1),
 			hidden_dim_
-		};
+		};*/
+		vector<int> h_shape(3, 1);
+		h_shape[1] = bottom[0]->shape(1);
+		h_shape[2] = hidden_dim_;
+    /*
 		const vector<int> cont_shape{
 			1,
 			bottom[0]->shape(1)
-		};
+		};*/
+		vector<int> cont_shape(2, 1);
+		cont_shape[1] = bottom[0]->shape(1);
 
 		// setup slice_x_ layer
 		// Top
@@ -94,20 +105,25 @@ namespace caffe {
 			T_ = bottom[0]->shape(0);
 
 			// shapes of blobs
+      /*
 			const vector<int> x_shape{
 				1,
 				bottom[0]->shape(1),
 				bottom[0]->shape(2)
-			};
-			const vector<int> h_shape{
-				1,
-				bottom[0]->shape(1),
-				hidden_dim_
-			};
+			};*/
+			vector<int> x_shape(3, 1);
+			x_shape[1] = bottom[0]->shape(1);
+			x_shape[2] = bottom[0]->shape(2);
+			vector<int> h_shape(3, 1);
+			h_shape[1] = bottom[0]->shape(1);
+			h_shape[2] = this->hidden_dim_;
+      /*
 			const vector<int> cont_shape{
 				1,
 				bottom[0]->shape(1)
-			};
+			};*/
+			vector<int> cont_shape(2, 1);
+			cont_shape[1] = bottom[0]->shape(1);
 
 			// reshape slice_x_
 			X_.resize(T_);
@@ -137,7 +153,7 @@ namespace caffe {
 			concat_ht_->Reshape(concat_ht_bottom, concat_ht_top);
 		}
 		vector<int> top_shape = bottom[0]->shape();
-		top_shape[2] = hidden_dim_;
+		top_shape[2] = this->hidden_dim_;
 		top[0]->Reshape(top_shape);
 	}
 

@@ -646,7 +646,6 @@ void Blob<Dtype>::FromTxt(string file_name){
 	Dtype feat;
 	this->Reshape(blob_shape);
 	Dtype* blob_data = this->mutable_cpu_data();
-	const int count = this->count_;
 	int n = 0;
 	while (in >> feat){
 		blob_data[n++] = feat;

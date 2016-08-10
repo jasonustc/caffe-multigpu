@@ -96,3 +96,6 @@ LOG*
 CURRENT
 MANIFEST-*
 
+# .build_release files
+.build_release*
+

@@ -50,15 +50,15 @@ namespace caffe{
 		virtual void RecurrentBackward(const int t, const int cont_t, const int seq_id);
 
 		virtual void ShareWeight(){
-			ip_h_->blobs()[0]->ShareData(*(blobs_[0]));
-			ip_h_->blobs()[0]->ShareDiff(*(blobs_[0]));
-			ip_g_->blobs()[0]->ShareData(*(blobs_[1]));
-			ip_g_->blobs()[0]->ShareDiff(*(blobs_[1]));
+			this->ip_h_->blobs()[0]->ShareData(*(this->blobs_[0]));
+			this->ip_h_->blobs()[0]->ShareDiff(*(this->blobs_[0]));
+			ip_g_->blobs()[0]->ShareData(*(this->blobs_[1]));
+			ip_g_->blobs()[0]->ShareDiff(*(this->blobs_[1]));
 			if (bias_term_){
-				ip_h_->blobs()[1]->ShareData(*(blobs_[2]));
-				ip_h_->blobs()[1]->ShareDiff(*(blobs_[2]));
-				ip_g_->blobs()[1]->ShareData(*(blobs_[3]));
-				ip_g_->blobs()[1]->ShareDiff(*(blobs_[3]));
+				this->ip_h_->blobs()[1]->ShareData(*(this->blobs_[2]));
+				this->ip_h_->blobs()[1]->ShareDiff(*(this->blobs_[2]));
+				ip_g_->blobs()[1]->ShareData(*(this->blobs_[3]));
+				ip_g_->blobs()[1]->ShareDiff(*(this->blobs_[3]));
 			}
 		}
 

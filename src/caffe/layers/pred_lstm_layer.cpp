@@ -148,7 +148,7 @@ namespace caffe{
 			lstm_unit_bottom[0] = C_[t - 1].get();
 		}
 		lstm_unit_bottom[1] = G_[t].get();
-    /*
+		/*
 		const vector<Blob<Dtype>*> lstm_unit_top{
 			C_[t].get(),
 			H_[t].get()

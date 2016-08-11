@@ -22,7 +22,7 @@ namespace caffe{
 
 		//shapes of blobs
 		int x_dim = this->conditional_ ? bottom[3]->shape(2) : this->output_dim_;
-    /*
+		/*
 		const vector<int> x_shape{
 			1,
 			bottom[0]->shape(1),
@@ -31,7 +31,7 @@ namespace caffe{
 		vector<int> x_shape(3, 1);
 		x_shape[1] = bottom[0]->shape(1);
 		x_shape[2] = x_dim;
-    /*
+		/*
 		const vector<int> h_shape{
 			1,
 			bottom[0]->shape(1),
@@ -40,7 +40,7 @@ namespace caffe{
 		vector<int> h_shape(3, 1);
 		h_shape[1] = bottom[0]->shape(1);
 		h_shape[2] = this->hidden_dim_;
-    /*
+		/*
 		const vector<int> xh_shape{
 			1,
 			bottom[0]->shape(1),
@@ -49,7 +49,7 @@ namespace caffe{
 		vector<int> xh_shape(3, 1);
 		xh_shape[1] = bottom[0]->shape(1);
 		xh_shape[2] = x_dim + this->hidden_dim_;
-    /*
+		/*
 		const vector<int> gate_shape{
 			1,
 			bottom[0]->shape(1),
@@ -67,7 +67,7 @@ namespace caffe{
 			H_2_[t].reset(new Blob<Dtype>(h_shape));
 		}
 		const vector<Blob<Dtype>*> split_h_bottom(1, this->H_[0].get());
-    /*
+		/*
 		const vector<Blob<Dtype>*> split_h_top{
 			H_1_[0].get(),
 			H_2_[0].get()
@@ -84,7 +84,7 @@ namespace caffe{
 			XH_[t].reset(new Blob<Dtype>(xh_shape));
 		}
 		// Layer
-    /*
+		/*
 		const vector<Blob<Dtype>*> concat_bottom{
 			this->X_[0].get(),
 			this->H_[0].get()
@@ -136,14 +136,14 @@ namespace caffe{
 		for (int t = 0; t < this->T_; ++t){
 			C_[t].reset(new Blob<Dtype>(h_shape));
 		}
-    /*
+		/*
 		const vector<Blob<Dtype>*> dlstm_unit_bottom{
 			C_[0].get(),
 			G_[0].get()
 		};*/
 		vector<Blob<Dtype>*> dlstm_unit_bottom(2, C_[0].get());
 		dlstm_unit_bottom[1] = G_[0].get();
-    /*
+		/*
 		const vector<Blob<Dtype>*> dlstm_unit_top{
 			C_[0].get(),
 			this->H_[0].get()
@@ -162,7 +162,7 @@ namespace caffe{
 		//TODO: reshape XH_ and G_
 		// length of sequence has changed
 		if (C_.size() != this->H_.size()){
-      /*
+			/*
 			const vector<int> h_shape{
 			1,
 			bottom[0]->shape(1),
@@ -234,7 +234,7 @@ namespace caffe{
 			dlstm_unit_bottom[0] = C_[t - 1].get();
 		}
 		dlstm_unit_bottom[1] = G_[t].get();
-    /*
+		/*
 		const vector<Blob<Dtype>*> dlstm_unit_top{
 			C_[t].get(),
 			H_1_[t].get()
@@ -247,7 +247,7 @@ namespace caffe{
 		const vector<Blob<Dtype>*> split_h_bottom(1, H_1_[t].get());
 		/*const vector<Blob<Dtype>*> split_h_top{ this->H_[t].get(), H_2_[t].get() };*/
 		vector<Blob<Dtype>*> split_h_top(2, this->H_[t].get());
-    split_h_top[1] = H_2_[t].get();
+		split_h_top[1] = H_2_[t].get();
 		split_h_->Forward(split_h_bottom, split_h_top);
 	}
 
@@ -258,7 +258,7 @@ namespace caffe{
 		const vector<Blob<Dtype>*> split_h_bottom(1, H_1_[t].get());
 		/*const vector<Blob<Dtype>*> split_h_top{ this->H_[t].get(), H_2_[t].get() };*/
 		vector<Blob<Dtype>*> split_h_top(2, this->H_[t].get()); 
-    split_h_top[1] = H_2_[t].get();
+		split_h_top[1] = H_2_[t].get();
 		split_h_->Backward(split_h_top,
 			vector<bool>(1, true),
 			split_h_bottom);
@@ -273,7 +273,7 @@ namespace caffe{
 			dlstm_unit_bottom[0] = C_[t - 1].get();
 		}
 		dlstm_unit_bottom[1] = G_[t].get();
-    /*
+		/*
 		const vector<Blob<Dtype>*> dlstm_unit_top{
 			C_[t].get(),
 			H_1_[t].get()

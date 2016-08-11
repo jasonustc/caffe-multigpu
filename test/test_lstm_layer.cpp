@@ -28,7 +28,10 @@ namespace caffe{
 			layer->SetUp(bottom_, top_);
 			CHECK_EQ(top_[0]->shape(0), 5);
 			CHECK_EQ(top_[0]->shape(1), 1);
-			CHECK_EQ(top_[0]->shape(2), 4);
+			CHECK_EQ(top_[0]->shape(2), 3);
+			CHECK_EQ(top_[1]->shape(0), 5);
+			CHECK_EQ(top_[1]->shape(1), 1);
+			CHECK_EQ(top_[1]->shape(2), 3);
 		}
 
 		void TestForward(Caffe::Brew mode){
@@ -134,7 +137,7 @@ int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
 	caffe::LSTMLayerTest<float> test;
-//	test.TestSetUp();
+	test.TestSetUp();
 //	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);

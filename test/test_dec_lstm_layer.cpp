@@ -130,6 +130,7 @@ namespace caffe{
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
 			layer_param_.mutable_recurrent_param()->set_conditional(true);
 			layer_param_.mutable_recurrent_param()->set_output_dim(4);
+			layer_param_.mutable_recurrent_param()->set_delay(true);
 		}
 
 		Blob<Dtype>* c0_;
@@ -151,9 +152,9 @@ int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
 	caffe::DLSTMLayerTest<float> test;
-//	test.TestSetUp();
+	test.TestSetUp();
 //	test.TestForward(caffe::Caffe::CPU);
-//	test.TestGradients(caffe::Caffe::CPU);
+	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);
 	return 0;

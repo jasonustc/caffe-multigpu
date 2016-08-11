@@ -43,7 +43,7 @@ namespace caffe{
 			weight_shape[1] = K_;
 			this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
 			//fill the weights
-			shared_ptr<Filler<Dtype>> weight_filler(GetFiller<Dtype>(
+			shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
 				this->layer_param_.rbm_param().weight_filler()));
 			weight_filler->Fill(this->blobs_[0].get());
 			//If necessary, initialize and fill the bias term
@@ -53,7 +53,7 @@ namespace caffe{
 				vector<int> v_bias_shape(1, K_);
 				this->blobs_[1].reset(new Blob<Dtype>(h_bias_shape));
 				this->blobs_[2].reset(new Blob<Dtype>(v_bias_shape));
-				shared_ptr<Filler<Dtype>> bias_filler(GetFiller<Dtype>(
+				shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
 					this->layer_param_.rbm_param().bias_filler()));
 				bias_filler->Fill(this->blobs_[1].get());
 				bias_filler->Fill(this->blobs_[2].get());

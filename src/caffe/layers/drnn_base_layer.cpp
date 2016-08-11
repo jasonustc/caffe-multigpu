@@ -37,16 +37,24 @@ namespace caffe{
 		T_ = bottom[2]->shape(0);
 		num_seq_ = bottom[0]->shape(0);
 
+    /*
 		const vector<int> h_shape{
 			1,
 			bottom[0]->shape(1),
 			bottom[0]->shape(2)
-		};
+		};*/
+		vector<int> h_shape(3, 1);
+		h_shape[1] = bottom[0]->shape(1);
+		h_shape[2] = bottom[0]->shape(2);
+    /*
 		const vector<int> y_shape{
 			1,
 			bottom[0]->shape(1),
 			output_dim_
-		};
+		};*/
+		vector<int> y_shape(3, 1);
+		y_shape[1] = bottom[0]->shape(1);
+		y_shape[2] = output_dim_;
 
 		// setup slice_h_ layer
 		// Top
@@ -117,10 +125,13 @@ namespace caffe{
 				Y_2_[t].reset(new Blob<Dtype>(y_shape));
 			}
 			const vector<Blob<Dtype>*> split_y_bottom(1, Y_[0].get());
+      /*
 			const vector<Blob<Dtype>*> split_y_top{
 				Y_1_[0].get(),
 				Y_2_[0].get()
-			};
+			};*/
+			vector<Blob<Dtype>*> split_y_top(2, Y_1_[0].get());
+			split_y_top[1] = Y_2_[0].get();
 			// Layer
 			split_y_.reset(new SplitLayer<Dtype>(LayerParameter()));
 			split_y_->SetUp(split_y_bottom, split_y_top);
@@ -188,16 +199,24 @@ namespace caffe{
 			CHECK_EQ(bottom[3]->shape(2), X_dim_)
 				<< "X feat dim incompatible with dlstm parameters.";
 		}
-		const vector<int> h_shape{
+    /*
+		vector<int> h_shape{
 			1,
 			bottom[0]->shape(1),
 			bottom[0]->shape(2)
-		};
-		const vector<int> y_shape{
+		};*/
+		vector<int> h_shape(3, 1);
+		h_shape[1] = bottom[0]->shape(1);
+		h_shape[2] = bottom[0]->shape(2);
+    /*
+		vector<int> y_shape{
 			1,
 			bottom[0]->shape(1),
 			output_dim_
-		};
+		};*/
+		vector<int> y_shape(3, 1);
+		y_shape[1] = bottom[0]->shape(1);
+		y_shape[2] = output_dim_;
 		// because ip_g_ and ip_y_ is for element blob, their bottom and top
 		// shape will not change, so we don't need to reshape them here
 		if (bottom[0]->shape(0) != num_seq_){
@@ -261,11 +280,15 @@ namespace caffe{
 			const vector<Blob<Dtype>*> concat_y_top(1, top[0]);
 			concat_y_->Reshape(concat_y_bottom, concat_y_top);
 		}
+    /*
 		vector<int> top_shape{
 			T_,
 			bottom[0]->shape(1),
 			output_dim_
-		};
+		};*/
+		vector<int> top_shape(3, 1);
+		top_shape[1] = bottom[0]->shape(1);
+		top_shape[2] = output_dim_;
 		top[0]->Reshape(top_shape);
 	}
 
@@ -314,10 +337,13 @@ namespace caffe{
 			// 10. split_y_ if needed
 			if (!conditional_){
 				const vector<Blob<Dtype>*> split_y_bottom(1, Y_[t].get());
+        /*
 				const vector<Blob<Dtype>*> split_y_top{
 					Y_1_[t].get(),
 					Y_2_[t].get()
-				};
+				};*/
+				vector<Blob<Dtype>*> split_y_top(2, Y_1_[t].get());
+				split_y_top[1] = Y_2_[t].get();
 				split_y_->Forward(split_y_bottom, split_y_top);
 			}
 		}
@@ -356,10 +382,13 @@ namespace caffe{
 			// 10. split_y_ if needed
 			if (!conditional_){
 				const vector<Blob<Dtype>*> split_y_bottom(1, Y_[t].get());
+        /*
 				const vector<Blob<Dtype>*> split_y_top{
 					Y_1_[t].get(),
 					Y_2_[t].get()
-				};
+				};*/
+				vector<Blob<Dtype>*> split_y_top(2, Y_1_[t].get());
+				split_y_top[1] = Y_2_[t].get();
 				split_y_->Backward(
 					split_y_top,
 					vector<bool>(1, true),

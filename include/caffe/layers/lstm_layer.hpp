@@ -43,10 +43,13 @@ namespace caffe {
 
 		virtual vector<Blob<Dtype>*> RecurrentOutput()
 		{
+      /*
 			vector<Blob<Dtype>*> output{
 				H0_.get(),
 				C0_.get()
-			};
+			};*/
+			vector<Blob<Dtype>*> output(2, H0_.get());
+			output[1] = C0_.get();
 			return output;
 		}
 
@@ -61,27 +64,27 @@ namespace caffe {
 		virtual void CopyRecurrentOutput()
 		{
 			if (Caffe::mode() == Caffe::GPU) {
-				caffe_copy(H0_->count(), H_[T_ - 1]->mutable_gpu_data(),
+				caffe_copy(H0_->count(), this->H_[this->T_ - 1]->mutable_gpu_data(),
 					H0_->mutable_gpu_data());
-				caffe_copy(H0_->count(), C_[T_ - 1]->mutable_gpu_data(),
+				caffe_copy(H0_->count(), C_[this->T_ - 1]->mutable_gpu_data(),
 					C0_->mutable_gpu_data());
 			}
 			else
 			{
-				caffe_copy(H0_->count(), H_[T_ - 1]->mutable_cpu_data(),
+				caffe_copy(H0_->count(), this->H_[this->T_ - 1]->mutable_cpu_data(),
 					H0_->mutable_cpu_data());
-				caffe_copy(H0_->count(), C_[T_ - 1]->mutable_cpu_data(),
+				caffe_copy(H0_->count(), C_[this->T_ - 1]->mutable_cpu_data(),
 					C0_->mutable_cpu_data());
 			}
 		}
 		virtual void ShareWeight()
 		{
-			ip_g_->blobs()[0]->ShareData(*(blobs_[0]));
-			ip_g_->blobs()[0]->ShareDiff(*(blobs_[0]));
+			ip_g_->blobs()[0]->ShareData(*(this->blobs_[0]));
+			ip_g_->blobs()[0]->ShareDiff(*(this->blobs_[0]));
 			if (bias_term_)
 			{
-				ip_g_->blobs()[1]->ShareData(*(blobs_[1]));
-				ip_g_->blobs()[1]->ShareDiff(*(blobs_[1]));
+				ip_g_->blobs()[1]->ShareData(*(this->blobs_[1]));
+				ip_g_->blobs()[1]->ShareDiff(*(this->blobs_[1]));
 			}
 		}
 		virtual int GetHiddenDim()

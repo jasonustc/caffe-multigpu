@@ -27,10 +27,11 @@
 #include "caffe/layers/inner_product_layer.hpp"
 #include "caffe/layers/relu_layer.hpp"
 #include "caffe/layers/sigmoid_layer.hpp"
+#include "caffe/layers/euclidean_loss_layer.hpp"
 
 namespace caffe{
 	template <typename Dtype>
-	class LocalLSTMLayer : public RNNBaseLayer<Dtype>{
+	class LocalLSTMLayer : public LSTMLayer<Dtype>{
 	public: 
 		explicit LocalLSTMLayer(const LayerParameter& param)
 			: LSTMLayer<Dtype>(param){}
@@ -43,49 +44,37 @@ namespace caffe{
 
 	protected:
 		virtual void RecurrentForward(const int t);
-		virtual void RecurrentBackward(const int t);
-
-		/// we only expose trainable lstm parameters to the network
-		virtual void ShareWeight(){
-			ip_g_->blobs()[0]->ShareData(*(blobs_[0]));
-			ip_g_->blobs()[0]->ShareDiff(*(blobs_[0]));
-			if (bias_term_)
-			{
-				ip_g_->blobs()[1]->ShareData(*(blobs_[1]));
-				ip_g_->blobs()[1]->ShareDiff(*(blobs_[1]));
-			}
-		}
-
-		// concat_h_ layer
-		// concat i_x and i_h
-		shared_ptr<ConcatLayer<Dtype> > concat_;
-		vector<shared_ptr<Blob<Dtype> > > XH_;
-
-		// ip_g_ layer
-		shared_ptr<InnerProductLayer<Dtype> > ip_g_;
-		vector<shared_ptr<Blob<Dtype> > > G_;
+		virtual void LocalUpdateRecurrent();
+		void Regularize(const Dtype local_decay, const int id);
+		void ClipGradients();
+		void ComputeUpdateValue(const Dtype lr, const Dtype mom, const int id);
 
 		// ip_hp_ layer
 		/// innerproduct layer to predict the input
 		shared_ptr<InnerProductLayer<Dtype> > ip_xp_;
 		/// activation layer
-		shared_ptr<Layer<Dtype> > act_;
+		shared_ptr<Layer<Dtype> > act_layer_;
 		/// prediction of next input before activation
 		shared_ptr<Blob<Dtype> > xp_;
 		/// prediction of next input after activation
 		shared_ptr<Blob<Dtype> > xp_act_;
 
-		// LocalLSTM_unit_h_ layer
-		shared_ptr<LSTMUnitLayer<Dtype> > lstm_unit_;
-		vector<shared_ptr<Blob<Dtype> > > C_;
-
-		shared_ptr<Blob<Dtype> > C0_;
+		// local loss layer
+		shared_ptr<Layer<Dtype> > loss_layer_;
+		shared_ptr<Blob<Dtype> > local_loss_;
 
 		Dtype local_lr_;
-		Dtype local_decay_mult_;
-		Dtype local_lr_decay_;
-		Dtype gradient_clip_;
-		Blob<Dtype> blob_;
+		Dtype local_decay_;
+		Dtype local_gradient_clip_;
+		bool local_bias_term_;
+		Dtype local_momentum_;
+
+
+		// temp_ for L1 decay and history
+		vector<shared_ptr<Blob<Dtype> > > temp_;
+
+		// params need to be updated in local learning
+		vector<shared_ptr<Blob<Dtype> > > local_learn_params_;
 	};
 
 } // namespace caffe

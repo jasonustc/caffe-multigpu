@@ -447,7 +447,7 @@ message RecurrentParameter{
     optional bool delay = 4 [default = true];
 
     // the param learning set for local learning
-    optional ParamSpec local_param = 5;
+    repeated ParamSpec local_param = 5;
     // how much does the local lr decay through time step?
     optional float local_lr_decay = 6[default = 1];
 
@@ -456,11 +456,21 @@ message RecurrentParameter{
         RELU = 2;
     }
     // activation function for prediction of next input
-    optional ActType act_type = 7;
+    optional ActType local_act_type = 7;
     // gradient clip
-    optional float gradient_clip = 8[default = 0];
+    optional float local_gradient_clip = 8[default = 0];
     // weight decay type 
-    optional string weight_decay_type = 9[default = "L2"];
+    optional string local_decay_type = 9[default = "L2"];
+    // local learning rate
+    optional float local_lr = 10;
+
+    optional float local_decay = 11;
+    // if we have bias in prediction
+    optional bool local_bias_term = 12[default = true];
+    // local momentum
+    optional float local_momentum = 13[default = 0];
+    // local loss weight
+    optional float local_loss_weight = 14[default = 1];
 }
 
 // Message that stores parameters used to compute triplet loss

@@ -7,7 +7,7 @@
 #include "caffe/filler.hpp"
 #include "caffe/test/test_gradient_check_util.hpp"
 #include "caffe/test/test_caffe_main.hpp"
-#include "caffe/layers/sim_merge_layer.hpp"
+#include "caffe/util/sim_merge.hpp"
 
 namespace caffe{
 	template <typename Dtype>
@@ -20,14 +20,13 @@ namespace caffe{
 		void TestSetUp(Caffe::Brew mode){
 			Caffe::set_mode(mode);
 			test_net_->Forward();
-			Blob<Dtype>* out = CHECK_NOTNULL(test_net_->blob_by_name("sim_out").get());
+			Blob<Dtype>* out = CHECK_NOTNULL(test_net_->blob_by_name("ip_out").get());
 			CHECK_EQ(out->shape(0), 2);
-			CHECK_EQ(out->shape(1), 4);
-			CHECK_EQ(out->shape(2), 1);
-			CHECK_EQ(out->shape(3), 1);
+			CHECK_EQ(out->shape(1), 5);
 		}
 		void TestForward(Caffe::Brew mode){
 			Caffe::set_mode(mode);
+			test_net_->MergeAndRefreshWeights();
 			test_net_->Forward();
 		}
 		
@@ -62,13 +61,6 @@ namespace caffe{
 			x_data[13] = (Dtype)1;
 			x_data[14] = (Dtype)-1;
 			//set layer parameter
-			layer_param_.mutable_sim_merge_param()->set_axis(1);
-			layer_param_.mutable_sim_merge_param()->set_threshold(0.1);
-			layer_param_.mutable_sim_merge_param()->set_iter(2);
-			layer_param_.mutable_sim_merge_param()->mutable_weight_filler()->set_type("gaussian");
-			layer_param_.mutable_sim_merge_param()->mutable_weight_filler()->set_std(1);
-			layer_param_.mutable_sim_merge_param()->mutable_bias_filler()->set_type("constant");
-			layer_param_.mutable_sim_merge_param()->mutable_bias_filler()->set_value(0);
 			layer_param_.mutable_convolution_param()->mutable_weight_filler()->set_type("gaussian");
 			layer_param_.mutable_convolution_param()->mutable_weight_filler()->set_std(0.01);
 			layer_param_.mutable_convolution_param()->mutable_bias_filler()->set_type("constant");
@@ -107,24 +99,30 @@ namespace caffe{
 			conv_param->add_bottom("data");
 			conv_param->add_top("conv");
 			conv_param->set_type("Convolution");
-			conv_param->add_param()->set_name("weight");
-			conv_param->add_param()->set_name("bias");
+			conv_param->add_param()->set_name("conv_weight");
+			conv_param->add_param()->set_name("conv_bias");
 			conv_param->set_name("conv");
 
-			LayerParameter* sim_merge_param = net_param.add_layer();
-			sim_merge_param->CopyFrom(layer_param_);
-			sim_merge_param->add_param()->set_name("weight");
-			sim_merge_param->set_type("SimMerge");
-			sim_merge_param->add_param()->set_name("bias");
-			sim_merge_param->add_bottom("conv");
-			sim_merge_param->add_top("sim_out");
-			sim_merge_param->set_name("sim_merge");
-			sim_merge_param->mutable_sim_merge_param()->mutable_weight_shape()->add_dim(4);
-			sim_merge_param->mutable_sim_merge_param()->mutable_weight_shape()->add_dim(3);
-			sim_merge_param->mutable_sim_merge_param()->mutable_weight_shape()->add_dim(2);
-			sim_merge_param->mutable_sim_merge_param()->mutable_weight_shape()->add_dim(2);
-			sim_merge_param->mutable_sim_merge_param()->mutable_bias_shape()->add_dim(4);
-			sim_merge_param->mutable_sim_merge_param()->set_use_history(true);
+			LayerParameter* ip_param = net_param.add_layer();
+			ip_param->mutable_inner_product_param()->mutable_weight_filler()->set_type("gaussian");
+			ip_param->mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
+			ip_param->mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
+			ip_param->mutable_inner_product_param()->mutable_bias_filler()->set_value(0);
+			ip_param->mutable_inner_product_param()->set_num_output(5);
+			ip_param->add_bottom("conv");
+			ip_param->add_top("ip_out");
+			ip_param->set_type("InnerProduct");
+			ip_param->set_name("ip_out");
+			ip_param->add_param()->set_name("ip_weight");
+			ip_param->add_param()->set_name("ip_bias");
+
+			MergeParamSpec* merge_param = net_param.add_merge_param();
+			merge_param->set_axis(1);
+			merge_param->set_name("conv_weight");
+			merge_param->set_prop(0.1);
+			merge_param->mutable_filler()->set_type("gaussian");
+			merge_param->mutable_filler()->set_std(0.1);
+			merge_param->set_hard(true);
 
 			net_param.set_debug_info(true);
 			test_net_.reset(new Net<Dtype>(net_param));
@@ -139,8 +137,6 @@ namespace caffe{
 		Blob<Dtype>* input_map_;
 
 		vector<bool> propagate_down_;
-		
-		shared_ptr<Layer<Dtype> > conv_layer_;
 
 		shared_ptr<Net<Dtype> > test_net_;
 	};
@@ -155,6 +151,6 @@ int main(int argc, char** argv){
 //	test.TestForward(caffe::Caffe::CPU);
 //	test.TestBackward(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
-	test.TestBackward(caffe::Caffe::GPU);
+//	test.TestBackward(caffe::Caffe::GPU);
 	return 0;
 }

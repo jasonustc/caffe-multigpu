@@ -247,7 +247,6 @@
     <ClInclude Include="..\include\caffe\layers\sigmoid_cross_entropy_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\sigmoid_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\silence_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\sim_merge_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\slice_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\softmax_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\softmax_loss_layer.hpp" />
@@ -354,7 +353,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin</OutDir>
-    <TargetName>Test</TargetName>
+    <TargetName>MainBuild</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

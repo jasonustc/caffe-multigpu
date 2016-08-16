@@ -322,6 +322,8 @@ class Net {
   vector<int> merge_axis_;
   vector<Filler<Dtype>*> merge_fillers_;
   vector<Blob<Dtype>*> sims_;
+  // indicator, if we use hard or soft merge threshold
+  vector<bool> hard_;
 
   DISABLE_COPY_AND_ASSIGN(Net);
 };

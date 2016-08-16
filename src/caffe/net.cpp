@@ -286,6 +286,7 @@ void Net<Dtype>::Init(const NetParameter& in_param) {
 	  merge_axis_.push_back(merge_param_i.axis());
 	  merge_fillers_.push_back(GetFiller<Dtype>(merge_param_i.filler()));
 	  sims_.push_back(new Blob<Dtype>());
+	  hard_.push_back(merge_param_i.hard());
   }
 }
 
@@ -977,13 +978,14 @@ void Net<Dtype>::MergeAndRefreshWeights(){
 		Blob<Dtype>* param_sim = sims_[i];
 		const int axis = merge_axis_[i];
 		const Dtype merge_prop = merge_props_[i];
+		const bool hard = hard_[i];
 		if (Caffe::mode() == Caffe::GPU){
 			merge_sim_weights_gpu<Dtype>(param_blob, param_sim, merge_prop, param_filler,
-				axis, param_name);
+				axis, param_name, hard);
 		}
 		else{
 			merge_sim_weights_cpu<Dtype>(param_blob, param_sim, merge_prop, param_filler,
-				axis, param_name);
+				axis, param_name, hard);
 		}
 	}
 }

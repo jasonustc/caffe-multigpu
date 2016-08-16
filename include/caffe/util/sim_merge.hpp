@@ -19,7 +19,8 @@ namespace caffe{
 
 	template <typename Dtype>
 	void merge_sim_weights_cpu(Blob<Dtype>* weight, Blob<Dtype>* sim,
-		const Dtype prop, Filler<Dtype>* filler, const int axis, string name);
+		const Dtype prop, Filler<Dtype>* filler, const int axis, string name,
+		const bool hard = false);
 
 	template <typename Dtype>
 	void update_sim_matrix_gpu(Blob<Dtype>* weight, Blob<Dtype>* sim,
@@ -27,7 +28,8 @@ namespace caffe{
 
 	template <typename Dtype>
 	void merge_sim_weights_gpu(Blob<Dtype>* weight, Blob<Dtype>* sim,
-		const Dtype prop, Filler<Dtype>* filler, const int axis, string name);
+		const Dtype prop, Filler<Dtype>* filler, const int axis, string name, 
+		const bool hard = false);
 
 } // namespace caffe
 

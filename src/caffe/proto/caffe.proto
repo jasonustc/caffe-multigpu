@@ -445,6 +445,22 @@ message RecurrentParameter{
     optional int32 pred_length = 3;
     // 1 timestep delay when feeding the decoding input 
     optional bool delay = 4 [default = true];
+
+    // the param learning set for local learning
+    optional ParamSpec local_param = 5;
+    // how much does the local lr decay through time step?
+    optional float local_lr_decay = 6[default = 1];
+
+    enum ActType{
+        SIGMOID = 1;
+        RELU = 2;
+    }
+    // activation function for prediction of next input
+    optional ActType act_type = 7;
+    // gradient clip
+    optional float gradient_clip = 8[default = 0];
+    // weight decay type 
+    optional string weight_decay_type = 9[default = "L2"];
 }
 
 // Message that stores parameters used to compute triplet loss

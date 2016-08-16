@@ -43,7 +43,7 @@ namespace caffe {
 
 		virtual vector<Blob<Dtype>*> RecurrentOutput()
 		{
-      /*
+			/*
 			vector<Blob<Dtype>*> output{
 				H0_.get(),
 				C0_.get()

@@ -268,7 +268,21 @@ namespace caffe{
 	template <typename Dtype>
 	void LocalLSTMLayer<Dtype>::ClearLocalParamDiffs(){
 		for (size_t i = 0; i < local_learn_params_.size(); ++i){
-			local_learn_params_[i]->scale_diff(0);
+			Blob<Dtype>* blob = local_learn_params_[i].get();
+			switch (Caffe::mode()) {
+			case Caffe::CPU:
+				caffe_set(blob->count(), static_cast<Dtype>(0),
+					blob->mutable_cpu_diff());
+				break;
+			case Caffe::GPU:
+#ifndef CPU_ONLY
+				caffe_gpu_set(blob->count(), static_cast<Dtype>(0),
+					blob->mutable_gpu_diff());
+#else
+	NO_GPU;
+#endif
+				break;
+			}
 		}
 	}
 

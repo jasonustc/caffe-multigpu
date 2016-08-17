@@ -19,7 +19,7 @@ namespace caffe{
 		// setup predict inner_product layer
 		LayerParameter ip_xp_param;
 		// filler setting
-		ip_xp_param.CopyFrom(this->layer_param_.inner_product_param());
+		ip_xp_param.CopyFrom(this->layer_param_);
 		// axis and num_output
 		ip_xp_param.mutable_inner_product_param()->set_axis(2);
 		ip_xp_param.mutable_inner_product_param()->set_num_output(x_shape[2]);
@@ -87,9 +87,9 @@ namespace caffe{
 		// TODO: check if bias should be included in learnable parameters
 		// local learn parameters
 		// 1. LSTM parameters
-		local_learn_params_.push_back(this->blobs()[0]);
+		local_learn_params_.push_back(this->ip_g_->blobs()[0]);
 		if (this->bias_term_){
-			local_learn_params_.push_back(this->blobs()[1]);
+			local_learn_params_.push_back(this->ip_g_->blobs()[1]);
 		}
 		// 2. local inner_product parameters
 		local_learn_params_.push_back(ip_xp_->blobs()[0]);
@@ -98,6 +98,7 @@ namespace caffe{
 		}
 		
 		// temp_ for L1 decay & history
+		temp_.resize(local_learn_params_.size());
 		for (int i = 0; i < local_learn_params_.size(); ++i){
 			temp_[i].reset(new Blob<Dtype>(local_learn_params_[i]->shape()));
 		}
@@ -265,10 +266,20 @@ namespace caffe{
 	}
 
 	template <typename Dtype>
+	void LocalLSTMLayer<Dtype>::ClearLocalParamDiffs(){
+		for (size_t i = 0; i < local_learn_params_.size(); ++i){
+			local_learn_params_[i]->scale_diff(0);
+		}
+	}
+
+	template <typename Dtype>
 	void LocalLSTMLayer<Dtype>::RecurrentForward(const int t){
 		LSTMLayer<Dtype>::RecurrentForward(t);
 		// update by prediction
 		if (t < this->T_ - 1){
+			// clear diff of parameters before propagation
+			// otherwise the history diffs will be accumulated
+			ClearLocalParamDiffs();
 			// 1. Predict
 			// 1.1 inner_product
 			const vector<Blob<Dtype>*> ip_xp_bottom(1, this->H_[t].get());
@@ -306,7 +317,9 @@ namespace caffe{
 			lstm_bottom[1] = this->G_[t].get();
 			lstm_bottom[2] = this->CONT_[t].get();
 			vector<Blob<Dtype>*> lstm_top(2, this->C_[t].get());
-			lstm_top[1] = this->H_1_[t].get();
+			// since we backward to this->H_[t] in local inner_product layer
+			// here we backward diff in this->H_[t] down
+			lstm_top[1] = this->H_[t].get();
 			vector<bool> lstm_unit_bool(3, true);
 			lstm_unit_bool[2] = false;
 			this->lstm_unit_->Backward(lstm_top,

@@ -117,6 +117,26 @@ namespace caffe{
 			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
+			layer_param_.mutable_recurrent_param()->set_back_length(2);
+			layer_param_.mutable_recurrent_param()->set_local_lr(0.1);
+			layer_param_.mutable_recurrent_param()->set_local_lr_decay(0.99);
+			layer_param_.mutable_recurrent_param()->set_local_gradient_clip(10);
+			layer_param_.mutable_recurrent_param()->set_local_bias_term(true);
+			layer_param_.mutable_recurrent_param()->set_local_momentum(0.9);
+			layer_param_.mutable_recurrent_param()->set_local_decay_type("L2");
+			layer_param_.mutable_recurrent_param()->set_local_decay(0.95);
+			ParamSpec* param = layer_param_.mutable_recurrent_param()->add_local_param();
+			param->set_lr_mult(1);
+			param->set_decay_mult(1);
+			param = layer_param_.mutable_recurrent_param()->add_local_param();
+			param->set_lr_mult(2);
+			param->set_decay_mult(0);
+			param = layer_param_.mutable_recurrent_param()->add_local_param();
+			param->set_lr_mult(1);
+			param->set_decay_mult(1);
+			param = layer_param_.mutable_recurrent_param()->add_local_param();
+			param->set_lr_mult(2);
+			param->set_decay_mult(0);
 		}
 
 		Blob<Dtype>* x_;
@@ -138,8 +158,8 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::LocalLSTMLayerTest<float> test;
 	test.TestSetUp();
-//	test.TestForward(caffe::Caffe::CPU);
-	test.TestGradients(caffe::Caffe::CPU);
+	test.TestForward(caffe::Caffe::CPU);
+//	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);
 	return 0;

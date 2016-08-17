@@ -49,6 +49,7 @@ namespace caffe{
 		void Regularize(const Dtype local_decay, const int id);
 		void ClipGradients();
 		void ComputeUpdateValue(const Dtype lr, const Dtype mom, const int id);
+		void ClearLocalParamDiffs();
 
 		// ip_hp_ layer
 		/// innerproduct layer to predict the input

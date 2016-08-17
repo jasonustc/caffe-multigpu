@@ -44,7 +44,8 @@ namespace caffe{
 
 	protected:
 		virtual void RecurrentForward(const int t);
-		virtual void LocalUpdateRecurrent();
+		virtual void RecurrentBackward(const int t);
+		virtual void LocalUpdateRecurrent(const int t);
 		void Regularize(const Dtype local_decay, const int id);
 		void ClipGradients();
 		void ComputeUpdateValue(const Dtype lr, const Dtype mom, const int id);
@@ -54,20 +55,22 @@ namespace caffe{
 		shared_ptr<InnerProductLayer<Dtype> > ip_xp_;
 		/// activation layer
 		shared_ptr<Layer<Dtype> > act_layer_;
-		/// prediction of next input before activation
-		shared_ptr<Blob<Dtype> > xp_;
-		/// prediction of next input after activation
-		shared_ptr<Blob<Dtype> > xp_act_;
+		/// prediction of next input 
+		shared_ptr<Blob<Dtype> > px_;
 
 		// local loss layer
 		shared_ptr<Layer<Dtype> > loss_layer_;
 		shared_ptr<Blob<Dtype> > local_loss_;
 
 		Dtype local_lr_;
+		// how much does the local lr decay through time step?
+		Dtype local_lr_decay_;
 		Dtype local_decay_;
 		Dtype local_gradient_clip_;
 		bool local_bias_term_;
 		Dtype local_momentum_;
+		string regularize_type_;
+		int back_steps_;
 
 
 		// temp_ for L1 decay and history

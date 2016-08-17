@@ -217,7 +217,7 @@ namespace caffe {
 			vector<bool>(T_, true),
 			concat_ht_bottom);
 
-		// For all sequence run lstm.
+		// For all sequences run lstm.
 		for (int t = T_ - 1; t >= 0; t--)
 		{
 			this->RecurrentBackward(t);

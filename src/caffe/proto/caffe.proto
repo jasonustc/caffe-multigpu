@@ -463,7 +463,7 @@ message RecurrentParameter{
     optional string local_decay_type = 9[default = "L2"];
     // local learning rate
     optional float local_lr = 10;
-
+    // local decay
     optional float local_decay = 11;
     // if we have bias in prediction
     optional bool local_bias_term = 12[default = true];
@@ -471,6 +471,8 @@ message RecurrentParameter{
     optional float local_momentum = 13[default = 0];
     // local loss weight
     optional float local_loss_weight = 14[default = 1];
+    // how many time steps we can backward?
+    optional int32 back_length = 15[default = -1];
 }
 
 // Message that stores parameters used to compute triplet loss

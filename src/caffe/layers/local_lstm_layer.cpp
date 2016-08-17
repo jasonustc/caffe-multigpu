@@ -297,26 +297,26 @@ namespace caffe{
 			vector<Blob<Dtype>*> lstm_bottom(3, NULL);
 			if (t == 0)
 			{
-				lstm_bottom[0] = C0_.get();
+				lstm_bottom[0] = this->C0_.get();
 			}
 			else
 			{
-				lstm_bottom[0] = C_1_[t - 1].get();
+				lstm_bottom[0] = this->C_1_[t - 1].get();
 			}
-			lstm_bottom[1] = G_[t].get();
+			lstm_bottom[1] = this->G_[t].get();
 			lstm_bottom[2] = this->CONT_[t].get();
-			vector<Blob<Dtype>*> lstm_top(2, C_[t].get());
-			lstm_top[1] = H_1_[t].get();
+			vector<Blob<Dtype>*> lstm_top(2, this->C_[t].get());
+			lstm_top[1] = this->H_1_[t].get();
 			vector<bool> lstm_unit_bool(3, true);
 			lstm_unit_bool[2] = false;
-			lstm_unit_->Backward(lstm_top,
+			this->lstm_unit_->Backward(lstm_top,
 				lstm_unit_bool,
 				lstm_bottom);
 
 			// 2.4 forward gate.
-			const vector<Blob<Dtype>*> ip_g_bottom(1, XH_[t].get());
-			const vector<Blob<Dtype>*> ip_g_top(1, G_[t].get());
-			ip_g_->Backward(ip_g_top,
+			const vector<Blob<Dtype>*> ip_g_bottom(1, this->XH_[t].get());
+			const vector<Blob<Dtype>*> ip_g_top(1, this->G_[t].get());
+			this->ip_g_->Backward(ip_g_top,
 				vector<bool>(1, true),
 				ip_g_bottom);
 			/// NOTE: because we only care about the update of parameters

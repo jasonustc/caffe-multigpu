@@ -295,6 +295,7 @@ namespace caffe{
 			// otherwise the history diffs will be accumulated
 			// TODO: check the last time before global learning?
 			ClearLocalParamDiffs();
+			LOG(INFO) << "sumsq_diff of local 0: " << local_learn_params_[0]->sumsq_diff();
 			// 1. Predict
 			// 1.1 inner_product
 			const vector<Blob<Dtype>*> ip_xp_bottom(1, this->H_[t].get());

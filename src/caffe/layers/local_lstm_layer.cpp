@@ -293,6 +293,7 @@ namespace caffe{
 		if (t < this->T_ - 1){
 			// clear diff of parameters before propagation
 			// otherwise the history diffs will be accumulated
+			// TODO: check the last time before global learning?
 			ClearLocalParamDiffs();
 			// 1. Predict
 			// 1.1 inner_product
@@ -352,6 +353,10 @@ namespace caffe{
 
 			// 3. Update
 			LocalUpdateRecurrent(t);
+			// clear all diffs, especially LSTM parameters
+			// to avoid being accumulated in global LSTM error
+			// propagation
+			ClearLocalParamDiffs();
 		}
 	}
 

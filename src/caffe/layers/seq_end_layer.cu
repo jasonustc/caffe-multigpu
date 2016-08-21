@@ -13,9 +13,9 @@ namespace caffe{
 		int outer_dim = bottom[0]->count(2);
 		const Dtype* bottom_offset;
 		for (int i = 0; i < num_seq; ++i){
-			top_data += top[0]->offset(i);
 			bottom_offset = bottom_data + outer_dim * static_cast<int>(end_id_[i]);
 			caffe_copy(outer_dim, bottom_offset, top_data);
+			top_data += top[0]->offset(1);
 		}
 	}
 
@@ -29,9 +29,9 @@ namespace caffe{
 			int outer_dim = bottom[0]->count(2);
 			Dtype* bottom_offset;
 			for (int i = 0; i < num_seq; ++i){
-				top_diff += top[0]->offset(i);
 				bottom_offset = bottom_diff + outer_dim * static_cast<int>(end_id_[i]);
 				caffe_copy(outer_dim, top_diff, bottom_offset);
+				top_diff += top[0]->offset(1);
 			}
 		}
 	}

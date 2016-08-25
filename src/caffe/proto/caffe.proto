@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 149 (last added: //
-// triplet_loss_param)
+// LayerParameter next available layer-specific ID: 150 (last added: //
+// sampling_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -398,6 +398,7 @@ message LayerParameter {
   optional ReductionParameter reduction_param = 136;
   optional ReLUParameter relu_param = 123;
   optional ReshapeParameter reshape_param = 133;
+  optional SamplingParameter sampling_param = 150; 
   optional ScaleParameter scale_param = 142;
   optional SigmoidParameter sigmoid_param = 124;
   optional SoftmaxParameter softmax_param = 125;
@@ -411,6 +412,26 @@ message LayerParameter {
   optional WindowDataParameter window_data_param = 129;
 }
 
+// Message that stores parameters for sampling layer
+// the distribution parameters can be setted by bottom or 
+// param1, param2
+message SamplingParameter{
+    enum SampleType{
+        BERNOULLI = 1;
+        GAUSSIAN = 2;
+        UNIFORM = 3;
+    }
+    optional SampleType sample_type = 1;
+    // parameters for GAUSSIAN sampling
+    optional float mu = 2;
+    optional float sigma = 3;
+    // parameters for UNIFORM sampling
+    optional float a = 4;
+    optional float b = 5;
+    // parameters for BERNOULLI sampling
+    optional float p = 6;
+}
+
 // Message that stores parameters to generate continuous indicators for video
 message VideoUnrollParameter{
     optional uint32 frame_channels = 1 [default = 3];
@@ -419,18 +440,11 @@ message VideoUnrollParameter{
 //Message that stores parameters used to calculate rbm loss
 message RBMParameter{
     optional int32 num_output = 1;
-    optional FillerParameter weight_filler = 2;
-    optional FillerParameter bias_filler = 3;
     enum SampleType{
         BERNOULLI = 1;
-        GAUSSUIAN = 2;
+        GAUSSIAN = 2;
     }
     optional SampleType sample_type = 4[default = BERNOULLI];
-    // The first axis to be lumped into a single inner product computation;
-    // all preceding axes are retained in the output.
-    // May be negative to index from the end (e.g., -1 for the last axis).
-    // here default to reshape the bottom to be N * (C * H * W)
-    optional int32 axis = 5[default = 1];
     //number of CD times, CD-k algorithm
     optional int32 num_iteration = 6[default = 1];
 }

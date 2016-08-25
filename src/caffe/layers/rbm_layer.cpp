@@ -4,66 +4,68 @@
 #include "caffe/layers/rbm_layer.hpp"
 
 namespace caffe{
-	template <typename Dtype>
-	inline Dtype sigmoid(Dtype x){
-		return 1. / (1. + exp(-x));
-	}
 
+	/*
+	 * parameter for inner_product layer is copied from inner_product_param
+	 * parameter for sampling is copied from sample_param
+	 */
 	template <typename Dtype>
 	void RBMLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		//TODO: implement CD-k not only CD-1 in current version
 		num_iteration_ = this->layer_param_.rbm_param().num_iteration();
 		CHECK_GE(num_iteration_, 1) << "iteration times should be at least 1.";
-		const int num_output = this->layer_param_.rbm_param().num_output();
-		bias_term_ = this->layer_param_.rbm_param().has_bias_filler();
-		N_ = num_output;
-		//when we use axis from proto file, we'd better call this CanonicalAxisIndex function
-		//to make sure it indexes the right axis
-		const int axis = bottom[0]->CanonicalAxisIndex(this->layer_param_.rbm_param().axis());
-		// Dimensions starting from "axis" are "flattened" into a single
-		// length K_ vector. For example, if bottom[0]'s shape is (N, C, H, W),
-		// and axis == 1, N inner products with dimension CHW are performed.
-		K_ = bottom[0]->count(axis);
-		if (this->blobs_.size() > 0){
-			LOG(INFO) << "Skipping parameter initialization";
-		}
-		else{
-			//in RBM layer, we have h_bias and v_bias seperately
-			if (bias_term_){
-				this->blobs_.resize(3);
-			}
-			else{
-				this->blobs_.resize(1);
-			}
 
-			//Initialize the weight
-			vector<int> weight_shape(2);
-			weight_shape[0] = N_;
-			weight_shape[1] = K_;
-			this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
-			//fill the weights
-			shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
-				this->layer_param_.rbm_param().weight_filler()));
-			weight_filler->Fill(this->blobs_[0].get());
-			//If necessary, initialize and fill the bias term
-			//bias has the same dim with the corresponding data
-			if (bias_term_){
-				vector<int> h_bias_shape(1, N_);
-				vector<int> v_bias_shape(1, K_);
-				this->blobs_[1].reset(new Blob<Dtype>(h_bias_shape));
-				this->blobs_[2].reset(new Blob<Dtype>(v_bias_shape));
-				shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
-					this->layer_param_.rbm_param().bias_filler()));
-				bias_filler->Fill(this->blobs_[1].get());
-				bias_filler->Fill(this->blobs_[2].get());
-			}
-		} // parameter initialization
-		this->param_propagate_down_.resize(this->blobs_.size(), true);
-		//TODO: implement different types of sampling, not just binary 
-		//sampling in current version
-		//actually, in RBM, bernoulli sampling is enough
-		sample_type_ = this->layer_param_.rbm_param().sample_type();
+		// setup intermediate data blobs
+		vector<int> v_shape = bottom[0]->shape();
+		vector<int> h_shape = v_shape;
+		h_shape[1] = this->layer_param_.inner_product_param().num_output();
+		pos_v_.reset(new Blob<Dtype>(v_shape));
+		neg_v_.reset(new Blob<Dtype>(v_shape));
+		pos_h_.reset(new Blob<Dtype>(h_shape));
+		neg_h_.reset(new Blob<Dtype>(h_shape));
+		pos_state_h_.reset(new Blob<Dtype>(h_shape));
+		neg_state_v_.reset(new Blob<Dtype>(v_shape));
+
+		// setup forward inner product layer
+		// Bottom && Top
+		pos_v_->ShareData(*(bottom[0]));
+		LayerParameter forward_param(this->layer_param_);
+		ip_forward_layer_.reset(new InnerProductLayer<Dtype>(forward_param));
+		const vector<Blob<Dtype>*> ip_forward_bottom(1, pos_v_.get());
+		const vector<Blob<Dtype>*> ip_forward_top(1, pos_h_.get());
+		ip_forward_layer_->SetUp(ip_forward_bottom, ip_forward_top);
+        
+		// setup hidden activation layer
+		// NOTE: here we use the same act layer and sampling layer for 
+		// visible and hidden variables, so we only setup them once
+		// in-place activation
+		act_layer_.reset(new SigmoidLayer<Dtype>(LayerParameter()));
+		const vector<Blob<Dtype>*> act_bottom(1, pos_h_.get());
+		const vector<Blob<Dtype>*> act_top(1, pos_h_.get());
+		act_layer_->SetUp(hid_act_bottom, hid_act_top);
+
+		// setup sampling layer
+		sample_layer_.reset(new SamplingLayer<Dtype>(this->layer_param_));
+		const vector<Blob<Dtype>*> sample_bottom(1, pos_h_.get());
+		const vector<Blob<Dtype>*> sample_top(1, pos_state_h_.get());
+		sample_layer_->SetUp(sample_bottom, sample_top);
+
+		// setup backward inner product layer
+		LayerParameter back_param(this->layer_param_);
+		back_param.mutable_inner_product_param()->set_num_output(v_shape[1]);
+		ip_back_layer_.reset(new InnerProductLayer<Dtype>(back_param));
+		const vector<Blob<Dtype>*> ip_back_bottom(pos_state_h_.get());
+		const vector<Blob<Dtype>*> ip_back_top(neg_v_.get());
+		ip_back_layer_->SetUp(ip_back_bottom, ip_back_top);
+
+		// setup learnable params for this layer
+		bool bias_term = this->layer_param_.inner_product_param().bias_term();
+		this->blobs_.resize(1 + bias_term);
+
+		// setup top data
+		top[0]->ReshapeLike(*(pos_h_.get()));
+		top[0]->ShareData(*(pos_h_.get()));
 	}
 
 	template <typename Dtype>

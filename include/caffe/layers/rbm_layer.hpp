@@ -8,6 +8,9 @@
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/filler.hpp"
+#include "caffe/layers/inner_product_layer.hpp"
+#include "caffe/layers/sampling_layer.hpp"
+#include "caffe/layers/sigmoid_layer.hpp"
 
 namespace caffe{
 	template <typename Dtype>
@@ -38,33 +41,44 @@ namespace caffe{
 		void Gibbs_vhvh_cpu();
 		void Gibbs_vhvh_gpu();
 
-		//the inner product parameters
-		int M_;
-		int K_;
-		int N_;
 		//iteration times in contrasitive divergence
 		int num_iteration_;
 
-	public:
+	private:
 		//visible variables
-		Blob<Dtype> pos_v_;
-		Blob<Dtype> neg_v_;
+		shared_ptr<Blob<Dtype> > pos_v_;
+		shared_ptr<Blob<Dtype> > neg_v_;
 
 		//hidden variables
-		Blob<Dtype> pos_h_;
-		Blob<Dtype> neg_h_;
+		shared_ptr<Blob<Dtype> > pos_h_;
+		shared_ptr<Blob<Dtype> > neg_h_;
 
 		//sampling result of positive hidden states
-		Blob<Dtype> positive_state_h_;
-		Blob<Dtype> negative_state_v_;
+		shared_ptr<Blob<Dtype> > pos_state_h_;
+		shared_ptr<Blob<Dtype> > neg_state_v_;
 
 		bool bias_term_;
-		Blob<Dtype> bias_multiplier_;
+		Blob<Dtype>* bias_multiplier_;
 
 		RBMParameter_SampleType sample_type_;
 
+		// layer for linear computation
+		/// vis to hidden
+		shared_ptr<InnerProductLayer<Dtype> > ip_forward_layer_;
+		/// hidden to vis
+		shared_ptr<InnerProductLayer<Dtype> > ip_back_layer_;
+
+		/* Layer for activation
+		 * TODO: support for more activation types, e.g., ReLU, Tanh
+		 */
+		shared_ptr<SigmoidLayer<Dtype> > act_layer_;
+
+		// layer for sampling
+		shared_ptr<SamplingLayer<Dtype> > sample_layer_;
+
 		//weight diff buffer
-		Blob<Dtype> weight_diff_buf_;
+		// what is this for?
+		Blob<Dtype>* weight_diff_buf_;
 	};
 } // namespace caffe
 #endif

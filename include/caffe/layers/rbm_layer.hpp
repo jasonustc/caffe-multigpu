@@ -25,6 +25,7 @@ namespace caffe{
 		virtual inline const char* type() const { return "RBM"; }
 		virtual inline int ExactNumBottomBlobs() const { return 1; }
 		virtual inline int MinNumTopBlobs() const { return 1; }
+		virtual inline int MaxNumTopBlobs() const { return 2; }
 
 	protected:
 		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
@@ -38,13 +39,21 @@ namespace caffe{
 			const vector<bool>& propagate_down,
 			const vector<Blob<Dtype>*>& bottom);
 
-		void Gibbs_vhvh_cpu();
-		void Gibbs_vhvh_gpu();
+		virtual void ShareWeight(){
+			ip_forward_layer_->blobs()[0]->ShareData(*(this->blobs_[0]));
+			ip_back_layer_->blobs()[0]->ShareData(*(this->blobs_[0]));
+			if (bias_term_){
+				ip_forward_layer_->blobs()[1]->ShareData(*(this->blobs_[1]));
+				ip_back_layer_->blobs()[1]->ShareData(*(this->blobs_[2]));
+			}
+		}
+
+		void Gibbs_vhvh();
 
 		//iteration times in contrasitive divergence
-		int num_iteration_;
+		int num_iter_;
 
-	private:
+	public:
 		//visible variables
 		shared_ptr<Blob<Dtype> > pos_v_;
 		shared_ptr<Blob<Dtype> > neg_v_;
@@ -53,14 +62,9 @@ namespace caffe{
 		shared_ptr<Blob<Dtype> > pos_h_;
 		shared_ptr<Blob<Dtype> > neg_h_;
 
-		//sampling result of positive hidden states
-		shared_ptr<Blob<Dtype> > pos_state_h_;
-		shared_ptr<Blob<Dtype> > neg_state_v_;
-
-		bool bias_term_;
-		Blob<Dtype>* bias_multiplier_;
-
-		RBMParameter_SampleType sample_type_;
+		//sampling result of corresponding variables
+		shared_ptr<Blob<Dtype> > h_state_;
+		shared_ptr<Blob<Dtype> > v_state_;
 
 		// layer for linear computation
 		/// vis to hidden
@@ -77,8 +81,12 @@ namespace caffe{
 		shared_ptr<SamplingLayer<Dtype> > sample_layer_;
 
 		//weight diff buffer
-		// what is this for?
 		Blob<Dtype>* weight_diff_buf_;
+		int M_;
+		int N_;
+		int K_;
+		bool bias_term_;
+		Blob<Dtype>* bias_multiplier_;
 	};
 } // namespace caffe
 #endif

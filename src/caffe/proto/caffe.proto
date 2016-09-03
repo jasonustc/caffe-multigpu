@@ -439,14 +439,8 @@ message VideoUnrollParameter{
 
 //Message that stores parameters used to calculate rbm loss
 message RBMParameter{
-    optional int32 num_output = 1;
-    enum SampleType{
-        BERNOULLI = 1;
-        GAUSSIAN = 2;
-    }
-    optional SampleType sample_type = 4[default = BERNOULLI];
     //number of CD times, CD-k algorithm
-    optional int32 num_iteration = 6[default = 1];
+    optional int32 num_iteration = 1[default = 1];
 }
 
 // Message that stores parameters for LSTM Layer

@@ -8,8 +8,6 @@ namespace caffe{
 	void SamplingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		Layer<Dtype>::LayerSetUp(bottom, top);
-		CHECK(bottom[0]->shape() == bottom[1]->shape()) << 
-			"The shape of mu and sigma  should be the same";
 		sample_type_ = this->layer_param_.sampling_param().sample_type();
 		// currently, backward is only allowed in gaussian sampling
 		switch (sample_type_){
@@ -17,12 +15,16 @@ namespace caffe{
 		{
 		  is_gaussian_ = true;
 		  CHECK_EQ(bottom.size(), 2) << "two input blobs (\mu, \sigma) are required";
+		  CHECK(bottom[0]->shape() == bottom[1]->shape()) <<
+			  "The shape of mu and sigma  should be the same";
 		  break;
 		}
 		case SamplingParameter_SampleType_UNIFORM:
 		{
 		   is_gaussian_ = false;
 		   CHECK_EQ(bottom.size(), 2) << "two input blobs (a, b) are required";
+		   CHECK(bottom[0]->shape() == bottom[1]->shape()) <<
+			   "The shape of a and b should be the same";
 		   break;
 		}
 		case SamplingParameter_SampleType_BERNOULLI:
@@ -61,6 +63,7 @@ namespace caffe{
 		{
 		  const Dtype* mu_data = bottom[0]->cpu_data();
 		  const Dtype* sigma_data = bottom[1]->cpu_data();
+		  CHECK_GT(sigma_data[0], 0) << "sigma should be positive";
 		  Dtype* gaussian_data = gaussian_value_.mutable_cpu_data();
 		  caffe_rng_gaussian(count, Dtype(0), Dtype(1), gaussian_data);
 		  //z_t = \mu + \sigma * N(0,1)
@@ -72,12 +75,15 @@ namespace caffe{
 		{
 		 const Dtype* a_data = bottom[0]->cpu_data();
 		 const Dtype* b_data = bottom[1]->cpu_data();
+		 CHECK_LT(a_data[0], b_data[0]) << "a should be less than b";
 		 caffe_rng_uniform(count, a_data, b_data, top_data);
 		 break;
 		}
 		case SamplingParameter_SampleType_BERNOULLI:
 		{
 		   const Dtype* p_data = bottom[0]->cpu_data();
+		   CHECK_GE(p_data[0], 0) << "p should be greater than or equal with 0";
+		   CHECK_LE(p_data[0], 1) << "p should be less than or equal with 1";
 		   caffe_rng_bernoulli(count, p_data, top_data);
 		   break;
 		}

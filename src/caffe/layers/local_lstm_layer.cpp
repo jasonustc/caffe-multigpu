@@ -376,7 +376,7 @@ namespace caffe{
 	// only backward back_steps_ time steps
 	template <typename Dtype>
 	void LocalLSTMLayer<Dtype>::RecurrentBackward(const int t){
-		if (back_steps_ && t == (this->T_ - 1)){
+		if (back_steps_ > 0 && t == (this->T_ - 1)){
 			// only need to operate once
 			this->GetBackwardIndicator();
 		}

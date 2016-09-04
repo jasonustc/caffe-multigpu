@@ -112,6 +112,7 @@
     <ClCompile Include="..\src\caffe\util\db.cpp" />
     <ClCompile Include="..\src\caffe\util\db_leveldb.cpp" />
     <ClCompile Include="..\src\caffe\util\db_lmdb.cpp" />
+    <ClCompile Include="..\src\caffe\util\file_proc_util.cpp" />
     <ClCompile Include="..\src\caffe\util\hdf5.cpp" />
     <ClCompile Include="..\src\caffe\util\im2col.cpp" />
     <ClCompile Include="..\src\caffe\util\insert_splits.cpp" />
@@ -121,7 +122,7 @@
     <ClCompile Include="..\src\caffe\util\transform.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_random_transform_layer.cpp" />
+    <ClCompile Include="..\tools\extract_feat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -281,6 +282,8 @@
     <ClInclude Include="..\include\caffe\util\db_leveldb.hpp" />
     <ClInclude Include="..\include\caffe\util\db_lmdb.hpp" />
     <ClInclude Include="..\include\caffe\util\device_alternate.hpp" />
+    <ClInclude Include="..\include\caffe\util\feat_extractor.hpp" />
+    <ClInclude Include="..\include\caffe\util\file_proc_util.h" />
     <ClInclude Include="..\include\caffe\util\format.hpp" />
     <ClInclude Include="..\include\caffe\util\gpu_util.cuh" />
     <ClInclude Include="..\include\caffe\util\hdf5.hpp" />

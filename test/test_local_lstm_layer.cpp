@@ -52,31 +52,36 @@ namespace caffe{
 
 		void TestGradients(Caffe::Brew mode){
 			// test LSTMUnitLayer first
-			LSTMUnitLayer<Dtype>* layer_unit = new LSTMUnitLayer<Dtype>(LayerParameter());
-			vector<int> c_shape{ 1, 1, 3 };
-			vector<int> x_shape{ 1, 1, 12 };
-			vector<int> cont_shape{ 1, 1 };
-			Blob<Dtype>* c = new Blob<Dtype>(c_shape);
-			Blob<Dtype>* x = new Blob<Dtype>(x_shape);
-			Blob<Dtype>* cont = new Blob<Dtype>(cont_shape);
-			Blob<Dtype>* c_top = new Blob<Dtype>();
-			Blob<Dtype>* h_top = new Blob<Dtype>();
-			FillerParameter fill_param;
-			fill_param.set_type("gaussian");
-			fill_param.set_std(1);
-			Filler<Dtype>* filler = GetFiller<Dtype>(fill_param);
-			filler->Fill(c);
-			filler->Fill(x);
-			Dtype* cont_data = cont->mutable_cpu_data();
-			cont_data[0] = 1;
-			const vector<Blob<Dtype>*> unit_bottom{ c, x , cont};
-			const vector<Blob<Dtype>*> unit_top{ c_top, h_top };
-			Caffe::set_mode(mode);
+//			LSTMUnitLayer<Dtype>* layer_unit = new LSTMUnitLayer<Dtype>(LayerParameter());
+//			vector<int> c_shape{ 1, 1, 3 };
+//			vector<int> x_shape{ 1, 1, 12 };
+//			vector<int> cont_shape{ 1, 1 };
+//			Blob<Dtype>* c = new Blob<Dtype>(c_shape);
+//			Blob<Dtype>* x = new Blob<Dtype>(x_shape);
+//			Blob<Dtype>* cont = new Blob<Dtype>(cont_shape);
+//			Blob<Dtype>* c_top = new Blob<Dtype>();
+//			Blob<Dtype>* h_top = new Blob<Dtype>();
+//			FillerParameter fill_param;
+//			fill_param.set_type("gaussian");
+//			fill_param.set_std(1);
+//			Filler<Dtype>* filler = GetFiller<Dtype>(fill_param);
+//			filler->Fill(c);
+//			filler->Fill(x);
+//			Dtype* cont_data = cont->mutable_cpu_data();
+//			cont_data[0] = 1;
+//			const vector<Blob<Dtype>*> unit_bottom{ c, x , cont};
+//			const vector<Blob<Dtype>*> unit_top{ c_top, h_top };
+//			Caffe::set_mode(mode);
 			GradientChecker<Dtype> checker(0.01, 0.001);
-			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top, 0);
-			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top, 1);
+//			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top, 0);
+//			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top, 1);
 			// then LSTM Layer
 			LocalLSTMLayer<Dtype> layer(layer_param_);
+			layer.SetUp(bottom_, top_);
+			layer.Forward(bottom_, top_);
+			vector<bool> prop_down(2, true);
+			prop_down[1] = false;
+			layer.Backward(top_, prop_down, bottom_);
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
 		}
@@ -117,7 +122,7 @@ namespace caffe{
 			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
-			layer_param_.mutable_recurrent_param()->set_back_length(2);
+			layer_param_.mutable_recurrent_param()->set_back_length(-1);
 			layer_param_.mutable_recurrent_param()->set_local_lr(0.1);
 			layer_param_.mutable_recurrent_param()->set_local_lr_decay(0.99);
 			layer_param_.mutable_recurrent_param()->set_local_gradient_clip(10);
@@ -158,8 +163,8 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::LocalLSTMLayerTest<float> test;
 	test.TestSetUp();
-//	test.TestForward(caffe::Caffe::CPU);
-//	test.TestGradients(caffe::Caffe::CPU);
+	test.TestForward(caffe::Caffe::CPU);
+	test.TestGradients(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
 //	test.TestGradients(caffe::Caffe::GPU);
 	return 0;

@@ -50,6 +50,27 @@ namespace caffe{
 		void ClipGradients();
 		void ComputeUpdateValue(const Dtype lr, const Dtype mom, const int id);
 		void ClearLocalParamDiffs();
+		virtual void GetBackwardIndicator(){
+			int seq_begin = 0;
+			for (int t = 1; t < this->T_; ++t){
+				Dtype cont_t = this->CONT_[t]->cpu_data()[0];
+				if (cont_t == 0){
+					// start of next sequence
+					for (int k = t - 1; k >= std::max(t - back_steps_, seq_begin); --k){
+						// only backward for the last back_steps_ time steps
+						// in each sequence
+						backward_indicator_[k] = true;
+					}
+					seq_begin = t;
+				}
+			}
+			// last sequence
+			for (int k = this->T_ - 1; k >= std::max(this->T_ - back_steps_, seq_begin); --k){
+				// only backward for the last back_steps_ time steps
+				// in each sequence
+				backward_indicator_[k] = true;
+			}
+		}
 
 		// ip_hp_ layer
 		/// innerproduct layer to predict the input
@@ -72,6 +93,8 @@ namespace caffe{
 		Dtype local_momentum_;
 		string regularize_type_;
 		int back_steps_;
+		// if we need to backward for current time step
+		vector<bool> backward_indicator_;
 
 
 		// temp_ for L1 decay and history

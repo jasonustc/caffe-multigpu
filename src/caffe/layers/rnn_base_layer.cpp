@@ -20,29 +20,12 @@ namespace caffe {
 		X_dim_ = bottom[0]->shape(2);
 
 		// shapes of blobs
-		/*
-		const vector<int> x_shape {
-			1, 
-			bottom[0]->shape(1),
-			bottom[0]->shape(2)
-		};*/
 		vector<int> x_shape(3, 1);
 		x_shape[1] = bottom[0]->shape(1);
 		x_shape[2] = bottom[0]->shape(2);
-		/*
-		const vector<int> h_shape{
-			1,
-			bottom[0]->shape(1),
-			hidden_dim_
-		};*/
 		vector<int> h_shape(3, 1);
 		h_shape[1] = bottom[0]->shape(1);
 		h_shape[2] = hidden_dim_;
-		/*
-		const vector<int> cont_shape{
-			1,
-			bottom[0]->shape(1)
-		};*/
 		vector<int> cont_shape(2, 1);
 		cont_shape[1] = bottom[0]->shape(1);
 
@@ -105,23 +88,12 @@ namespace caffe {
 			T_ = bottom[0]->shape(0);
 
 			// shapes of blobs
-			/*
-			const vector<int> x_shape{
-				1,
-				bottom[0]->shape(1),
-				bottom[0]->shape(2)
-			};*/
 			vector<int> x_shape(3, 1);
 			x_shape[1] = bottom[0]->shape(1);
 			x_shape[2] = bottom[0]->shape(2);
 			vector<int> h_shape(3, 1);
 			h_shape[1] = bottom[0]->shape(1);
 			h_shape[2] = this->hidden_dim_;
-			/*
-			const vector<int> cont_shape{
-				1,
-				bottom[0]->shape(1)
-			};*/
 			vector<int> cont_shape(2, 1);
 			cont_shape[1] = bottom[0]->shape(1);
 

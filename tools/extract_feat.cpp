@@ -15,6 +15,10 @@ DEFINE_string(feat_file, "",
 	"if not, feats will be saved independently into xxx.jpg.feat");
 DEFINE_string(mode, "CPU",
 	"optional, use CPU or GPU");
+DEFINE_bool(sqrt, false,
+	"Optional; if we need to do root square on extracted features.");
+DEFINE_bool(l2_norm, false,
+	"Optional; if we need to do L2 normalization on extracted features.");
 
 using namespace caffe;
 

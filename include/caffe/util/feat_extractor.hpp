@@ -17,8 +17,9 @@
 #include "caffe/data_transformer.hpp"
 #include "caffe/layers/input_layer.hpp"
 #include "caffe/util/file_proc_util.h"
+#include "caffe/util/math_functions.hpp"
 
-using namespace cv;
+using namespace caffe;
 
 namespace caffe{
 	/*
@@ -123,6 +124,8 @@ namespace caffe{
 				LOG(INFO) << "Since the input shape changes for every sample, "
 					<< "batch_size was set to 1";
 			}
+			this->SetL2Norm(FLAGS_l2_norm);
+			this->SetSqrt(FLAGS_sqrt);
 		}
 
 		void LoadImage(string image_path, Blob<Dtype>* blob, const int offset = 0){
@@ -195,6 +198,18 @@ namespace caffe{
 			net_->Forward();
 			Blob<Dtype>* blob = net_->blob_by_name(blob_name).get();
 			const Dtype* blob_data = blob->cpu_data();
+			if (sqrt_){
+				caffe_powx<Dtype>(blob->count(), blob->mutable_cpu_data(),
+					Dtype(0.5), blob->mutable_cpu_data());
+			}
+			if (l2_norm_){
+				const int img_count = blob->count(1);
+				Dtype* blob_data = blob->mutable_cpu_data();
+				for (int n = 0; n < blob->num(); ++n){
+					this->L2Normalize(img_count, blob_data);
+					blob_data += img_count;
+				}
+			}
 			std::ofstream out_feat;
 			out_feat.open(feat_path.c_str(), std::ios::binary | std::ios::app);
 			CHECK(out_feat.is_open());
@@ -208,20 +223,48 @@ namespace caffe{
 			CHECK(net_input_->shape(0), paths.size());
 			net_->Forward();
 			Blob<Dtype>* blob = net_->blob_by_name(blob_name).get();
-			const Dtype* blob_data = blob->cpu_data();
+			Dtype* blob_data = blob->mutable_cpu_data();
+			if (sqrt_){
+				caffe_powx<Dtype>(blob->count(), blob_data, Dtype(0.5), blob_data);
+			}
 			const int img_count = blob->count(1);
 			for (size_t i = 0; i < blob->shape(0); ++i){
+				if (l2_norm_){
+					this->L2Normalize(img_count, blob_data);
+				}
 				std::ofstream out_feat;
 				string feat_path = paths[i] + ".feat";
 				out_feat.open(feat_path.c_str(), std::ios::binary);
 				CHECK(out_feat.is_open());
 				out_feat.write((char*)(blob_data), sizeof(Dtype)* img_count);
 				out_feat.close();
-				blob_data += blob->offset(1);
+				blob_data += img_count;
 			}
 		}
 
-	private:
+	protected:
+		void SetSqrt(const bool sqrt){
+			this->sqrt_ = sqrt;
+			LOG_IF(INFO, sqrt) << "will do square root of features";
+			LOG_IF(INFO, !sqrt) << "will not do square root of features";
+		}
+
+		void SetL2Norm(const bool l2_norm){
+			this->l2_norm_ = l2_norm;
+			LOG_IF(INFO, l2_norm) << "will do l2 normalization of features";
+			LOG_IF(INFO, !l2_norm) << "will not do l2 normalization of features";
+		}
+
+		/*
+		* x_i = x_i / ||x||_2
+		*/
+		template<typename Dtype>
+		void L2Normalize(const int dim, Dtype* feat_data){
+			Dtype l2_norm = caffe_cpu_dot<Dtype>(dim, feat_data, feat_data) + 1e-9;
+			l2_norm = sqrt(l2_norm);
+			caffe_scal<Dtype>(dim, Dtype(1. / l2_norm), feat_data);
+		}
+
 		Net<Dtype>* net_;
 		Blob<Dtype>* net_input_;
 		shared_ptr<DataTransformer<Dtype> > data_transformer_;
@@ -237,6 +280,8 @@ namespace caffe{
 		int batch_size_;
 		Blob<Dtype>* temp_;
 		bool input_shape_change_;
+		bool sqrt_ = false;
+		bool l2_norm_ = false;
 	};
 }
 #endif

@@ -47,6 +47,10 @@ int main(int argc, char** argv){
 	string file_path = argv[1];
 	string blob_name = argv[2];
 	int file_type = check_file_type(file_path);
+	if (!FLAGS_feat_file.empty()){
+		CHECK(!check_file_type(FLAGS_feat_file)) << "Please delete " 
+			<< FLAGS_feat_file << " first.";
+	}
 	if (file_type == 0 || file_type == 1){
 		LOG(FATAL) << "not a regular file or not exist";
 	}

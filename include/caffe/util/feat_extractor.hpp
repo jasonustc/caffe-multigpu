@@ -176,7 +176,7 @@ namespace caffe{
 				else{
 					GetFeat(blob_name, batch_path);
 				}
-				LOG_IF(INFO, ((n + 1) % 100 == 0)) << "Loaded " << n << " batches";
+				LOG_IF(INFO, (n  % 100 == 0)) << "Loaded " << n << " batches";
 			}
 			// last batch
 			for (int b = 0; b < R; b++){

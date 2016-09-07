@@ -63,6 +63,7 @@ namespace caffe{
 		virtual void RecurrentForward(const int t, const int cont_t, const int seq_id) = 0;
 		virtual void RecurrentBackward(const int t, const int cont_t, const int seq_id) = 0;
 		virtual void ShareWeight() = 0;
+		virtual void CopyRecurrentOutputAndInput() = 0;
 
 		int hidden_dim_;
 		int T_;
@@ -76,13 +77,14 @@ namespace caffe{
 		shared_ptr<SliceLayer<Dtype> > slice_h_;
 		vector<shared_ptr<Blob<Dtype> > > H0_;
 
-		// slice_c_ layer
-		shared_ptr<SliceLayer<Dtype> > slice_c_;
-		vector<shared_ptr<Blob<Dtype> > > C0_;
 
 		// slice_x_ layer
 		shared_ptr<SliceLayer<Dtype> > slice_x_;
 		vector<shared_ptr<Blob<Dtype> > > X_;
+
+		// slice_c_ layer
+		shared_ptr<SliceLayer<Dtype> > slice_c_;
+		vector<shared_ptr<Blob<Dtype> > > C0_;
 
 		// concat_y_ layer
 		shared_ptr<ConcatLayer<Dtype> > concat_y_;
@@ -100,6 +102,7 @@ namespace caffe{
 
 		// start blob for the input of the beginning
 		shared_ptr<Blob<Dtype> > start_blob_;
+		shared_ptr<Blob<Dtype> > start_H_;
 
 		// hidden states
 		vector<shared_ptr<Blob<Dtype> > > H_;

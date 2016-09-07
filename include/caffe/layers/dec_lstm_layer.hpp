@@ -62,6 +62,35 @@ namespace caffe{
 			}
 		}
 
+		// just copy data, not diff
+		virtual void CopyRecurrentOutputAndInput(){
+			if (Caffe::mode() == Caffe::GPU) {
+				caffe_copy(this->start_H_->count(), this->H_[this->T_ - 1]->mutable_gpu_data(),
+					this->start_H_->mutable_gpu_data());
+				caffe_copy(this->start_H_->count(), C_[this->T_ - 1]->mutable_gpu_data(),
+					start_C_->mutable_gpu_data());
+				if (this->delay_){
+					Blob<Dtype>* input_blob = this->conditional_ ? this->X_[this->T_ - 1].get()
+						: this->Y_2_[this->T_ - 1].get();
+					caffe_copy(input_blob->count(), input_blob->gpu_data(), 
+						this->start_blob_->mutable_gpu_data());
+				}
+			}
+			else
+			{
+				caffe_copy(this->start_H_->count(), this->H_[this->T_ - 1]->mutable_cpu_data(),
+					this->start_H_->mutable_cpu_data());
+				caffe_copy(this->start_H_->count(), C_[this->T_ - 1]->mutable_cpu_data(),
+					start_C_->mutable_cpu_data());
+				if (this->delay_){
+					Blob<Dtype>* input_blob = this->conditional_ ? this->X_[this->T_ - 1].get()
+						: this->Y_2_[this->T_ - 1].get();
+					caffe_copy(input_blob->count(), input_blob->cpu_data(), 
+						this->start_blob_->mutable_cpu_data());
+				}
+			}
+		}
+
 		int bias_term_;
 
 		//Layers
@@ -71,6 +100,7 @@ namespace caffe{
 		shared_ptr<SplitLayer<Dtype> > split_h_;
 		vector<shared_ptr<Blob<Dtype> > > H_1_;
 		vector<shared_ptr<Blob<Dtype> > > H_2_;
+
 
 		// if not conditional_, we need to feed h into next cell as input
 
@@ -86,6 +116,9 @@ namespace caffe{
 		// dlstm_unit_h_ layer
 		shared_ptr<DLSTMUnitLayer<Dtype> > dlstm_unit_;
 		vector<shared_ptr<Blob<Dtype> > > C_;
+
+		// c for t == 0 if needed
+		shared_ptr<Blob<Dtype> > start_C_;
 	};
 }
 

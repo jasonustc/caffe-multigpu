@@ -35,6 +35,10 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	CHECK(check_file_type(FLAGS_net_file) == 2);
 	CHECK(check_file_type(FLAGS_model_file) == 2);
+	if (!FLAGS_feat_file.empty()){
+		CHECK(!check_file_type(FLAGS_feat_file)) << "please delete " 
+			<< FLAGS_feat_file << " first";
+	}
 	FeatExtractor<float>* feat_extractor;
 	Caffe::Brew mode = (FLAGS_mode == "GPU") ? Caffe::GPU : Caffe::CPU;
 	if (FLAGS_feat_file.size()){

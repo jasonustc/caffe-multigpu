@@ -18,7 +18,9 @@ namespace caffe{
 		CHECK_EQ(2, bottom[2]->num_axes());
 		CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
 		CHECK(bottom[0]->shape() == bottom[1]->shape());
-		CHECK_EQ(bottom[0]->shape(1), 1) << "Currently, only 1 stream decoding is supported";
+		if (bottom[2]->shape(1) > 1){
+			LOG(ERROR) << "Please make sure that each stream has the same 'cont' variable";
+		}
 		conditional_ = this->layer_param_.recurrent_param().conditional();
 		LOG_IF(INFO, conditional_) << "Decode input is groundtruth input sequence";
 		output_dim_ = this->layer_param_.recurrent_param().output_dim();

@@ -172,7 +172,6 @@ namespace caffe{
 		// cont_: (T_, #streams) 
 		CHECK_EQ(2, bottom[2]->num_axes());
 		CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
-		CHECK_EQ(bottom[0]->shape(1), 1) << "Currently, only 1 stream decoding is supported";
 		vector<int> x_shape(3, 1);
 		if (conditional_){
 			//X_: T_, #streams, X_dim_

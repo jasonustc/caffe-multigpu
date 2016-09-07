@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 146 (last added:
-// triplet_loss_param)
+// LayerParameter next available layer-specific ID: 147 (last added:
+// euclidean_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -376,6 +376,7 @@ message LayerParameter {
   optional EltwiseParameter eltwise_param = 110;
   optional ELUParameter elu_param = 140;
   optional EmbedParameter embed_param = 137;
+  optional EuclideanParameter euclidean_param = 146;
   optional ExpParameter exp_param = 111;
   optional FlattenParameter flatten_param = 135;
   optional HDF5DataParameter hdf5_data_param = 112;
@@ -408,6 +409,11 @@ message LayerParameter {
   optional WindowDataParameter window_data_param = 129;
 }
 
+// Message that stores parameters used to compute euclidean loss
+message EuclideanParameter{
+    // data in axis, axis + 1, ... is a single sample
+    optional int32 axis = 1[default = 1];
+}
 // Message that stores parameters used to compute triplet loss
 message TripletParameter{
     optional float margin = 1[default = 0]; // margin for hinge loss

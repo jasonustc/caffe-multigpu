@@ -9,7 +9,9 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		CHECK_EQ(bottom[1]->num_axes(), 2);
 		CHECK_EQ(bottom[0]->num_axes(), 3);
-		CHECK_EQ(bottom[1]->shape(1), 1) << "only one stream processing is supported";
+		if (bottom[0]->shape(1) > 1){
+			LOG(ERROR) << "Please make sure that each stream uses the same cont variable";
+		}
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
 	}
@@ -19,14 +21,17 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		CHECK_EQ(bottom[1]->num_axes(), 2);
 		CHECK_EQ(bottom[0]->num_axes(), 3);
-		CHECK_EQ(bottom[1]->shape(1), 1) << "only one stream processing is supported";
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
 		end_id_.clear();
 		const Dtype* cont_data = bottom[1]->cpu_data();
-		int T = bottom[1]->shape(0);
+		const int T = bottom[1]->shape(0);
+		int cont_t;
 		for (int t = 1; t < T; ++t){
-			if (cont_data[t] == 0){
+			// NOTE: we just use cont of the first stream to infer sequence end
+			// maybe a bug
+			cont_t = static_cast<int>(*(cont_data + bottom[1]->offset(t)));
+			if (cont_t == 0){
 				end_id_.push_back(t - 1);
 			}
 		}

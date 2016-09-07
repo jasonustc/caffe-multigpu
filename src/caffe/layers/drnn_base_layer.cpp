@@ -292,11 +292,11 @@ namespace caffe{
 
 		// for all sequence, run decode lstm.
 		int seq_id = -1;
-		Dtype cont_t;
+		int cont_t;
 		for (int t = 0; t < T_; t++){
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
-			cont_t = *(cont_data + bottom[2]->offset(t));
+			cont_t = static_cast<int>(*(cont_data + bottom[2]->offset(t)));
 			if (cont_t == 0){
 				seq_id++;
 			}
@@ -341,11 +341,11 @@ namespace caffe{
 
 		// for all sequence, run decode LSTM
 		int seq_id = num_seq_;
-		Dtype cont_t;
+		int cont_t;
 		for (int t = T_ - 1; t >= 0; --t){
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
-			cont_t = *(cont_data + bottom[2]->offset(t));
+			cont_t = static_cast<int>(*(cont_data + bottom[2]->offset(t)));
 			if (cont_t == 0){
 				seq_id--;
 			}

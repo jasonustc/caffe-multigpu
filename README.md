@@ -20,7 +20,9 @@ Steps:
 
 2. Configure the environment variables: \$BOOST_1_56_0, \$OPENCV_2_4_9
 
-3. Compile the caffe.sln in VS2013
+3. Run GeneratePB.bat in scripts/ 
+
+4. Compile the caffe.sln in VS2013
 
 Notes:
 
@@ -33,6 +35,8 @@ You need copy More details at https://github.com/BVLC/caffe/tree/windows
 Please follow the official tutorials here: http://caffe.berkeleyvision.org/installation.html 
 
 ## License and Citation
+
+The official turtorial is here: [caffe tutorial](http://caffe.berkeleyvision.org/installation.html)
 
 Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
 The BVLC reference models are released for unrestricted use.

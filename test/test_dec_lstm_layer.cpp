@@ -153,8 +153,8 @@ int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
 	caffe::DLSTMLayerTest<float> test;
-	test.TestSetUp();
-//	test.TestForward(caffe::Caffe::CPU);
+//	test.TestSetUp();
+	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);

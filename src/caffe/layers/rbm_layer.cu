@@ -18,7 +18,7 @@ namespace caffe{
 			caffe_gpu_sub<Dtype>(count, bottom_data, neg_v_data, tmp_data);
 			Dtype loss;
 			caffe_gpu_dot<Dtype>(count, tmp_data, tmp_data, &loss);
-			top[1]->mutable_cpu_data()[0] = loss / bottom[0]->num();
+			top[1]->mutable_cpu_data()[0] = loss / M_;
 		}
 	}
 
@@ -37,7 +37,7 @@ namespace caffe{
 		const Dtype* neg_v_data = neg_v_->gpu_data();
 		const Dtype* neg_h_data = neg_h_->gpu_data();
 		Dtype* weight_diff = this->blobs_[0]->mutable_gpu_diff();
-		Dtype scale = Dtype(1.) / bottom[0]->num();
+		Dtype scale = Dtype(1.) / M_;
 
 		//Gradient with respect to weight
 		if (this->param_propagate_down_[0]){

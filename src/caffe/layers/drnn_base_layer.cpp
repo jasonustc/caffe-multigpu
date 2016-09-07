@@ -168,7 +168,8 @@ namespace caffe{
 		CHECK_EQ(3, bottom[1]->num_axes());
 		CHECK_EQ(bottom[1]->shape(2), hidden_dim_)
 			<< "C0_ feat dim incompatible with dlstm parameters.";
-		CHECK(bottom[0]->shape() == bottom[1]->shape());
+		CHECK(bottom[0]->shape() == bottom[1]->shape()) << bottom[0]->shape_string()
+      << ";" << bottom[1]->shape_string();
 		// cont_: (T_, #streams) 
 		CHECK_EQ(2, bottom[2]->num_axes());
 		CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
@@ -297,7 +298,7 @@ namespace caffe{
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
 			cont_t = static_cast<int>(*(cont_data + bottom[2]->offset(t)));
-			if (cont_t == 0){
+			if (t == 0 || cont_t == 0){
 				seq_id++;
 			}
 			this->RecurrentForward(t, cont_t, seq_id);
@@ -346,7 +347,7 @@ namespace caffe{
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
 			cont_t = static_cast<int>(*(cont_data + bottom[2]->offset(t)));
-			if (cont_t == 0){
+			if (t == 0 || cont_t == 0){
 				seq_id--;
 			}
 			// 10. split_y_ if needed

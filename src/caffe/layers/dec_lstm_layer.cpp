@@ -200,13 +200,15 @@ namespace caffe{
 		const int seq_id){
 		// 4. concat input_t and h_{t - 1}
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
-		if (!cont_t){
+		if (t == 0 || !cont_t){
 			// begin of a sequence
 			/// concat_bottom[0] = start_blob_.get();
 			concat_bottom[0] = this->delay_ ? this->start_blob_.get() : this->X_[t].get();
 			concat_bottom[1] = this->H0_[seq_id].get();
 		}
 		else{
+      // NOTE: when t == 0; cont_t must be 0, otherwise,
+      // this->X_[t-1] will be a bug here
 			if (this->conditional_){
 				/// concat_bottom[0] = X_[t - 1].get();
 				concat_bottom[0] = this->delay_ ? this->X_[t - 1].get() : this->X_[t].get();
@@ -234,11 +236,6 @@ namespace caffe{
 			dlstm_unit_bottom[0] = C_[t - 1].get();
 		}
 		dlstm_unit_bottom[1] = G_[t].get();
-		/*
-		const vector<Blob<Dtype>*> dlstm_unit_top{
-			C_[t].get(),
-			H_1_[t].get()
-		};*/
 		vector<Blob<Dtype>*> dlstm_unit_top(2, C_[t].get());
 		dlstm_unit_top[1] = H_1_[t].get();
 		dlstm_unit_->Forward(dlstm_unit_bottom, dlstm_unit_top);

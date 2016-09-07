@@ -36,6 +36,7 @@ namespace caffe{
 			}
 		}
 		end_id_.push_back(T - 1);
+    LOG(INFO) << "end_id_ size: " << end_id_.size();
 		vector<int> top_shape = bottom[0]->shape();
 		top_shape[0] = end_id_.size();
 		top[0]->Reshape(top_shape);
@@ -47,7 +48,7 @@ namespace caffe{
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		Dtype* top_data = top[0]->mutable_cpu_data();
 		int num_seq = end_id_.size();
-		int outer_dim = bottom[0]->count(2);
+		int outer_dim = bottom[0]->count(1);
 		const Dtype* bottom_offset;
 		for (int i = 0; i < num_seq; ++i){
 			bottom_offset = bottom_data + outer_dim * static_cast<int>(end_id_[i]);
@@ -63,7 +64,7 @@ namespace caffe{
 			const Dtype* top_diff = top[0]->cpu_diff();
 			Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
 			int num_seq = end_id_.size();
-			int outer_dim = bottom[0]->count(2);
+			int outer_dim = bottom[0]->count(1);
 			Dtype* bottom_offset;
 			for (int i = 0; i < num_seq; ++i){
 				bottom_offset = bottom_diff + outer_dim * static_cast<int>(end_id_[i]);

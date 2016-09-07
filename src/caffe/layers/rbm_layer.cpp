@@ -12,7 +12,6 @@ namespace caffe{
 	template <typename Dtype>
 	void RBMLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		CHECK_EQ(bottom[0]->num_axes(), 2) << "only blob with 2 dim are allowed as input for rbm";
 		int axis = this->layer_param_.inner_product_param().axis();
 		axis = bottom[0]->CanonicalAxisIndex(axis);
 		/// data dim
@@ -28,11 +27,11 @@ namespace caffe{
 		CHECK_GE(num_iter_, 1) << "iteration times should be at least 1.";
 
 		// setup intermediate data blobs
-		vector<int> v_shape(2, M_);
-		v_shape[1] = K_;
-		vector<int> h_shape(2, M_);
-		h_shape[1] = N_;
-		pos_v_.reset(new Blob<Dtype>(v_shape));
+		vector<int> v_shape = bottom[0]->shape();
+		vector<int> h_shape = v_shape;
+    h_shape.resize(axis + 1);
+		h_shape[axis] = N_;
+		pos_v_.reset(bottom[0]);
 		neg_v_.reset(new Blob<Dtype>(v_shape));
 		v_state_.reset(new Blob<Dtype>(v_shape));
 		pos_h_.reset(new Blob<Dtype>(h_shape));
@@ -41,8 +40,6 @@ namespace caffe{
 
 		// setup forward inner product layer
 		// Bottom && Top
-		pos_v_->ShareData(*(bottom[0]));
-		pos_v_->ShareDiff(*(bottom[0]));
 		LayerParameter forward_param(this->layer_param_);
 		CHECK(this->layer_param_.inner_product_param().bias_term()) << "bias is required in rbm";
 		ip_forward_layer_.reset(new InnerProductLayer<Dtype>(forward_param));
@@ -69,7 +66,7 @@ namespace caffe{
 		LayerParameter back_param(this->layer_param_);
 		// for sharing weight with forward_layer_
 		back_param.mutable_inner_product_param()->set_transpose(true);
-		back_param.mutable_inner_product_param()->set_num_output(v_shape[1]);
+		back_param.mutable_inner_product_param()->set_num_output(K_);
 		ip_back_layer_.reset(new InnerProductLayer<Dtype>(back_param));
 		const vector<Blob<Dtype>*> ip_back_bottom(1, h_state_.get());
 		const vector<Blob<Dtype>*> ip_back_top(1, neg_v_.get());
@@ -120,6 +117,7 @@ namespace caffe{
 
 		// rbm param update
 		this->param_propagate_down_.resize(this->blobs_.size(), true);
+    LOG(INFO) << "top[0] shape setup: " << top[0]->shape_string();
 	}
 
 	template <typename Dtype>
@@ -231,7 +229,7 @@ namespace caffe{
 			//use neg_v diff for buffer of reconstruction error data
 			caffe_sub<Dtype>(count, bottom_data, neg_v_->cpu_data(), neg_v_->mutable_cpu_diff());
 			Dtype loss = caffe_cpu_dot<Dtype>(count, neg_v_->cpu_diff(), neg_v_->cpu_diff());
-			top[1]->mutable_cpu_data()[0] = loss / bottom[0]->num();
+			top[1]->mutable_cpu_data()[0] = loss / M_;
 		}
 	}
 

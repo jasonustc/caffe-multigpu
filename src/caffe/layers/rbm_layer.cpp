@@ -15,16 +15,23 @@ namespace caffe{
 		CHECK_EQ(bottom[0]->num_axes(), 2) << "only blob with 2 dim are allowed as input for rbm";
 		int axis = this->layer_param_.inner_product_param().axis();
 		axis = bottom[0]->CanonicalAxisIndex(axis);
-		CHECK_LE(axis, 1);
+		/// data dim
+		// num
+		M_ = bottom[0]->count(0, axis);
+		// bottom feat dim
+		K_ = bottom[0]->count(axis);
+		// num_output
+		N_ = this->layer_param_.inner_product_param().num_output();
 
 		// CD-k 
 		num_iter_ = this->layer_param_.rbm_param().num_iteration();
 		CHECK_GE(num_iter_, 1) << "iteration times should be at least 1.";
 
 		// setup intermediate data blobs
-		vector<int> v_shape = bottom[0]->shape();
-		vector<int> h_shape = v_shape;
-		h_shape[1] = this->layer_param_.inner_product_param().num_output();
+		vector<int> v_shape(2, M_);
+		v_shape[1] = K_;
+		vector<int> h_shape(2, M_);
+		h_shape[1] = N_;
 		pos_v_.reset(new Blob<Dtype>(v_shape));
 		neg_v_.reset(new Blob<Dtype>(v_shape));
 		v_state_.reset(new Blob<Dtype>(v_shape));
@@ -98,13 +105,6 @@ namespace caffe{
 		top[0]->ReshapeLike(*(pos_h_.get()));
 		top[0]->ShareData(*(pos_h_.get()));
 
-		/// data dim
-		// num
-		M_ = bottom[0]->count(0, axis);
-		// bottom feat dim
-		K_ = bottom[0]->count(axis);
-		// num_output
-		N_ = top[0]->count(axis);
 
 		// bias
 		if (bias_term_){

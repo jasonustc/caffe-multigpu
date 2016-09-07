@@ -14,7 +14,7 @@ namespace caffe{
 		case SamplingParameter_SampleType_GAUSSIAN:
 		{
 		  is_gaussian_ = true;
-		  CHECK_EQ(bottom.size(), 2) << "two input blobs (\mu, \sigma) are required";
+		  CHECK_EQ(bottom.size(), 2) << "two input blobs (mu, sigma) are required";
 		  CHECK(bottom[0]->shape() == bottom[1]->shape()) <<
 			  "The shape of mu and sigma  should be the same";
 		  break;

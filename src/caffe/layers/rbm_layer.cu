@@ -36,10 +36,7 @@ namespace caffe{
 		const Dtype* pos_h_data = pos_h_->gpu_data();
 		const Dtype* neg_v_data = neg_v_->gpu_data();
 		const Dtype* neg_h_data = neg_h_->gpu_data();
-		const Dtype* top_diff = top[0]->gpu_diff();
-		Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
 		Dtype* weight_diff = this->blobs_[0]->mutable_gpu_diff();
-		const Dtype* weight_data = this->blobs_[0]->gpu_data();
 		Dtype scale = Dtype(1.) / bottom[0]->num();
 
 		//Gradient with respect to weight

@@ -247,10 +247,7 @@ namespace caffe{
 		const Dtype* pos_h_data = pos_h_->cpu_data();
 		const Dtype* neg_v_data = neg_v_->cpu_data();
 		const Dtype* neg_h_data = neg_h_->cpu_data();
-		const Dtype* top_diff = top[0]->cpu_diff();
-		Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
 		Dtype* weight_diff = this->blobs_[0]->mutable_cpu_diff();
-		const Dtype* weight_data = this->blobs_[0]->cpu_data();
 		Dtype scale = Dtype(1.) / Dtype(M_);
 
 		//Gradient with respect to weight

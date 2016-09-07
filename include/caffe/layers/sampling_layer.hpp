@@ -22,7 +22,7 @@ namespace caffe{
 			const vector<Blob<Dtype>*>& top);
 		virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
 			const vector<Blob<Dtype>*>& top);
-		inline virtual const char* type(){ return "SamplingLayer"; }
+		virtual inline const char* type() const { return "SamplingLayer"; }
 
 	protected:
 		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
@@ -36,9 +36,9 @@ namespace caffe{
 			const vector<bool>& propagate_down,
 			const vector<Blob<Dtype>*>& bottom);
 
-		virtual inline int MaxNumBottomBlobs(){ return 2; }
-		virtual inline int MinNumBottomBlobs(){ return 1; }
-		virtual inline int ExactNumTopBlobs(){ return 1; }
+		virtual inline int MaxNumBottomBlobs() const { return 2; }
+		virtual inline int MinNumBottomBlobs() const { return 1; }
+		virtual inline int ExactNumTopBlobs() const { return 1; }
 
 		//the sampling value of standard gaussian distribution
 		//needed in backpropagation

@@ -36,7 +36,6 @@ namespace caffe{
 			}
 		}
 		end_id_.push_back(T - 1);
-    LOG(INFO) << "end_id_ size: " << end_id_.size();
 		vector<int> top_shape = bottom[0]->shape();
 		top_shape[0] = end_id_.size();
 		top[0]->Reshape(top_shape);

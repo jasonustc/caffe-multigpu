@@ -38,6 +38,8 @@ int main(int argc, char** argv){
 	FeatExtractor<float>* feat_extractor;
 	Caffe::Brew mode = (FLAGS_mode == "GPU") ? Caffe::GPU : Caffe::CPU;
 	if (FLAGS_feat_file.size()){
+		CHECK(!check_file_type(FLAGS_feat_file)) << "Please delete "
+			<< FLAGS_feat_file << " first.";
 		feat_extractor = new FeatExtractor<float>(FLAGS_net_file, 
 			FLAGS_model_file, FLAGS_feat_file, mode);
 	}

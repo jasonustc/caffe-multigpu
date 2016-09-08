@@ -39,7 +39,7 @@ void DropoutLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   // layer-wise or element wise dropout parameters
   num_axes_ = param.num_axes() == -1 ? bottom[0]->num_axes() : param.num_axes();
   CHECK_LE(num_axes_, bottom[0]->num_axes());
-  CHECK_GT(num_axes_, 1);
+  CHECK_GE(num_axes_, 1);
   vector<int> mask_shape = bottom[0]->shape();
   mask_shape.resize(num_axes_);
   //only need [0, ..., axis_] mask variables

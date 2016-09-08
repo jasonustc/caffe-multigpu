@@ -375,11 +375,38 @@ DEFINE_AND_INSTANTIATE_GPU_UNARY_FUNC(sign, y[index] = (Dtype(0) < x[index])
 DEFINE_AND_INSTANTIATE_GPU_UNARY_FUNC(sgnbit, y[index] = signbit(x[index]));
 
 template <typename Dtype>
+__global__ void thred_kernel(const int n, const Dtype p, Dtype* r){
+	CUDA_KERNEL_LOOP(index, n){
+		r[index] = r[index] < p;
+	}
+}
+
+//p = P(r[i]=1)
+template <>
+void caffe_gpu_rng_bernoulli<float>(const int n, const float p, float* r){
+	//generate n unsigned int random numbers in [0, UINT_MAX] and put into r
+	CURAND_CHECK(curandGenerateUniform(Caffe::curand_generator(), r, n));
+	thred_kernel<float> // NOLINT_NEXT_LINE(whitespace/operators)
+		<< <CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS >> >
+		(n, p, r);
+}
+
+template <>
+void caffe_gpu_rng_bernoulli<double>(const int n, const double p, double* r){
+	//generate n unsigned int random numbers in [0, UINT_MAX] and put into r
+	CURAND_CHECK(curandGenerateUniformDouble(Caffe::curand_generator(), r, n));
+	thred_kernel<double> // NOLINT_NEXT_LINE(whitespace/operators)
+		<< <CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS >> >
+		(n, p, r);
+}
+
+template <typename Dtype>
 __global__ void thred_kernel(const int n, const Dtype* p, unsigned int* r){
 	CUDA_KERNEL_LOOP(index, n){
 		r[index] = r[index] < static_cast<unsigned int>(p[index] * UINT_MAX);
 	}
 }
+
 
 //compatible with Dtype format
 template <typename Dtype>

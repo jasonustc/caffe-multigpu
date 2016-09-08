@@ -751,6 +751,25 @@ message DataParameter {
 
 message DropoutParameter {
   optional float dropout_ratio = 1 [default = 0.5]; // dropout ratio
+  // dropout type
+  enum DropType{
+      BERNOULLI = 0;
+      GAUSSIAN = 1;
+      UNIFORM = 2;
+  }
+  optional DropType drop_type = 3 [default = BERNOULLI];
+  // parameters for gaussian dropout
+  optional float mu = 4 [default = 0.5];
+  optional float sigma = 5 [default = 0.25];
+  // parameters for uniform dropout
+  optional float a = 6 [default = 0];
+  optional float b = 7 [default = 1];
+  // [num_axes, num_axes + 1, ...] will be viewed as a single dropout unit
+  // e.g. axis == 4 will do element wise dropout
+  // axis == 1 will do sample wise dropout
+  // axis == 2 will do feature map wise dropout
+  // axis == 3 will do row-wise dropout
+  optional int32 num_axes = 8 [default = -1];
 }
 
 // DummyDataLayer fills any number of arbitrarily shaped blobs with random

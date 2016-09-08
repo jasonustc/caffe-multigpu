@@ -8,6 +8,7 @@
 #include "caffe/proto/caffe.pb.h"
 
 #include "caffe/layers/neuron_layer.hpp"
+#include "caffe/layers/scale_layer.hpp"
 
 namespace caffe {
 
@@ -67,7 +68,7 @@ class DropoutLayer : public NeuronLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   /// when divided by UINT_MAX, the randomly generated values @f$u\sim U(0,1)@f$
-  Blob<Dtype> rand_vec_;
+  Blob<Dtype>* rand_vec_;
   /// the probability @f$ p @f$ of dropping any input
   Dtype threshold_;
   /// the scale for undropped inputs at train time @f$ 1 / (1 - p) @f$
@@ -83,8 +84,11 @@ class DropoutLayer : public NeuronLayer<Dtype> {
   bool layer_wise_;
   // dropout type
   DropoutParameter_DropType drop_type_;
-  // data in [axis_, axis_ + 1, ...] will be considered as a single sample
-  int axis_;
+  // data in [num_axis_, num_axis_ + 1, ...] will be considered as a single sample
+  int num_axes_;
+
+  // scale layer for layer_wise dropout
+  shared_ptr<ScaleLayer<Dtype> > scale_layer_;
 };
 
 }  // namespace caffe

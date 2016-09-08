@@ -676,8 +676,6 @@ message DataParameter {
 
 message DropoutParameter {
   optional float dropout_ratio = 1 [default = 0.5]; // dropout ratio
-  // if we want to drop in layer level or neuron level
-  optional bool layer_wise = 2 [default = false];
   // dropout type
   enum DropType{
       BERNOULLI = 0;
@@ -691,7 +689,12 @@ message DropoutParameter {
   // parameters for uniform dropout
   optional float a = 6 [default = 0];
   optional float b = 7 [default = 1];
-  optional int32 axis = 8 [default = 1];
+  // [num_axes, num_axes + 1, ...] will be viewed as a single dropout unit
+  // e.g. axis == 4 will do element wise dropout
+  // axis == 1 will do sample wise dropout
+  // axis == 2 will do feature map wise dropout
+  // axis == 3 will do row-wise dropout
+  optional int32 num_axes = 8 [default = -1];
 }
 
 // DummyDataLayer fills any number of arbitrarily shaped blobs with random

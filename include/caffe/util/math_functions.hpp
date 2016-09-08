@@ -95,6 +95,9 @@ void caffe_rng_bernoulli(const int n, const Dtype p, int* r);
 template <typename Dtype>
 void caffe_rng_bernoulli(const int n, const Dtype p, unsigned int* r);
 
+template <typename Dtype>
+void caffe_rng_bernoulli(const int n, const Dtype p, Dtype* r);
+
 // each element use independent parameters
 template <typename Dtype>
 void caffe_rng_bernoulli(const int n, const Dtype* p, unsigned int* r);
@@ -230,6 +233,10 @@ void caffe_gpu_powx(const int n, const Dtype* a, const Dtype b, Dtype* y);
 // caffe_gpu_rng_uniform with two arguments generates integers in the range
 // [0, UINT_MAX].
 void caffe_gpu_rng_uniform(const int n, unsigned int* r);
+
+// each element use the same parameter
+template <typename Dtype>
+void caffe_gpu_rng_bernoulli(const int n, const Dtype p, Dtype* r);
 
 // each element use an indepent parameter
 template <typename Dtype>

@@ -95,7 +95,6 @@ void DropoutLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		break;
 	  }
 	  }
-	  caffe_set<Dtype>(count, 1, mask);
 	  vector<Blob<Dtype>*> scale_bottom(2, NULL);
 	  scale_bottom[0] = bottom[0];
 	  scale_bottom[1] = rand_vec_;

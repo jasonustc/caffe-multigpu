@@ -16,6 +16,30 @@ void DropoutLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   DCHECK(threshold_ < 1.);
   scale_ = 1. / (1. - threshold_);
   uint_thres_ = static_cast<unsigned int>(UINT_MAX * threshold_);
+  drop_type_ = this->layer_param_.dropout_param().drop_type();
+  a_ = this->layer_param_.dropout_param().a();
+  b_ = this->layer_param_.dropout_param().b();
+  CHECK_LT(a_, b_);
+  mu_ = this->layer_param_.dropout_param().mu();
+  sigma_ = this->layer_param_.dropout_param().sigma();
+  CHECK_GT(sigma_, 0);
+  switch (drop_type_){
+  case DropoutParameter_DropType_UNIFORM:
+	  scale_ = 2. / (b_ + a_);
+	  break;
+  case DropoutParameter_DropType_GAUSSIAN:
+	  scale_ = 1. / mu_;
+	  break;
+  case DropoutParameter_DropType_BERNOULLI:
+	  scale_ = 1. / (1. - threshold_);
+	  break;
+  default:
+	  LOG(FATAL) << "unknown dropout type";
+  }
+  // layer-wise dropout parameters
+  layer_wise_ = this->layer_param_.dropout_param().layer_wise();
+  axis_ = this->layer_param_.dropout_param().axis();
+  CHECK_LT(axis_, bottom[0]->num_axes() - 1);
 }
 
 template <typename Dtype>
@@ -24,7 +48,7 @@ void DropoutLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   NeuronLayer<Dtype>::Reshape(bottom, top);
   // Set up the cache for random number generation
   // ReshapeLike does not work because rand_vec_ is of Dtype uint
-  rand_vec_.Reshape(bottom[0]->shape());
+  rand_vec_.ReshapeLike(*(bottom[0]));
 }
 
 template <typename Dtype>
@@ -32,11 +56,32 @@ void DropoutLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   const Dtype* bottom_data = bottom[0]->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
-  unsigned int* mask = rand_vec_.mutable_cpu_data();
+  Dtype* mask = rand_vec_.mutable_cpu_data();
   const int count = bottom[0]->count();
   if (this->phase_ == TRAIN) {
-    // Create random numbers
-    caffe_rng_bernoulli(count, 1. - threshold_, mask);
+	  switch (drop_type_){
+	  case DropoutParameter_DropType_BERNOULLI:
+	  {
+	    // Create random numbers
+	    caffe_rng_bernoulli(count, 1. - threshold_, mask);
+	    break;
+	  }
+	  case DropoutParameter_DropType_GAUSSIAN:
+	  {
+	   caffe_rng_gaussian(count, Dtype(mu_), Dtype(sigma_), mask);
+	   // clip to be in [0,1]
+	   for (int i = 0; i < count; ++i){
+	  	 Dtype m = mask[i];
+	  	 mask[i] = m > 1 ? 1 : (m < 0 ? 0 : m);
+	   }
+	   break;
+	  }
+	  case DropoutParameter_DropType_UNIFORM:
+	  {
+	    caffe_rng_uniform(count, a_, b_, mask);
+		break;
+	  }
+	  }
     for (int i = 0; i < count; ++i) {
       top_data[i] = bottom_data[i] * mask[i] * scale_;
     }

@@ -676,6 +676,22 @@ message DataParameter {
 
 message DropoutParameter {
   optional float dropout_ratio = 1 [default = 0.5]; // dropout ratio
+  // if we want to drop in layer level or neuron level
+  optional bool layer_wise = 2 [default = false];
+  // dropout type
+  enum DropType{
+      BERNOULLI = 0;
+      GAUSSIAN = 1;
+      UNIFORM = 2;
+  }
+  optional DropType drop_type = 3 [default = BERNOULLI];
+  // parameters for gaussian dropout
+  optional float mu = 4 [default = 0.5];
+  optional float sigma = 5 [default = 0.25];
+  // parameters for uniform dropout
+  optional float a = 6 [default = 0];
+  optional float b = 7 [default = 1];
+  optional int32 axis = 8 [default = 1];
 }
 
 // DummyDataLayer fills any number of arbitrarily shaped blobs with random

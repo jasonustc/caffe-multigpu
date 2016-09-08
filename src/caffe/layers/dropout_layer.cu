@@ -32,10 +32,9 @@ void DropoutLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 	  case DropoutParameter_DropType_GAUSSIAN:
 	  {
 	   caffe_gpu_rng_gaussian(count, Dtype(mu_), Dtype(sigma_), mask);
-	   const int mask_count = rand_vec_->count();
 	   // clip to be in [0,1]
 	   ClipData<Dtype> // NOLINT_NEXT_LINE(whitespace/operators)
-		   << <CAFFE_GET_BLOCKS(mask_count), CAFFE_CUDA_NUM_THREADS >> >
+		   << <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >
 		   (count, Dtype(0), Dtype(1), mask);
 		CUDA_POST_KERNEL_CHECK;
 	   break;

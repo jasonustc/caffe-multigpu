@@ -1179,6 +1179,9 @@ message ScaleParameter {
   // may be more efficient).  Initialized with bias_filler (defaults to 0).
   optional bool bias_term = 4 [default = false];
   optional FillerParameter bias_filler = 5;
+
+  // set the scale manually
+  optional float scale = 6;
 }
 
 message SigmoidParameter {

@@ -98,7 +98,7 @@ message NetParameter {
 // NOTE
 // Update the next available ID when you add a new SolverParameter field.
 //
-// SolverParameter next available ID: 41 (last added: type)
+// SolverParameter next available ID: 44 (last added: mom_inc_iter)
 message SolverParameter {
   //////////////////////////////////////////////////////////////////////////////
   // Specifying the train and test networks
@@ -173,6 +173,9 @@ message SolverParameter {
   optional float gamma = 9; // The parameter to compute the learning rate.
   optional float power = 10; // The parameter to compute the learning rate.
   optional float momentum = 11; // The momentum value.
+  optional float re = 41; // The start value for linearly increased momentum
+  optional float rs = 42; // The end value for linearly increased momentum
+  optional int32 mom_inc_iter = 43; // number of iterations for linear momentum
   optional float weight_decay = 12; // The weight decay.
   // regularization types supported: L1 and L2
   // controlled by weight_decay
@@ -306,7 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 145 (last added: crop_param)
+// LayerParameter next available layer-specific ID: 147 (last added:
+// euclidean_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -372,6 +376,7 @@ message LayerParameter {
   optional EltwiseParameter eltwise_param = 110;
   optional ELUParameter elu_param = 140;
   optional EmbedParameter embed_param = 137;
+  optional EuclideanParameter euclidean_param = 146;
   optional ExpParameter exp_param = 111;
   optional FlattenParameter flatten_param = 135;
   optional HDF5DataParameter hdf5_data_param = 112;
@@ -400,7 +405,20 @@ message LayerParameter {
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
+  optional TripletParameter triplet_loss_param = 145;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// Message that stores parameters used to compute euclidean loss
+message EuclideanParameter{
+    // data in axis, axis + 1, ... is a single sample
+    optional int32 axis = 1[default = 1];
+}
+// Message that stores parameters used to compute triplet loss
+message TripletParameter{
+    optional float margin = 1[default = 0]; // margin for hinge loss
+    // (axis, axis+1, ...) is a single feature vector
+    optional uint32 axis = 2[default = 1];
 }
 
 // Message that stores parameters used to apply transformation
@@ -658,6 +676,25 @@ message DataParameter {
 
 message DropoutParameter {
   optional float dropout_ratio = 1 [default = 0.5]; // dropout ratio
+  // dropout type
+  enum DropType{
+      BERNOULLI = 0;
+      GAUSSIAN = 1;
+      UNIFORM = 2;
+  }
+  optional DropType drop_type = 3 [default = BERNOULLI];
+  // parameters for gaussian dropout
+  optional float mu = 4 [default = 0.5];
+  optional float sigma = 5 [default = 0.25];
+  // parameters for uniform dropout
+  optional float a = 6 [default = 0];
+  optional float b = 7 [default = 1];
+  // [num_axes, num_axes + 1, ...] will be viewed as a single dropout unit
+  // e.g. axis == 4 will do element wise dropout
+  // axis == 1 will do sample wise dropout
+  // axis == 2 will do feature map wise dropout
+  // axis == 3 will do row-wise dropout
+  optional int32 num_axes = 8 [default = -1];
 }
 
 // DummyDataLayer fills any number of arbitrarily shaped blobs with random

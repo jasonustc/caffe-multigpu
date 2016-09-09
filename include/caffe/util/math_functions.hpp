@@ -9,6 +9,7 @@
 #include "caffe/common.hpp"
 #include "caffe/util/device_alternate.hpp"
 #include "caffe/util/mkl_alternate.hpp"
+#include <curand_kernel.h>  //curandState
 
 namespace caffe {
 
@@ -75,15 +76,35 @@ Dtype caffe_nextafter(const Dtype b);
 template <typename Dtype>
 void caffe_rng_uniform(const int n, const Dtype a, const Dtype b, Dtype* r);
 
+// each element use independent parameters
+template <typename Dtype>
+void caffe_rng_uniform(const int n, const Dtype* a, const Dtype* b, Dtype* r);
+
 template <typename Dtype>
 void caffe_rng_gaussian(const int n, const Dtype mu, const Dtype sigma,
                         Dtype* r);
+
+// each element use independent parameters
+template <typename Dtype>
+void caffe_rng_gaussian(const int n, const Dtype* mu, const Dtype* sigma,
+	Dtype* r);
 
 template <typename Dtype>
 void caffe_rng_bernoulli(const int n, const Dtype p, int* r);
 
 template <typename Dtype>
 void caffe_rng_bernoulli(const int n, const Dtype p, unsigned int* r);
+
+template <typename Dtype>
+void caffe_rng_bernoulli(const int n, const Dtype p, Dtype* r);
+
+// each element use independent parameters
+template <typename Dtype>
+void caffe_rng_bernoulli(const int n, const Dtype* p, unsigned int* r);
+
+// each element use independent parameters
+template <typename Dtype>
+void caffe_rng_bernoulli(const int n, const Dtype* p, Dtype* r);
 
 template <typename Dtype>
 void caffe_exp(const int n, const Dtype* a, Dtype* y);
@@ -213,6 +234,18 @@ void caffe_gpu_powx(const int n, const Dtype* a, const Dtype b, Dtype* y);
 // [0, UINT_MAX].
 void caffe_gpu_rng_uniform(const int n, unsigned int* r);
 
+// each element use the same parameter
+template <typename Dtype>
+void caffe_gpu_rng_bernoulli(const int n, const Dtype p, Dtype* r);
+
+// each element use an indepent parameter
+template <typename Dtype>
+void caffe_gpu_rng_bernoulli(const int n, const Dtype* p, unsigned int * r);
+
+// each element use an indepent parameter
+template <typename Dtype>
+void caffe_gpu_rng_bernoulli(const int n, const Dtype* p, Dtype* r);
+
 // caffe_gpu_rng_uniform with four arguments generates floats in the range
 // (a, b] (strictly greater than a, less than or equal to b) due to the
 // specification of curandGenerateUniform.  With a = 0, b = 1, just calls
@@ -221,9 +254,18 @@ void caffe_gpu_rng_uniform(const int n, unsigned int* r);
 template <typename Dtype>
 void caffe_gpu_rng_uniform(const int n, const Dtype a, const Dtype b, Dtype* r);
 
+//each element use an indepent parameter
+template <typename Dtype>
+void caffe_gpu_rng_uniform(const int n, const Dtype* a, const Dtype* b, Dtype* r);
+
 template <typename Dtype>
 void caffe_gpu_rng_gaussian(const int n, const Dtype mu, const Dtype sigma,
                             Dtype* r);
+
+//each element use an indepent parameter
+template <typename Dtype>
+void caffe_gpu_rng_gaussian(const int n, const Dtype* mu, const Dtype* sigma,
+	Dtype* r);
 
 template <typename Dtype>
 void caffe_gpu_rng_bernoulli(const int n, const Dtype p, int* r);

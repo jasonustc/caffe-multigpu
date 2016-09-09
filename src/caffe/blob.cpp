@@ -533,6 +533,222 @@ void Blob<float>::ToProto(BlobProto* proto, bool write_diff) const {
   }
 }
 
+template <>
+void Blob<double>::ToTxt(string file_name, bool write_diff){
+	const int count = this->count_;
+	std::ofstream out(file_name.c_str());
+	CHECK(out.is_open());
+	out << this->num() << "\t" << this->channels() << "\t" <<
+		this->height() << "\t" << this->width() << "\n";
+	for (int i = 0; i < count; ++i){
+		out << this->cpu_data()[i] << "\n";
+	}
+	out.close();
+	if (write_diff){
+		string diff_file = file_name + "_diff";
+		std::ofstream out_diff(diff_file.c_str());
+		CHECK(out_diff.is_open());
+		out_diff << this->num() << "\t" << this->channels() << "\t" <<
+			this->height() << "\t" << this->width() << "\n";
+		for (int i = 0; i < count; ++i){
+			out_diff << this->cpu_diff()[i] << "\n";
+		}
+		out_diff.close();
+	}
+}
+
+template <>
+void Blob<float>::ToTxt(string file_name, bool write_diff){
+	const int count = this->count_;
+	std::ofstream out(file_name.c_str());
+	CHECK(out.is_open());
+	out << this->num() << "\t" << this->channels() << "\t" <<
+		this->height() << "\t" << this->width() << "\n";
+	for (int i = 0; i < count; ++i){
+		out << this->cpu_data()[i] << "\n";
+	}
+	out.close();
+	if (write_diff){
+		string diff_file = file_name + "_diff";
+		std::ofstream out_diff(diff_file.c_str());
+		CHECK(out_diff.is_open());
+		out_diff << this->num() << "\t" << this->channels() << "\t" <<
+			this->height() << "\t" << this->width() << "\n";
+		for (int i = 0; i < count; ++i){
+			out_diff << this->cpu_diff()[i] << "\n";
+		}
+		out_diff.close();
+	}
+}
+
+template <>
+void Blob<unsigned int>::ToTxt(string file_name, bool write_diff){
+	const int count = this->count_;
+	std::ofstream out(file_name.c_str());
+	CHECK(out.is_open());
+	out << this->num() << "\t" << this->channels() << "\t" <<
+		this->height() << "\t" << this->width() << "\n";
+	for (int i = 0; i < count; ++i){
+		out << this->cpu_data()[i] << "\n";
+	}
+	out.close();
+	if (write_diff){
+		string diff_file = file_name + "_diff";
+		std::ofstream out_diff(diff_file.c_str());
+		CHECK(out_diff.is_open());
+		out_diff << this->num() << "\t" << this->channels() << "\t" <<
+			this->height() << "\t" << this->width() << "\n";
+		for (int i = 0; i < count; ++i){
+			out_diff << this->cpu_diff()[i] << "\n";
+		}
+		out_diff.close();
+	}
+}
+
+template <>
+void Blob<int>::ToTxt(string file_name, bool write_diff){
+	const int count = this->count_;
+	std::ofstream out(file_name.c_str());
+	CHECK(out.is_open());
+	out << this->num() << "\t" << this->channels() << "\t" <<
+		this->height() << "\t" << this->width() << "\n";
+	for (int i = 0; i < count; ++i){
+		out << this->cpu_data()[i] << "\n";
+	}
+	out.close();
+	if (write_diff){
+		string diff_file = file_name + "_diff";
+		std::ofstream out_diff(diff_file.c_str());
+		CHECK(out_diff.is_open());
+		out_diff << this->num() << "\t" << this->channels() << "\t" <<
+			this->height() << "\t" << this->width() << "\n";
+		for (int i = 0; i < count; ++i){
+			out_diff << this->cpu_diff()[i] << "\n";
+		}
+		out_diff.close();
+	}
+}
+
+template<typename Dtype>
+void Blob<Dtype>::FromTxt(string file_name){
+	std::ifstream in(file_name.c_str());
+	CHECK(in.is_open());
+	string shape_str;
+	std::getline(in, shape_str);
+	int dim;
+	std::stringstream ss;
+	ss << shape_str;
+	vector<int> blob_shape;
+	while (ss >> dim){
+		blob_shape.push_back(dim);
+	}
+	CHECK_LE(blob_shape.size(), 4) << "blob only support at most 4 dims";
+	Dtype feat;
+	this->Reshape(blob_shape);
+	Dtype* blob_data = this->mutable_cpu_data();
+	const int count = this->count_;
+	int n = 0;
+	while (in >> feat){
+		blob_data[n++] = feat;
+	}
+	in.close();
+	CHECK_EQ(n, this->count_) << "the # of elements in shape are not equal to"
+		<< " # of data read.";
+}
+
+#ifdef USE_OPENCV
+template<typename Dtype>
+void Blob<Dtype>::ToMat(cv::Mat& mat, const int depth){
+	int height = this->height();
+	int width = this->width();
+	int channels = this->channels();
+	CHECK(channels == 1 || channels == 3);
+	CHECK(depth == CV_8U || depth == CV_32F);
+	if (depth == CV_8U){
+		if (channels == 1){
+			mat.create(height, width, CV_8UC1);
+		}
+		else{
+			mat.create(height, width, CV_8UC3);
+		}
+	}
+	else{
+		if (channels == 1){
+			mat.create(height, width, CV_32FC1);
+		}
+		else{
+			mat.create(height, width, CV_32FC3);
+		}
+	}
+	Dtype* blob_data = this->mutable_cpu_data();
+	int data_index;
+	if (depth == CV_8U){
+		for (int h = 0; h < height; ++h){
+			uchar* ptr = mat.ptr<uchar>(h);
+			int img_index = 0;
+			for (int w = 0; w < width; ++w){
+				for (int c = 0; c < channels; ++c){
+					data_index = (c * height + h) * width + w;
+					Dtype pixel = blob_data[data_index];
+					ptr[img_index++] = static_cast<uchar>(pixel);
+				}
+			}
+		}
+	}
+	else{
+		for (int h = 0; h < height; ++h){
+			float* ptr = mat.ptr<float>(h);
+			int img_index = 0;
+			for (int w = 0; w < width; ++w){
+				for (int c = 0; c < channels; ++c){
+					data_index = (c * height + h) * width + w;
+					Dtype pixel = blob_data[data_index];
+					ptr[img_index++] = static_cast<float>(pixel);
+				}
+			}
+		}
+	}
+}
+
+template<typename Dtype>
+void Blob<Dtype>::FromMat(cv::Mat& mat){
+	CHECK(!mat.empty());
+	int channels = mat.channels();
+	int height = mat.rows;
+	int width = mat.cols;
+	CHECK(mat.depth() == CV_8U || mat.depth() == CV_32F);
+	this->Reshape(1, channels, height, width);
+	Dtype* blob_data = this->mutable_cpu_data();
+	int data_index;
+	if (mat.depth() == CV_8U){
+		for (int h = 0; h < height; ++h){
+			const uchar* ptr = mat.ptr<uchar>(h);
+			int img_index = 0;
+			for (int w = 0; w < width; ++w){
+				for (int c = 0; c < channels; ++c){
+					data_index = (c * height + h) * width + w;
+					Dtype pixel = static_cast<Dtype>(ptr[img_index++]);
+					blob_data[data_index] = pixel;
+				}
+			}
+		}
+	}
+	else{
+		for (int h = 0; h < height; ++h){
+			const float* ptr = mat.ptr<float>(h);
+			int img_index = 0;
+			for (int w = 0; w < width; ++w){
+				for (int c = 0; c < channels; ++c){
+					data_index = (c * height + h) * width + w;
+					Dtype pixel = static_cast<Dtype>(ptr[img_index++]);
+					blob_data[data_index] = pixel;
+				}
+			}
+		}
+	}
+}
+#endif
+
 INSTANTIATE_CLASS(Blob);
 template class Blob<int>;
 template class Blob<unsigned int>;

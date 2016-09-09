@@ -1,12 +1,14 @@
 Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
 supported in this version.
 
+I also have a talk on brief introduction of Deep Learning, [part1](http://v.youku.com/v_show/id_XMTYyMTk1NDU2MA==.html),[part2](http://v.youku.com/v_show/id_XMTYyMTk2MTEwOA==.html), [slides](http://pan.baidu.com/s/1hrMmyS8).
+
 ## Windows
 Tools:
 
 1. Visual Studio 2013
 
-2. Cuda 7.5
+2. Cuda 7.5 (**you should install cuda after the installation of Visual Studio 2013 to incorporate cuda vs integration into VS**)
 
 3. OpenCV 2.4.9
 
@@ -22,18 +24,17 @@ Steps:
 
 Notes:
 
-1. Currently Caffe works with cuDNN_v3 or cuDNN_v4
+1. Currently Caffe works with cuDNN_v3 or cuDNN_v4 (**The current settings in caffe.sln do not use cuDNN**)
 
-2. You need to compile cudnn_*_.cu files firstly manually, then compile the project (I don't know why too...)
-
-You need copy 
-More details at https://github.com/BVLC/caffe/tree/windows
+You need copy More details at https://github.com/BVLC/caffe/tree/windows
 
 ## Linux
 
 Please follow the official tutorials here: http://caffe.berkeleyvision.org/installation.html 
 
 ## License and Citation
+
+The official turtorial is here: [caffe tutorial](http://caffe.berkeleyvision.org/installation.html)
 
 Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
 The BVLC reference models are released for unrestricted use.

@@ -14,6 +14,7 @@ namespace bp = boost::python;
 #include "boost/algorithm/string.hpp"
 #include "caffe/caffe.hpp"
 #include "caffe/util/signal_handler.h"
+#include "caffe/util/math_functions.hpp"
 
 using caffe::Blob;
 using caffe::Caffe;
@@ -47,6 +48,13 @@ DEFINE_string(sigint_effect, "stop",
 DEFINE_string(sighup_effect, "snapshot",
              "Optional; action to take when a SIGHUP signal is received: "
              "snapshot, stop or none.");
+
+#ifdef _MSC_VER
+DEFINE_string(log_dir, "log",
+	"Optional; directory to save log file");
+DEFINE_string(log_name, "caffe.log.",
+	"Optional; name prefix of the log file");
+#endif
 
 // A simple registry for caffe commands.
 typedef int (*BrewFunction)();
@@ -387,6 +395,15 @@ int time() {
 RegisterBrewFunction(time);
 
 int main(int argc, char** argv) {
+#ifdef _MSC_VER
+	//set log file directory
+	gflags::ParseCommandLineFlags(&argc, &argv, false);
+	boost::filesystem::create_directory(FLAGS_log_dir);
+	string log_dest = FLAGS_log_dir + "/";
+	::google::SetLogDestination(0, log_dest.c_str());
+	::google::SetLogFilenameExtension(FLAGS_log_name.c_str());
+#endif
+	google::InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging).
   FLAGS_alsologtostderr = 1;
   // Set version

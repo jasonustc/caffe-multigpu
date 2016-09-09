@@ -106,7 +106,6 @@ void DropoutLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 	  }
 	  if (drop_batch_){
 		  Dtype drop = mask[0];
-		  drop = 1;
 		  caffe_copy(top[0]->count(), bottom_data, top_data);
 		  caffe_scal(top[0]->count(), Dtype(scale_ * drop), top_data);
 	  }
@@ -133,7 +132,6 @@ void DropoutLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     if (this->phase_ == TRAIN) {
 		if (drop_batch_){
 			Dtype drop = rand_vec_->cpu_data()[0];
-			drop = 1;
 			// scale + mask
 			caffe_scal(top[0]->count(), Dtype(scale_ * drop), top_diff);
 			caffe_copy(top[0]->count(), top_diff, bottom_diff);

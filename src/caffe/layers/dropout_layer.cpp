@@ -38,30 +38,39 @@ void DropoutLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   }
   // layer-wise or element wise dropout parameters
   num_axes_ = param.num_axes() == -1 ? bottom[0]->num_axes() : param.num_axes();
+  drop_batch_ = num_axes_ == 0;
   CHECK_LE(num_axes_, bottom[0]->num_axes());
-  CHECK_GE(num_axes_, 1);
-  vector<int> mask_shape = bottom[0]->shape();
-  mask_shape.resize(num_axes_);
-  //only need [0, ..., axis_] mask variables
-  rand_vec_ = new Blob<Dtype>(mask_shape);
-  LayerParameter scale_param;
-  scale_param.mutable_scale_param()->set_axis(0);
-  scale_param.mutable_scale_param()->set_num_axes(num_axes_);
-  scale_layer_.reset(new ScaleLayer<Dtype>(scale_param));
-  vector<Blob<Dtype>*> scale_bottom(2, NULL);
-  scale_bottom[0] = bottom[0];
-  scale_bottom[1] = rand_vec_;
-  const vector<Blob<Dtype>*> scale_top(1, top[0]);
-  scale_layer_->SetUp(scale_bottom, scale_top);
+  CHECK_GE(num_axes_, 0);
+  if (drop_batch_){
+	  vector<int> mask_shape(0);
+	  rand_vec_ = new Blob<Dtype>(mask_shape);
+  }
+  else{
+	  vector<int> mask_shape = bottom[0]->shape();
+	  mask_shape.resize(num_axes_);
+	  //only need [0, ..., axis_] mask variables
+	  rand_vec_ = new Blob<Dtype>(mask_shape);
+	  LayerParameter scale_param;
+	  scale_param.mutable_scale_param()->set_axis(0);
+	  scale_param.mutable_scale_param()->set_num_axes(num_axes_);
+	  scale_layer_.reset(new ScaleLayer<Dtype>(scale_param));
+	  vector<Blob<Dtype>*> scale_bottom(2, NULL);
+	  scale_bottom[0] = bottom[0];
+	  scale_bottom[1] = rand_vec_;
+	  const vector<Blob<Dtype>*> scale_top(1, top[0]);
+	  scale_layer_->SetUp(scale_bottom, scale_top);
+  }
 }
 
 template <typename Dtype>
 void DropoutLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   NeuronLayer<Dtype>::Reshape(bottom, top);
-  vector<int> mask_shape = bottom[0]->shape();
-  mask_shape.resize(num_axes_);
-  rand_vec_->Reshape(mask_shape);
+  if (!drop_batch_){
+	  vector<int> mask_shape = bottom[0]->shape();
+	  mask_shape.resize(num_axes_);
+	  rand_vec_->Reshape(mask_shape);
+  }
 }
 
 template <typename Dtype>
@@ -70,7 +79,7 @@ void DropoutLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   const Dtype* bottom_data = bottom[0]->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
   Dtype* mask = rand_vec_->mutable_cpu_data();
-  const int count = bottom[0]->count(0, num_axes_);
+  const int count = rand_vec_->count();
   if (this->phase_ == TRAIN) {
 	  switch (drop_type_){
 	  case DropoutParameter_DropType_BERNOULLI:
@@ -95,12 +104,20 @@ void DropoutLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		break;
 	  }
 	  }
-	  vector<Blob<Dtype>*> scale_bottom(2, NULL);
-	  scale_bottom[0] = bottom[0];
-	  scale_bottom[1] = rand_vec_;
-	  const vector<Blob<Dtype>*> scale_top(1, top[0]);
-	  scale_layer_->Forward(scale_bottom, scale_top);
-	  caffe_scal(top[0]->count(), scale_, top_data);
+	  if (drop_batch_){
+		  Dtype drop = mask[0];
+		  drop = 1;
+		  caffe_copy(top[0]->count(), bottom_data, top_data);
+		  caffe_scal(top[0]->count(), Dtype(scale_ * drop), top_data);
+	  }
+	  else{
+		  vector<Blob<Dtype>*> scale_bottom(2, NULL);
+		  scale_bottom[0] = bottom[0];
+		  scale_bottom[1] = rand_vec_;
+		  const vector<Blob<Dtype>*> scale_top(1, top[0]);
+		  scale_layer_->Forward(scale_bottom, scale_top);
+		  caffe_scal(top[0]->count(), scale_, top_data);
+	  }
   } else {
     caffe_copy(bottom[0]->count(), bottom_data, top_data);
   }
@@ -114,16 +131,25 @@ void DropoutLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     Dtype* top_diff = top[0]->mutable_cpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
     if (this->phase_ == TRAIN) {
-		// scale
-		caffe_scal(top[0]->count(), scale_, top_diff);
-		// multiply mask
-		vector<Blob<Dtype>*> scale_bottom(2, NULL);
-		scale_bottom[0] = bottom[0];
-		scale_bottom[1] = rand_vec_;
-		const vector<Blob<Dtype>*> scale_top(1, top[0]);
-		vector<bool> prop_down(2, true);
-		prop_down[1] = false;
-		scale_layer_->Backward(scale_top, prop_down, scale_bottom);
+		if (drop_batch_){
+			Dtype drop = rand_vec_->cpu_data()[0];
+			drop = 1;
+			// scale + mask
+			caffe_scal(top[0]->count(), Dtype(scale_ * drop), top_diff);
+			caffe_copy(top[0]->count(), top_diff, bottom_diff);
+		}
+		else{
+			// scale
+			caffe_scal(top[0]->count(), scale_, top_diff);
+			// multiply mask
+			vector<Blob<Dtype>*> scale_bottom(2, NULL);
+			scale_bottom[0] = bottom[0];
+			scale_bottom[1] = rand_vec_;
+			const vector<Blob<Dtype>*> scale_top(1, top[0]);
+			vector<bool> prop_down(2, true);
+			prop_down[1] = false;
+			scale_layer_->Backward(scale_top, prop_down, scale_bottom);
+		}
     } else {
       caffe_copy(top[0]->count(), top_diff, bottom_diff);
     }

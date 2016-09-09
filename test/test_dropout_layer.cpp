@@ -66,7 +66,7 @@ namespace caffe{
 			bottom_.push_back(input_);
 			top_.push_back(output_);
 			propagate_down_.resize(1, true);
-			layer_param_.mutable_dropout_param()->set_num_axes(2);
+			layer_param_.mutable_dropout_param()->set_num_axes(0);
 			layer_param_.mutable_dropout_param()->set_drop_type(DropoutParameter_DropType_BERNOULLI);
 			layer_param_.mutable_dropout_param()->set_sigma(0.1);
 		}
@@ -87,10 +87,10 @@ int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
 	caffe::DropoutLayerTest<float> test;
-//	test.TestSetUp();
-//	test.TestForward(caffe::Caffe::CPU);
+	test.TestSetUp();
+	test.TestForward(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
-//	test.TestGradients(caffe::Caffe::CPU);
-//	test.TestGradients(caffe::Caffe::GPU);
+	test.TestGradients(caffe::Caffe::CPU);
+	test.TestGradients(caffe::Caffe::GPU);
 	return 0;
 }

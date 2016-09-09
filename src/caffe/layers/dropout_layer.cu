@@ -45,12 +45,20 @@ void DropoutLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 		break;
 	  }
 	  }
-	  vector<Blob<Dtype>*> scale_bottom(2, NULL);
-	  scale_bottom[0] = bottom[0];
-	  scale_bottom[1] = rand_vec_;
-	  const vector<Blob<Dtype>*> scale_top(1, top[0]);
-	  scale_layer_->Forward(scale_bottom, scale_top);
-	  caffe_scal(top[0]->count(), scale_, top[0]->mutable_cpu_data());
+	  if (drop_batch_){
+		  Dtype drop = rand_vec_->cpu_data()[0];
+		  drop = 1;
+		  caffe_copy(top[0]->count(), bottom_data, top_data);
+		  caffe_gpu_scal(top[0]->count(), Dtype(scale_ * drop), top_data);
+	  }
+	  else{
+		  vector<Blob<Dtype>*> scale_bottom(2, NULL);
+		  scale_bottom[0] = bottom[0];
+		  scale_bottom[1] = rand_vec_;
+		  const vector<Blob<Dtype>*> scale_top(1, top[0]);
+		  scale_layer_->Forward(scale_bottom, scale_top);
+		  caffe_gpu_scal(top[0]->count(), scale_, top_data);
+	  }
   } else {
     caffe_copy(count, bottom_data, top_data);
   }
@@ -64,16 +72,24 @@ void DropoutLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     Dtype* top_diff = top[0]->mutable_gpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     if (this->phase_ == TRAIN) {
-		// scale
-		caffe_gpu_scal<Dtype>(top[0]->count(), scale_, top_diff);
-		// multiply mask
-		vector<Blob<Dtype>*> scale_bottom(2, NULL);
-		scale_bottom[0] = bottom[0];
-		scale_bottom[1] = rand_vec_;
-		const vector<Blob<Dtype>*> scale_top(1, top[0]);
-		vector<bool> prop_down(2, true);
-		prop_down[1] = false;
-		scale_layer_->Backward(scale_top, prop_down, scale_bottom);
+		if (drop_batch_){
+			Dtype drop = rand_vec_->cpu_data()[0];
+			drop = 1;
+			caffe_gpu_scal(top[0]->count(), Dtype(scale_ * drop), top_diff);
+			caffe_copy(top[0]->count(), top_diff, bottom_diff);
+		}
+		else{
+			// scale
+			caffe_gpu_scal<Dtype>(top[0]->count(), scale_, top_diff);
+			// multiply mask
+			vector<Blob<Dtype>*> scale_bottom(2, NULL);
+			scale_bottom[0] = bottom[0];
+			scale_bottom[1] = rand_vec_;
+			const vector<Blob<Dtype>*> scale_top(1, top[0]);
+			vector<bool> prop_down(2, true);
+			prop_down[1] = false;
+			scale_layer_->Backward(scale_top, prop_down, scale_bottom);
+		}
     } else {
       caffe_copy(top[0]->count(), top_diff, bottom_diff);
     }

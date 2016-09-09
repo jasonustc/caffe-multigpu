@@ -73,19 +73,18 @@ class DropoutLayer : public NeuronLayer<Dtype> {
   Dtype threshold_;
   /// the scale for undropped inputs at train time @f$ 1 / (1 - p) @f$
   Dtype scale_;
-  unsigned int uint_thres_;
   // parameters for uniform dropout
   Dtype a_;
   Dtype b_;
   // parameters for gaussian dropout
   Dtype mu_;
   Dtype sigma_;
-  // layer-wise dropout or element wise dropout
-  bool layer_wise_;
   // dropout type
   DropoutParameter_DropType drop_type_;
   // data in [num_axis_, num_axis_ + 1, ...] will be considered as a single sample
   int num_axes_;
+  // if we need to do batch level dropout
+  bool drop_batch_;
 
   // scale layer for layer_wise dropout
   shared_ptr<ScaleLayer<Dtype> > scale_layer_;

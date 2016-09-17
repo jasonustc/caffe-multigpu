@@ -34,6 +34,8 @@ Please follow the official tutorials here: http://caffe.berkeleyvision.org/insta
 
 ## License and Citation
 
+The official turtorial is here: [caffe tutorial](http://caffe.berkeleyvision.org/installation.html)
+
 Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
 The BVLC reference models are released for unrestricted use.
 

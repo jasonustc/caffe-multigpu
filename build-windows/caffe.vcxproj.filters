@@ -333,7 +333,7 @@
     <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\test_dropout_layer.cpp" />
+    <ClCompile Include="..\tools\caffe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

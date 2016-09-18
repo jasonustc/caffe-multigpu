@@ -1182,6 +1182,8 @@ message ScaleParameter {
 
   // set the scale manually
   optional float scale = 6;
+  // set the bias manually
+  optional float bias = 7;
 }
 
 message SigmoidParameter {

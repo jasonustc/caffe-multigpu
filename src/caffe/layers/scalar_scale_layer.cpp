@@ -10,6 +10,7 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		NeuronLayer<Dtype>::LayerSetUp(bottom, top);
 		scale_ = this->layer_param_.scale_param().scale();
+		bias_ = this->layer_param_.scale_param().bias();
 	}
 
 	template <typename Dtype>
@@ -18,6 +19,7 @@ namespace caffe{
 		int count = bottom[0]->count();
 		caffe_copy(count, bottom[0]->cpu_data(), top[0]->mutable_cpu_data());
 		caffe_scal(count, scale_, top[0]->mutable_cpu_data());
+		caffe_add_scalar(count, bias_, top[0]->mutable_cpu_data());
 	}
 
 	template <typename Dtype>

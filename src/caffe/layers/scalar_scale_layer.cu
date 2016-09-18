@@ -9,6 +9,7 @@ namespace caffe{
 		int count = bottom[0]->count();
 		caffe_copy(count, bottom[0]->gpu_data(), top[0]->mutable_gpu_data());
 		caffe_gpu_scal(count, scale_, top[0]->mutable_gpu_data());
+		caffe_gpu_add_scalar(count, bias_, top[0]->mutable_gpu_data());
 	}
 
 	template <typename Dtype>

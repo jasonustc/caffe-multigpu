@@ -12,7 +12,9 @@ namespace caffe {
 
 /**
  * @brief scale the input by a fixed scalar, this is some thing like scale_layer
- *        but the scale is manually set and fixed
+ *        and bias_layer
+ *        but the scale, bias are manually set and fixed
+ *       output := scale_ * input + bias_
  */
 template <typename Dtype>
 class ScalarScaleLayer : public NeuronLayer<Dtype> {
@@ -38,6 +40,7 @@ public:
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   Dtype scale_;
+  Dtype bias_;
 };
 }  // namespace caffe
 

@@ -29,7 +29,7 @@ namespace caffe{
 		// setup intermediate data blobs
 		vector<int> v_shape = bottom[0]->shape();
 		vector<int> h_shape = v_shape;
-    h_shape.resize(axis + 1);
+		h_shape.resize(axis + 1);
 		h_shape[axis] = N_;
 		pos_v_.reset(bottom[0]);
 		neg_v_.reset(new Blob<Dtype>(v_shape));
@@ -117,7 +117,7 @@ namespace caffe{
 
 		// rbm param update
 		this->param_propagate_down_.resize(this->blobs_.size(), true);
-    LOG(INFO) << "top[0] shape setup: " << top[0]->shape_string();
+		LOG(INFO) << "top[0] shape setup: " << top[0]->shape_string();
 	}
 
 	template <typename Dtype>

@@ -16,6 +16,7 @@ namespace caffe {
 		sup_thre_ = this->layer_param_.semi_hinge_loss_param().sup_thre();
 		unsup_thre_ = this->layer_param_.semi_hinge_loss_param().unsup_thre();
 		axis_ = this->layer_param_.semi_hinge_loss_param().axis();
+		axis_ = bottom[0]->CanonicalAxisIndex(axis_);
 		vector<int> bottom_shape = bottom[0]->shape();
 		for (size_t i = 0; i < bottom_shape.size(); ++i){
 			CHECK_EQ(bottom_shape[i], bottom[1]->shape(i));

@@ -11,6 +11,13 @@
 
 namespace caffe{
 
+	/*
+	 * @brief: if both bottom[0] and  bottom[1] have labels, we use supervised hinge loss
+	 *         otherwise, we use unsupervised hinge loss
+	 *         1) supervised hinge loss: 1/2N \sum_i max(0, sup_bias_ - y_ij(sup_thre_ - D(x_0_i, x_1_i)))
+	 *            here y_ij is an indicator, D is Euclidean distance
+	 *         2) unsupervised hinge loss: gamma_ * 1/2N \sum_i max(0, unsup_bias_ - abs(unsup_thre_ - D(x_0_i, x_1_i)))
+	 */
 	template <typename Dtype>
 	class SemiHingeLossLayer : public LossLayer<Dtype>{
 	public:

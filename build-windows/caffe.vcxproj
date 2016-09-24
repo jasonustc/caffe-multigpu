@@ -83,6 +83,7 @@
     <ClCompile Include="..\src\caffe\layers\reshape_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\sampling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\scale_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\semi_hinge_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\sigmoid_cross_entropy_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\sigmoid_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\silence_layer.cpp" />
@@ -122,7 +123,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_dropout_layer.cpp" />
+    <ClCompile Include="..\test\test_semi_hinge_loss_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -168,6 +169,7 @@
     <CudaCompile Include="..\src\caffe\layers\relu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\sampling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\scale_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\semi_hinge_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\sigmoid_cross_entropy_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\sigmoid_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\silence_layer.cu" />
@@ -256,6 +258,7 @@
     <ClInclude Include="..\include\caffe\layers\reshape_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\sampling_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\scale_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\semi_hinge_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\sigmoid_cross_entropy_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\sigmoid_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\silence_layer.hpp" />

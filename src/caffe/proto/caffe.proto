@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 148 (last added:
-// euclidean_param)
+// LayerParameter next available layer-specific ID: 149 (last added:
+// semi_hinge_loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -399,6 +399,7 @@ message LayerParameter {
   optional ReLUParameter relu_param = 123;
   optional ReshapeParameter reshape_param = 133;
   optional ScaleParameter scale_param = 142;
+  optional SemiHingeLossParameter semi_hinge_loss_param = 148;
   optional SigmoidParameter sigmoid_param = 124;
   optional SoftmaxParameter softmax_param = 125;
   optional SPPParameter spp_param = 132;
@@ -408,6 +409,17 @@ message LayerParameter {
   optional TileParameter tile_param = 138;
   optional TripletParameter triplet_loss_param = 145;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// Message that stores paramters for semi hinge loss layer
+message SemiHingeLossParameter{
+    optional int32 ignore_label = 1[default = -1];
+    optional float sup_bias = 2;
+    optional float unsup_bias = 3;
+    optional float gamma = 4[default = 1];
+    optional float sup_thre = 5[default = 1];
+    optional float unsup_thre = 6[default = 1];
+    optional int32 axis = 7[default = 1];
 }
 
 //Message that stores parameters used to generate random noise

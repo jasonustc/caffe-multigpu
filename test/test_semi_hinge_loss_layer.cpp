@@ -8,7 +8,7 @@
 #include "caffe/filler.hpp"
 #include "caffe/test/test_gradient_check_util.hpp"
 #include "caffe/test/test_caffe_main.hpp"
-#include "caffe/layers/dropout_layer.hpp"
+#include "caffe/layers/semi_hinge_loss_layer.hpp"
 
 namespace caffe{
 	template <typename Dtype>
@@ -27,7 +27,6 @@ namespace caffe{
 		void TestSetUp(){
 			shared_ptr<Layer<Dtype>> layer(new SemiHingeLossLayer<Dtype>(layer_param_));
 			layer->SetUp(bottom_, top_);
-			CHECK_EQ(top_[0]->shape(0), 1);
 		}
 
 		void TestForward(Caffe::Brew mode){
@@ -59,8 +58,8 @@ namespace caffe{
 	protected:
 		void SetUp(){
 			vector<int> x_shape{ 5, 2, 2 };
-			input_->Reshape(x_shape);
-			Dtype* x_data = input_->mutable_cpu_data();
+			input_0->Reshape(x_shape);
+			Dtype* x_data = input_0->mutable_cpu_data();
 			for (int c = 0; c < 5; ++c){
 				for (int j = 0; j < 4; j++){
 					x_data[c * 4 + j] = c * 0.1 + j * 0.3;
@@ -95,9 +94,11 @@ namespace caffe{
 			bottom_.push_back(input_2);
 			bottom_.push_back(input_3);
 			top_.push_back(output_);
-			layer_param_.mutable_semi_hinge_loss_param()->set_axis_(1);
+			layer_param_.mutable_semi_hinge_loss_param()->set_axis(1);
 			layer_param_.mutable_semi_hinge_loss_param()->set_ignore_label(-1);
-			layer_param_.mutable_semi_hinge_loss_param()->set_sup_bias_();
+			layer_param_.mutable_semi_hinge_loss_param()->set_sup_bias(1);
+			layer_param_.mutable_semi_hinge_loss_param()->set_unsup_bias(0.5);
+			layer_param_.mutable_semi_hinge_loss_param()->set_gamma(0.1);
 		}
 
 		Blob<Dtype>* input_0;
@@ -118,9 +119,9 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::SemiHingeLossLayerTest<float> test;
 	test.TestSetUp();
-	test.TestForward(caffe::Caffe::CPU);
-	test.TestForward(caffe::Caffe::GPU);
-	test.TestGradients(caffe::Caffe::CPU);
+//	test.TestForward(caffe::Caffe::CPU);
+//	test.TestForward(caffe::Caffe::GPU);
+//	test.TestGradients(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::GPU);
 	return 0;
 }

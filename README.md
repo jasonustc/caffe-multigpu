@@ -16,7 +16,7 @@ Tools:
 
 Steps:
 
-1. Copy folder \$3rdparty (http://pan.baidu.com/s/1ge3nKRp) and \$bin (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
+1. Copy folder `3rdparty` (http://pan.baidu.com/s/1ge3nKRp) and `bin` (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
 
 2. Configure the environment variables: `BOOST_1_56_0` (e.g. `C:\local\boost_1_56_0`), `OPENCV_2_4_9` (e.g. `D:\apps\opencv\build`)
 

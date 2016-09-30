@@ -1,4 +1,4 @@
-Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
+Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016. Multi-GPU is
 supported in this version.
 
 I also have a talk on brief introduction of Deep Learning, &nbsp;[part1](http://v.youku.com/v_show/id_XMTYyMTk1NDU2MA==.html), &nbsp;[part2](http://v.youku.com/v_show/id_XMTYyMTk2MTEwOA==.html), &nbsp;[slides](http://pan.baidu.com/s/1hrMmyS8).
@@ -8,7 +8,7 @@ Tools:
 
 1. Visual Studio 2013
 
-2. Cuda 7.5 (**you should install cuda after the installation of Visual Studio 2013 to incorporate cuda vs integration into VS**)
+2. Cuda 7.5 (&nbsp;**you should install cuda after the installation of Visual Studio 2013 to incorporate cuda vs integration into VS**)
 
 3. OpenCV 2.4.9
 

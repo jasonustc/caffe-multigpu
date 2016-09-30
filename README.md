@@ -20,7 +20,7 @@ Steps:
 
 2. Configure the environment variables: `BOOST_1_56_0` (e.g. `C:\local\boost_1_56_0`), `OPENCV_2_4_9` (e.g. `D:\apps\opencv\build`)
 
-3. Compile the caffe.sln in VS2013
+3. Compile the caffe.sln in `build-windows` VS2013
 
 Notes:
 

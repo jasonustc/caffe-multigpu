@@ -1,7 +1,7 @@
 Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
 supported in this version.
 
-I also have a talk on brief introduction of Deep Learning, \ [part1](http://v.youku.com/v_show/id_XMTYyMTk1NDU2MA==.html), \ [part2](http://v.youku.com/v_show/id_XMTYyMTk2MTEwOA==.html), \ [slides](http://pan.baidu.com/s/1hrMmyS8).
+I also have a talk on brief introduction of Deep Learning, &nbsp[part1](http://v.youku.com/v_show/id_XMTYyMTk1NDU2MA==.html), &nbsp[part2](http://v.youku.com/v_show/id_XMTYyMTk2MTEwOA==.html), &nbsp[slides](http://pan.baidu.com/s/1hrMmyS8).
 
 ## Windows
 Tools:

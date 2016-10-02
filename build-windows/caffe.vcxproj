@@ -101,6 +101,7 @@
     <ClCompile Include="..\src\caffe\layers\softmax_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\split_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\spp_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\switch_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\threshold_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\tile_layer.cpp" />
@@ -133,8 +134,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_rbm_layer.cpp" />
-    <ClCompile Include="..\test\test_scalar_scale_layer.cpp" />
+    <ClCompile Include="..\test\test_switch_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -190,6 +190,7 @@
     <CudaCompile Include="..\src\caffe\layers\softmax_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\softmax_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\split_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\switch_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tanh_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu" />
@@ -215,6 +216,7 @@
     <ClInclude Include="..\include\caffe\layers\absval_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\accuracy_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\argmax_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\attention_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\base_conv_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\base_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\batch_norm_layer.hpp" />
@@ -289,6 +291,7 @@
     <ClInclude Include="..\include\caffe\layers\softmax_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\split_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\spp_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\switch_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\threshold_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\tile_layer.hpp" />

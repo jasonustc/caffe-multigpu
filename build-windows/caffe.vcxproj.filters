@@ -378,8 +378,10 @@
     <ClCompile Include="..\src\caffe\layers\scalar_scale_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\test_scalar_scale_layer.cpp" />
-    <ClCompile Include="..\test\test_rbm_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\switch_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\test_switch_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -575,6 +577,9 @@
       <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\scalar_scale_layer.cu">
+      <Filter>src\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\switch_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -937,6 +942,12 @@
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\layers\scalar_scale_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\attention_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\switch_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
   </ItemGroup>

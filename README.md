@@ -20,9 +20,7 @@ Steps:
 
 2. Configure the environment variables: \$BOOST_1_56_0, \$OPENCV_2_4_9
 
-3. Run GeneratePB.bat in scripts/ 
-
-4. Compile the caffe.sln in VS2013
+3. Compile the caffe.sln in VS2013
 
 Notes:
 

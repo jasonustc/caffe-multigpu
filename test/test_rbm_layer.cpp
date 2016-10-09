@@ -19,11 +19,10 @@ namespace caffe{
 			this->SetUp();
 		}
 
-		~RBMLayerTest(){ delete x_;  delete out_; delete loss_; }
-
 		void TestSetUp(){
 			shared_ptr<Layer<Dtype>> layer(new RBMLayer<Dtype>(layer_param_));
 			layer->SetUp(bottom_, top_);
+			LOG(INFO) << bottom_[0]->shape_string();
 			CHECK_EQ(top_[0]->shape(0), 1);
 			CHECK_EQ(top_[0]->shape(1), 3);
 		}
@@ -31,6 +30,7 @@ namespace caffe{
 		void TestForward(Caffe::Brew mode){
 			shared_ptr<Layer<Dtype>> layer(new RBMLayer<Dtype>(layer_param_));
 			Caffe::set_mode(mode);
+			LOG(INFO) << bottom_[0]->shape_string();
 			layer->SetUp(bottom_, top_);
 			layer->Forward(bottom_, top_);
 			if (mode == Caffe::CPU){
@@ -85,6 +85,8 @@ namespace caffe{
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
 			layer_param_.mutable_inner_product_param()->set_axis(1);
 			layer_param_.mutable_rbm_param()->set_num_iteration(2);
+			layer_param_.mutable_rbm_param()->set_learn_by_cd(false);
+			layer_param_.mutable_rbm_param()->set_learn_by_top(true);
 			layer_param_.mutable_sampling_param()->set_sample_type(SamplingParameter_SampleType_BERNOULLI);
 		}
 
@@ -105,8 +107,8 @@ int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
 	caffe::RBMLayerTest<float> test;
-	test.TestSetUp();
-	test.TestForward(caffe::Caffe::CPU);
+//	test.TestSetUp();
+//	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);

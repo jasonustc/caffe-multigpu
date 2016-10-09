@@ -117,7 +117,10 @@ namespace caffe{
 
 		// rbm param update
 		this->param_propagate_down_.resize(this->blobs_.size(), true);
-		LOG(INFO) << "top[0] shape setup: " << top[0]->shape_string();
+		
+		// update rule set up: supervised or unsupervised
+		learn_by_cd_ = this->layer_param_.rbm_param().learn_by_cd();
+		learn_by_top_ = this->layer_param_.rbm_param().learn_by_top();
 	}
 
 	template <typename Dtype>
@@ -167,6 +170,11 @@ namespace caffe{
 		vector<Blob<Dtype>*> act_bottom(1, pos_h_.get());
 		vector<Blob<Dtype>*> act_top(1, pos_h_.get());
 		act_layer_->Forward(act_bottom, act_top);
+		// if we don't need to learn by cd or we are in the test phase
+		// we only need to do forward once
+		if (!learn_by_cd_ || this->phase_ == TEST){
+			return;
+		}
 		// sampling
 		vector<Blob<Dtype>*> sample_bottom(1, pos_h_.get());
 		vector<Blob<Dtype>*> sample_top(1, h_state_.get());
@@ -249,7 +257,7 @@ namespace caffe{
 		Dtype scale = Dtype(1.) / Dtype(M_);
 
 		//Gradient with respect to weight
-		if (this->param_propagate_down_[0]){
+		if (learn_by_cd_ && this->param_propagate_down_[0]){
 			caffe_cpu_gemm<Dtype>(CblasTrans, CblasNoTrans, N_, K_, M_, (Dtype)1.,
 				pos_h_data, pos_v_data, (Dtype)0., pos_ass_data);
 			caffe_cpu_gemm<Dtype>(CblasTrans, CblasNoTrans, N_, K_, M_, (Dtype)1.,
@@ -262,7 +270,7 @@ namespace caffe{
 
 		//Gradient with respect to h_bias
 		//\delta c_j = \delta c_j + p_h_j^(0) - p_h_j^(k)
-		if (bias_term_ && this->param_propagate_down_[1]){
+		if (bias_term_ && learn_by_cd_ && this->param_propagate_down_[1]){
 			const int count_h = pos_h_->count();
 			Dtype* h_bias_diff = this->blobs_[1]->mutable_cpu_diff();
 			//put buffer data in neg_h_.diff()
@@ -276,7 +284,7 @@ namespace caffe{
 
 		//Gradient with respect to v_bias
 		//\delta b_j = \delta b_j + v_j^(0) - v_j^(k)
-		if (bias_term_ && this->param_propagate_down_[2]){
+		if (bias_term_ && learn_by_cd_ && this->param_propagate_down_[2]){
 			const int count_v = pos_v_->count();
 			Dtype* v_bias_diff = this->blobs_[2]->mutable_cpu_diff();
 			//put buffer data in neg_v_.diff()
@@ -298,9 +306,14 @@ namespace caffe{
 			// forward inner_product
 			const vector<Blob<Dtype>*> ip_forward_bottom(1, bottom[0]);
 			const vector<Blob<Dtype>*> ip_forward_top(1, top[0]);
-			// TODO: another option is change the weights in this process
-			ip_forward_layer_->set_param_propagate_down(0, false);
-			ip_forward_layer_->set_param_propagate_down(1, false);
+			if (learn_by_top_){
+				ip_forward_layer_->set_param_propagate_down(0, true);
+				ip_forward_layer_->set_param_propagate_down(1, true);
+			}
+			else{
+				ip_forward_layer_->set_param_propagate_down(0, false);
+				ip_forward_layer_->set_param_propagate_down(1, false);
+			}
 			ip_forward_layer_->Backward(ip_forward_top, vector<bool>(1, true), ip_forward_bottom);
 		}
 	}

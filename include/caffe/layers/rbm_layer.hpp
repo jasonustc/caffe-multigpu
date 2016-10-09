@@ -86,6 +86,10 @@ namespace caffe{
 		int N_;
 		int K_;
 		bool bias_term_;
+		// learn by unsupervised loss (CD)
+		bool learn_by_cd_;
+		// learn by supervised loss (top error)
+		bool learn_by_top_;
 		Blob<Dtype>* bias_multiplier_;
 	};
 } // namespace caffe

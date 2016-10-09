@@ -460,8 +460,12 @@ message VideoUnrollParameter{
 
 //Message that stores parameters used to calculate rbm loss
 message RBMParameter{
-    //number of CD times, CD-k algorithm
+    // number of CD times, CD-k algorithm
     optional int32 num_iteration = 1[default = 1];
+    // if we learn the parameters by CD-k
+    optional bool learn_by_cd = 2[default = true];
+    // if we learn the parameters by top error(supervised)
+    optional bool learn_by_top = 3[default = false];
 }
 
 // Message that stores parameters for LSTM Layer

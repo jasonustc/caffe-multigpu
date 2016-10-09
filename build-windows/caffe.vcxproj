@@ -68,6 +68,7 @@
     <ClCompile Include="..\src\caffe\layers\infogain_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\inner_product_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\input_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\latent_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\local_lstm_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\log_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\loss_layer.cpp" />
@@ -134,7 +135,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_switch_layer.cpp" />
+    <ClCompile Include="..\tools\caffe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -168,6 +169,7 @@
     <CudaCompile Include="..\src\caffe\layers\hdf5_output_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\im2col_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\inner_product_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\latent_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\log_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\lrn_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\lstm_unit_layer.cu" />
@@ -257,6 +259,7 @@
     <ClInclude Include="..\include\caffe\layers\infogain_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\inner_product_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\input_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\latent_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\log_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\lrn_layer.hpp" />

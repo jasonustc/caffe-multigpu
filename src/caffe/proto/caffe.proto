@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 153 (last added: //
-// switch_param)
+// LayerParameter next available layer-specific ID: 154 (last added: //
+// seq_end_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -402,6 +402,7 @@ message LayerParameter {
   optional ReshapeParameter reshape_param = 133;
   optional SamplingParameter sampling_param = 150; 
   optional ScaleParameter scale_param = 142;
+  optional SeqEndParameter seq_end_param = 153;
   optional SigmoidParameter sigmoid_param = 124;
   optional SoftmaxParameter softmax_param = 125;
   optional SPPParameter spp_param = 132;
@@ -413,6 +414,14 @@ message LayerParameter {
   optional VideoUnrollParameter video_unroll_param = 147;
   optional TripletParameter triplet_loss_param = 148;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// message that stores paraemters for sequence end layer
+message SeqEndParameter{
+    // this is just for initialization
+    // since in set up stage, all cont variables will be 0s,
+    // the output will be with the same length as the input
+    optional int32 init_end_len = 1;
 }
 
 // Message that stores parameters for switch layer

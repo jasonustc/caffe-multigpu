@@ -369,7 +369,6 @@
     <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="..\src\caffe\layers\local_lstm_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
@@ -385,10 +384,7 @@
     <ClCompile Include="..\src\caffe\layers\latent_loss_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\test_rbm_layer.cpp" />
-=======
-    <ClCompile Include="..\tools\caffe.cpp" />
->>>>>>> master
+    <ClCompile Include="..\test\test_seq_end_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

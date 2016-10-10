@@ -14,6 +14,11 @@ namespace caffe{
 		}
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
+		const int init_end_len = this->layer_param_.seq_end_param().init_end_len();
+		CHECK_GE(init_end_len, 1);
+		vector<int> top_shape = bottom[0]->shape();
+		top_shape[0] = init_end_len;
+		top[0]->Reshape(top_shape);
 	}
 
 	template <typename Dtype>
@@ -23,6 +28,14 @@ namespace caffe{
 		CHECK_EQ(bottom[0]->num_axes(), 3);
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
+		// we do not put InferSeqEndId in here is because reshape is called 
+		// in the set up stage, when all cont_t s are 0s, which may cause shape
+		// inconsistent in following layers
+	}
+
+	template <typename Dtype>
+	void SeqEndLayer<Dtype>::InferSeqEndId(const vector<Blob<Dtype>*>& bottom,
+		const vector<Blob<Dtype>*>& top){
 		end_id_.clear();
 		const Dtype* cont_data = bottom[1]->cpu_data();
 		const int T = bottom[1]->shape(0);
@@ -44,6 +57,7 @@ namespace caffe{
 	template <typename Dtype>
 	void SeqEndLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
+		InferSeqEndId(bottom, top);
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		Dtype* top_data = top[0]->mutable_cpu_data();
 		int num_seq = end_id_.size();

@@ -36,6 +36,8 @@ namespace caffe{
 			// Can't propagate to sequence continuation indicators
 			return bottom_index != 1;
 		}
+		inline void InferSeqEndId(const vector<Blob<Dtype>*>& bottom,
+		const vector<Blob<Dtype>*>& top);
 
 	protected:
 		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,

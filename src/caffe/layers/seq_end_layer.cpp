@@ -57,7 +57,7 @@ namespace caffe{
 	template <typename Dtype>
 	void SeqEndLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		InferSeqEndId(bottom, top);
+		this->InferSeqEndId(bottom, top);
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		Dtype* top_data = top[0]->mutable_cpu_data();
 		int num_seq = end_id_.size();

@@ -108,6 +108,10 @@ def _Net_forward(self, blobs=None, start=None, end=None, **kwargs):
         end_ind = len(self.layers) - 1
         outputs = set(self.outputs + blobs)
 
+    #print 'check problem!'
+    #print set(kwargs.keys())
+    #print set(self.inputs)
+
     if kwargs:
         if set(kwargs.keys()) != set(self.inputs):
             raise Exception('Input blob arguments do not match net inputs.')

@@ -11,6 +11,7 @@
 #include "caffe/layers/inner_product_layer.hpp"
 #include "caffe/layers/sampling_layer.hpp"
 #include "caffe/layers/sigmoid_layer.hpp"
+#include "caffe/layers/scale_layer.hpp"
 
 namespace caffe{
 	template <typename Dtype>
@@ -91,6 +92,16 @@ namespace caffe{
 		// learn by supervised loss (top error)
 		bool learn_by_top_;
 		Blob<Dtype>* bias_multiplier_;
+		// used to block partial of the data in visible input
+		Blob<Dtype>* v_mask_;
+		// used to multiply v by v_mask_
+		shared_ptr<ScaleLayer<Dtype> > scale_layer_;
+		// the start point of blocked feat
+		int block_start_;
+		// the end point of blocked feat
+		int block_end_;
+		// indicator
+		bool block_feat_;
 	};
 } // namespace caffe
 #endif

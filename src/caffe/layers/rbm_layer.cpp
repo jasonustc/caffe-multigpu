@@ -120,7 +120,44 @@ namespace caffe{
 		
 		// update rule set up: supervised or unsupervised
 		learn_by_cd_ = this->layer_param_.rbm_param().learn_by_cd();
+		if (learn_by_cd_){
+			LOG(INFO) << "learn by cd-k";
+		}
 		learn_by_top_ = this->layer_param_.rbm_param().learn_by_top();
+		if (learn_by_top_){
+			LOG(INFO) << "learn by top";
+		}
+
+		// set up block mask
+		block_feat_ = this->layer_param_.rbm_param().has_block_start() &&
+			this->layer_param_.rbm_param().has_block_end();
+		if (block_feat_){
+			// setup mask data
+			v_mask_ = new Blob<Dtype>(bottom[0]->shape());
+			block_start_ = this->layer_param_.rbm_param().block_start();
+			block_end_ = this->layer_param_.rbm_param().block_end();
+			block_end_ = block_end_ == -1 ? K_ : block_end_;
+			CHECK_LT(block_start_, block_end_);
+			CHECK_GE(block_start_, 0);
+			CHECK_LE(block_end_, K_);
+			LOG(INFO) << "block feats in [" << block_start_ << ", " << block_end_ << "]";
+			Dtype* v_mask_data = v_mask_->mutable_cpu_data();
+			caffe_set(M_ * K_, Dtype(1), v_mask_data);
+			for (int i = 0; i < M_; ++i){
+				v_mask_data += block_start_;
+				caffe_set(block_end_ - block_start_, Dtype(0), v_mask_data);
+				v_mask_data += K_;
+			}
+			// scale layer
+			LayerParameter scale_param;
+			scale_param.mutable_scale_param()->set_axis(0);
+			scale_param.mutable_scale_param()->set_num_axes(-1);
+			scale_layer_.reset(new ScaleLayer<Dtype>(scale_param));
+			vector<Blob<Dtype>*> scale_bottom(2, bottom[0]);
+			scale_bottom[1] = v_mask_;
+			const vector<Blob<Dtype>*> scale_top(1, bottom[0]);
+			scale_layer_->SetUp(scale_bottom, scale_top);
+		}
 	}
 
 	template <typename Dtype>
@@ -155,6 +192,14 @@ namespace caffe{
 			vector<int> loss_shape(0);
 			top[1]->Reshape(loss_shape);
 		}
+		// block things
+		if (block_feat_){
+			v_mask_->ReshapeLike(*bottom[0]);
+			vector<Blob<Dtype>*> scale_bottom(2, bottom[0]);
+			scale_bottom[1] = v_mask_;
+			const vector<Blob<Dtype>*> scale_top(1, bottom[0]);
+			scale_layer_->Reshape(scale_bottom, scale_top);
+		}
 	}
 
 	//CD-k: iterate reconstruction for k times
@@ -162,6 +207,14 @@ namespace caffe{
 	template <typename Dtype>
 	void RBMLayer<Dtype>::Gibbs_vhvh(){
 		this->ShareWeight();
+		// block v if needed
+		if (block_feat_){
+			// a trick to ignore partial feats in input
+			vector<Blob<Dtype>*> scale_bottom(2, pos_v_.get());
+			scale_bottom[1] = v_mask_;
+			const vector<Blob<Dtype>*> scale_top(1, pos_v_.get());
+			scale_layer_->Forward(scale_bottom, scale_top);
+		}
 		// forward
 		vector<Blob<Dtype>*> ip_forward_bottom(1, pos_v_.get());
 		vector<Blob<Dtype>*> ip_forward_top(1, pos_h_.get());
@@ -187,6 +240,14 @@ namespace caffe{
 		act_bottom[0] = neg_v_.get();
 		act_top[0] = neg_v_.get();
 		act_layer_->Forward(act_bottom, act_top);
+		// block if needed
+		if (block_feat_){
+			// a trick to ignore partial feats in input
+			vector<Blob<Dtype>*> scale_bottom(2, neg_v_.get());
+			scale_bottom[1] = v_mask_;
+			const vector<Blob<Dtype>*> scale_top(1, neg_v_.get());
+			scale_layer_->Forward(scale_bottom, scale_top);
+		}
 		// sampling
 		sample_bottom[0] = neg_v_.get();
 		sample_top[0] = v_state_.get();
@@ -212,6 +273,13 @@ namespace caffe{
 			act_bottom[0] = neg_v_.get();
 			act_top[0] = neg_v_.get();
 			act_layer_->Forward(act_bottom, act_top);
+			// block if needed
+			if (block_feat_){
+				vector<Blob<Dtype>*> scale_bottom(2, neg_v_.get());
+				scale_bottom[1] = v_mask_;
+				const vector<Blob<Dtype>*> scale_top(1, neg_v_.get());
+				scale_layer_->Forward(scale_bottom, scale_top);
+			}
 			// sampling
 			sample_bottom[0] = neg_v_.get();
 			sample_top[0] = v_state_.get();

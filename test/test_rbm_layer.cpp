@@ -62,11 +62,11 @@ namespace caffe{
 
 	protected:
 		void SetUp(){
-			vector<int> x_shape{1, 2};
+			vector<int> x_shape{2, 20};
 			x_->Reshape(x_shape);
 			Dtype* x_data = x_->mutable_cpu_data();
-			for (int c = 0; c < 1; ++c){
-				for (int j = 0; j < 2; j++){
+			for (int c = 0; c < 2; ++c){
+				for (int j = 0; j < 20; j++){
 					x_data[c * 2 + j] = c * 0.1 + j * 0.3;
 				}
 			}
@@ -85,9 +85,11 @@ namespace caffe{
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
 			layer_param_.mutable_inner_product_param()->set_axis(1);
 			layer_param_.mutable_rbm_param()->set_num_iteration(2);
-			layer_param_.mutable_rbm_param()->set_learn_by_cd(false);
+			layer_param_.mutable_rbm_param()->set_learn_by_cd(true);
 			layer_param_.mutable_rbm_param()->set_learn_by_top(true);
 			layer_param_.mutable_sampling_param()->set_sample_type(SamplingParameter_SampleType_BERNOULLI);
+			layer_param_.mutable_rbm_param()->set_block_start(3);
+			layer_param_.mutable_rbm_param()->set_block_end(10);
 		}
 
 		Blob<Dtype>* x_;
@@ -108,7 +110,7 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::RBMLayerTest<float> test;
 //	test.TestSetUp();
-//	test.TestForward(caffe::Caffe::CPU);
+	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);

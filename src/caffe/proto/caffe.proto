@@ -475,6 +475,10 @@ message RBMParameter{
     optional bool learn_by_cd = 2[default = true];
     // if we learn the parameters by top error(supervised)
     optional bool learn_by_top = 3[default = false];
+    // start point of blocked feat
+    optional int32 block_start = 4;
+    // end point of blocked feat
+    optional int32 block_end = 5;
 }
 
 // Message that stores parameters for LSTM Layer

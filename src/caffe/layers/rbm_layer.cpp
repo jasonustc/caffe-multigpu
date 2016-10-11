@@ -85,11 +85,13 @@ namespace caffe{
 		this->blobs_[0]->ShareData(*forward_weight);
 		this->blobs_[0]->ShareDiff(*forward_weight);
 		if (bias_term_){
+			// h_bias
 			Blob<Dtype>* forward_bias = ip_forward_layer_->blobs()[1].get();
 			vector<int> forward_b_shape = forward_bias->shape();
 			this->blobs_[1].reset(new Blob<Dtype>(forward_b_shape));
 			this->blobs_[1]->ShareData(*forward_bias);
 			this->blobs_[1]->ShareDiff(*forward_bias);
+			// v_bias
 			Blob<Dtype>* back_bias = ip_back_layer_->blobs()[1].get();
 			vector<int> back_b_shape = back_bias->shape();
 			this->blobs_[2].reset(new Blob<Dtype>(back_b_shape));
@@ -158,6 +160,14 @@ namespace caffe{
 			const vector<Blob<Dtype>*> scale_top(1, bottom[0]);
 			scale_layer_->SetUp(scale_bottom, scale_top);
 		}
+
+		// random things
+		random_block_ = this->layer_param_.rbm_param().random_block();
+		if (random_block_){
+			CHECK(block_feat_) << "for random block mode, block_feat params should be set.";
+			const unsigned int rng_seed = caffe_rng_rand();
+			rng_.reset(new Caffe::RNG(rng_seed));
+		}
 	}
 
 	template <typename Dtype>
@@ -192,6 +202,7 @@ namespace caffe{
 			vector<int> loss_shape(0);
 			top[1]->Reshape(loss_shape);
 		}
+
 		// block things
 		if (block_feat_){
 			v_mask_->ReshapeLike(*bottom[0]);
@@ -203,7 +214,7 @@ namespace caffe{
 	}
 
 	//CD-k: iterate reconstruction for k times
-	// \partial_W = <v_k * h_k> - <v_0 * h_0>
+	// \partial_W = <v_0 * h_0> - <v_k * h_k>
 	template <typename Dtype>
 	void RBMLayer<Dtype>::Gibbs_vhvh(){
 		this->ShareWeight();
@@ -298,6 +309,10 @@ namespace caffe{
 	template <typename Dtype>
 	void RBMLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
+		// random things
+		if (random_block_){
+			block_feat_ = (Rand(2) == 0);
+		}
 		Gibbs_vhvh();
 		const Dtype* bottom_data = bottom[0]->cpu_data();
 		if (top.size() > 1){

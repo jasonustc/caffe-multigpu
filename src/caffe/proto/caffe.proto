@@ -479,6 +479,8 @@ message RBMParameter{
     optional int32 block_start = 4;
     // end point of blocked feat
     optional int32 block_end = 5;
+    // if we need to do block randomly
+    optional bool random_block = 6[default = false];
 }
 
 // Message that stores parameters for LSTM Layer

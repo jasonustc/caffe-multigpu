@@ -12,6 +12,7 @@
 #include "caffe/layers/sampling_layer.hpp"
 #include "caffe/layers/sigmoid_layer.hpp"
 #include "caffe/layers/scale_layer.hpp"
+#include "caffe/util/rng.hpp"
 
 namespace caffe{
 	template <typename Dtype>
@@ -102,6 +103,23 @@ namespace caffe{
 		int block_end_;
 		// indicator
 		bool block_feat_;
+		/**
+		 * @brief Generates a random integer from {0, 1, ..., n - 1}.
+		 * @param n the upper bound (exclusive) value of the value number.
+		 * @return int
+		 **/
+		virtual int Rand(int n){
+			CHECK(rng_);
+			CHECK_GT(n, 0);
+			caffe::rng_t* rng =
+				static_cast<caffe::rng_t*>(rng_->generator());
+			return ((*rng)() % n);
+		}
+
+		shared_ptr<Caffe::RNG> rng_;
+
+		// if we need to randomly block features
+		bool random_block_;
 	};
 } // namespace caffe
 #endif

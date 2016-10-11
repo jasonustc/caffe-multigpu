@@ -7,6 +7,10 @@ namespace caffe{
 	template <typename Dtype>
 	void RBMLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
+		// random things
+		if (random_block_){
+			block_feat_ = (Rand(2) == 0);
+		}
 		//top[0] shares data with pos_h_ data
 		Gibbs_vhvh();
 		//output reconstruction loss

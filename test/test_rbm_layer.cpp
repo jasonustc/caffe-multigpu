@@ -33,6 +33,10 @@ namespace caffe{
 			LOG(INFO) << bottom_[0]->shape_string();
 			layer->SetUp(bottom_, top_);
 			layer->Forward(bottom_, top_);
+			layer->Forward(bottom_, top_);
+			layer->Forward(bottom_, top_);
+			layer->Forward(bottom_, top_);
+			layer->Forward(bottom_, top_);
 			if (mode == Caffe::CPU){
 				bottom_[0]->ToTxt("bottom_cpu");
 				top_[0]->ToTxt("top_cpu");
@@ -90,6 +94,7 @@ namespace caffe{
 			layer_param_.mutable_sampling_param()->set_sample_type(SamplingParameter_SampleType_BERNOULLI);
 			layer_param_.mutable_rbm_param()->set_block_start(3);
 			layer_param_.mutable_rbm_param()->set_block_end(10);
+			layer_param_.mutable_rbm_param()->set_random_block(true);
 		}
 
 		Blob<Dtype>* x_;

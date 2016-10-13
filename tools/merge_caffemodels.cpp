@@ -79,36 +79,31 @@ void process_fc8(BlobProto* proto)
 }
 
 int main(int argc, char** argv) {
+	google::InitGoogleLogging(*argv);
 	FLAGS_alsologtostderr = 0;
-	if (argc != 4)
+	if (argc != 3)
 	{
-		cout << "usage: merge_caffemodels.exe model1[,model2,...] suffix1[,suffix2,...,]"
+		cout << "usage: merge_caffemodels.exe model1[,model2,...]"
 			<< " save_model_name" << endl;
 		return 0;
 	}
-	std::fstream out("model_file", std::ios::out | std::ios::trunc);
+	std::fstream out("model_layer_names.txt", std::ios::out | std::ios::trunc);
 	std::string model_paths = argv[1];
-	std::string suffixes = argv[2];
 	std::vector<std::string> model_path;
 	std::vector<std::string> suffix;
 	boost::split(model_path, model_paths, boost::is_any_of(","));
-	boost::split(suffix, suffixes, boost::is_any_of(","));
-	CHECK_EQ(model_path.size(), suffix.size());
-	std::string new_model_path = argv[3];
+	std::string new_model_path = argv[2];
 
 	//convert model
 	NetParameter merged_param;
 	for (size_t i = 0; i < model_path.size(); ++i){
 		NetParameter param;
-		LOG(INFO) << "Loading params from: " << model_path[i] << "...\n";
+		LOG(INFO) << "Loading params from: " << model_path[i] << "\n";
 		caffe::ReadProtoFromBinaryFile(model_path[i], &param);
 		//merge from param
 		for (int j = 0; j < param.layer_size(); ++j)
 		{
 			caffe::LayerParameter* old_layer = param.mutable_layer(j);
-			const std::string old_name = old_layer->name();
-			std::string new_name = old_name + suffix[i];
-			old_layer->set_name(new_name);
 			caffe::LayerParameter* layer = merged_param.add_layer();
 			layer->CopyFrom(*old_layer);
 			LOG(INFO) << "Merged layer: " <<  layer->name() << "\n";

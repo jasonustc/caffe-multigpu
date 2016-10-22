@@ -39,8 +39,7 @@ Please cite this paper if you are interested in the random_trans layer:
     @inproceedings{shen-mm,
      author = {Shen, Xu and Tian, Xinmei and He, Anfeng and Sun, Shaoyan and Tao, Dacheng},
      title = {Transform-Invariant Convolutional Neural Networks for Image Classification and Search},
-     booktitle = {Proceedings of the 2016 ACM on Multimedia Conference},
-     series = {MM},
+     booktitle = {ACM MM},
      year = {2016},
      pages = {1345--1354}
     } 

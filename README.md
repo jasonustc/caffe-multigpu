@@ -36,14 +36,14 @@ Please follow the official tutorials here: http://caffe.berkeleyvision.org/insta
 
 Please cite this paper if you are interested in the random_trans layer:
 
-@inproceedings{Shen:2016:TCN:2964284.2964316,
- author = {Shen, Xu and Tian, Xinmei and He, Anfeng and Sun, Shaoyan and Tao, Dacheng},
- title = {Transform-Invariant Convolutional Neural Networks for Image Classification and Search},
- booktitle = {Proceedings of the 2016 ACM on Multimedia Conference},
- series = {MM '16},
- year = {2016},
- pages = {1345--1354}
-} 
+    @inproceedings{shen-mm,
+     author = {Shen, Xu and Tian, Xinmei and He, Anfeng and Sun, Shaoyan and Tao, Dacheng},
+     title = {Transform-Invariant Convolutional Neural Networks for Image Classification and Search},
+     booktitle = {Proceedings of the 2016 ACM on Multimedia Conference},
+     series = {MM},
+     year = {2016},
+     pages = {1345--1354}
+    } 
 
 
 Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).

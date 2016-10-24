@@ -25,6 +25,13 @@ namespace caffe{
 		LOG_IF(INFO, conditional_) << "Decode input is groundtruth input sequence";
 		output_dim_ = this->layer_param_.recurrent_param().output_dim();
 		vector<int> x_shape(3, 1);
+		// if we need to delay the decoding input for 1 timestep
+		// e.g. for decoding video sequence, we need a delay
+		// for decoding sentence, we do not need a delay
+		delay_ = this->layer_param_.recurrent_param().delay();
+		if (!conditional_){
+			CHECK(delay_) << "for un-conditonal decoding, delay must be set to true";
+		}
 		if (conditional_){
 			CHECK_EQ(bottom.size(), 4);
 			//X_: T_, #streams, X_dim_
@@ -143,18 +150,18 @@ namespace caffe{
 		concat_y_->SetUp(concat_y_bottom, concat_y_top);
 
 		// setup zero_blob_ for beginning of the input
+		// TODO: for unconditional decoding, 
+		// allow to specify the zero_blob_ value manually
 		if (conditional_){
 			start_blob_.reset(new Blob<Dtype>(x_shape));
+			zero_blob_.reset(new Blob<Dtype>(x_shape));
 		}
 		else{
 			start_blob_.reset(new Blob<Dtype>(y_shape));
+			zero_blob_.reset(new Blob<Dtype>(y_shape));
 		}
 
 		start_H_.reset(new Blob<Dtype>(h_shape));
-		// if we need to delay the decoding input for 1 timestep
-		// e.g. for decoding video sequence, we need a delay
-		// for decoding sentence, we do not need a delay
-		delay_ = this->layer_param_.recurrent_param().delay();
 	}
 
 	template <typename Dtype>

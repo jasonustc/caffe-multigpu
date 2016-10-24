@@ -73,7 +73,6 @@ namespace caffe{
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 1);
-			checker.CheckGradientExhaustive(&layer, bottom_, top_, 3);
 		}
 
 
@@ -119,7 +118,6 @@ namespace caffe{
 			bottom_.push_back(c0_);
 			bottom_.push_back(h0_);
 			bottom_.push_back(cont_);
-			bottom_.push_back(x_);
 			top_.push_back(y_);
 			propagate_down_.resize(3, true);
 
@@ -129,7 +127,7 @@ namespace caffe{
 			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
-			layer_param_.mutable_recurrent_param()->set_conditional(true);
+			layer_param_.mutable_recurrent_param()->set_conditional(false);
 			layer_param_.mutable_recurrent_param()->set_output_dim(4);
 			layer_param_.mutable_recurrent_param()->set_delay(true);
 		}
@@ -154,7 +152,7 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::DLSTMLayerTest<float> test;
 //	test.TestSetUp();
-	test.TestForward(caffe::Caffe::CPU);
+//	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
 	test.TestGradients(caffe::Caffe::GPU);

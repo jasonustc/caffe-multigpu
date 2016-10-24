@@ -100,8 +100,10 @@ namespace caffe{
 		vector<shared_ptr<Blob<Dtype> > > Y_1_;
 		vector<shared_ptr<Blob<Dtype> > > Y_2_;
 
-		// start blob for the input of the beginning
+		// start blob for the input of the whole beginning
 		shared_ptr<Blob<Dtype> > start_blob_;
+		// this is for an empty input for the first input of the decoding sequence
+		shared_ptr<Blob<Dtype> > zero_blob_;
 		shared_ptr<Blob<Dtype> > start_H_;
 
 		// hidden states

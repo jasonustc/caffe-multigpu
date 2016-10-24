@@ -56,7 +56,12 @@ namespace caffe{
 		}
 		// Layer
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
-		concat_bottom[0] = this->X_[0].get();
+		if (this->conditional_){
+			concat_bottom[0] = this->X_[0].get();
+		}
+		else{
+			concat_bottom[0] = this->Y_2_[0].get();
+		}
 		concat_bottom[1] = this->H_[0].get();
 		const vector<Blob<Dtype>*> concat_top(1, XH_[0].get());
 		LayerParameter concat_param;
@@ -126,8 +131,9 @@ namespace caffe{
 			h_shape[2] = this->hidden_dim_;
 
 			vector<int> xh_shape(3, 1);
+			int x_dim = this->conditional_ ? bottom[3]->shape(2) : this->output_dim_;
 			xh_shape[1] = bottom[0]->shape(1);
-			xh_shape[2] = this->hidden_dim_ + this->output_dim_;
+			xh_shape[2] = this->hidden_dim_ + x_dim;
 
 			vector<int> gate_shape(3, 1);
 			gate_shape[1] = bottom[0]->shape(1);
@@ -155,20 +161,20 @@ namespace caffe{
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
 		if (!cont_t){
 			// begin of a sequence
-			/// concat_bottom[0] = start_blob_.get();
-			concat_bottom[0] = this->delay_ ? this->start_blob_.get() : this->X_[t].get();
+			concat_bottom[0] = this->delay_ ? this->zero_blob_.get(): this->X_[t].get();
 			concat_bottom[1] = this->H0_[seq_id].get();
 		}
 		else{
 			if (this->conditional_){
-				/// concat_bottom[0] = X_[t - 1].get();
 				concat_bottom[0] = this->delay_ ? 
 					(t == 0 ? this->start_blob_.get() : this->X_[t - 1].get()) 
 					: this->X_[t].get();
 			}
 			else{
+				// in case that the start of this batch is not the start of a sequence
 				concat_bottom[0] = t == 0 ? this->start_blob_.get() : this->Y_2_[t - 1].get();
 			}
+			// in case that the start of this batch is not the start of a sequence
 			concat_bottom[1] = t == 0 ? this->start_H_.get(): H_2_[t - 1].get();
 		}
 		vector<Blob<Dtype>*> concat_top(1, XH_[t].get());
@@ -186,6 +192,7 @@ namespace caffe{
 			dlstm_unit_bottom[0] = this->C0_[seq_id].get();
 		}
 		else{
+			// in case that the start of this batch is not the start of a sequence
 			dlstm_unit_bottom[0] = t == 0 ? start_C_.get() : C_[t - 1].get();
 		}
 		dlstm_unit_bottom[1] = G_[t].get();
@@ -219,6 +226,7 @@ namespace caffe{
 			dlstm_unit_bottom[0] = this->C0_[seq_id].get();
 		}
 		else{
+			// in case that the start of this batch is not the start of a sequence
 			dlstm_unit_bottom[0] = t == 0 ? start_C_.get() : C_[t - 1].get();
 		}
 		dlstm_unit_bottom[1] = G_[t].get();
@@ -240,20 +248,21 @@ namespace caffe{
 		vector<Blob<Dtype>*> concat_bottom(2, NULL);
 		if (!cont_t){
 			// begin of a sequence
-			/// concat_bottom[0] = start_blob_.get();
-			concat_bottom[0] = this->delay_ ? this->start_blob_.get() : this->X_[t].get();
+			concat_bottom[0] = this->delay_ ? this->zero_blob_.get() : this->X_[t].get();
 			concat_bottom[1] = this->H0_[seq_id].get();
 		}
 		else{
 			if (this->conditional_){
-				/// concat_bottom[0] = X_[t - 1].get();
+				// in case that the start of this batch is not the start of a sequence
 				concat_bottom[0] = this->delay_ ? 
 					(t == 0 ? this->start_blob_.get() : this->X_[t - 1].get())
 					: this->X_[t].get();
 			}
 			else{
+				// in case that the start of this batch is not the start of a sequence
 				concat_bottom[0] = t == 0 ? this->start_blob_.get() : this->Y_2_[t - 1].get();
 			}
+			// in case that the start of this batch is not the start of a sequence
 			concat_bottom[1] = t == 0 ? this->start_H_.get() : H_2_[t - 1].get();
 		}
 		vector<Blob<Dtype>*> concat_top(1, XH_[t].get());

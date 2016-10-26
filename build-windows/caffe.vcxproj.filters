@@ -384,7 +384,10 @@
     <ClCompile Include="..\src\caffe\layers\latent_loss_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\test\test_dec_lstm_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\axis_pooling_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tools\caffe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -586,6 +589,9 @@
       <Filter>src\layers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\latent_loss_layer.cu">
+      <Filter>src\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\axis_pooling_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -957,6 +963,9 @@
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\layers\latent_loss_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\axis_pooling_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
   </ItemGroup>

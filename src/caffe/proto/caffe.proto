@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 154 (last added: //
-// seq_end_param)
+// LayerParameter next available layer-specific ID: 155 (last added: //
+// axis_pooling_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -365,6 +365,7 @@ message LayerParameter {
   optional AccuracyParameter accuracy_param = 102;
   optional AttentionParameter attention_param = 151;
   optional ArgMaxParameter argmax_param = 103;
+  optional AxisPoolingParameter axis_pooling_param = 154;
   optional BatchNormParameter batch_norm_param = 139;
   optional BiasParameter bias_param = 141;
   optional ConcatParameter concat_param = 104;
@@ -414,6 +415,19 @@ message LayerParameter {
   optional VideoUnrollParameter video_unroll_param = 147;
   optional TripletParameter triplet_loss_param = 148;
   optional WindowDataParameter window_data_param = 129;
+}
+
+message AxisPoolingParameter {
+  // The axis along which to pooling-- may be negative to index from the
+  // end (e.g., -1 for the last axis).  
+  // By default, AxisPoolingLayer pool blob along the "channels" axis (1).
+  optional int32 axis=1 [default = 1];
+  enum PoolMethod {
+    MAX = 0;
+    AVE = 1;
+    STOCHASTIC = 2; //not implement
+  }
+  optional PoolMethod pool = 2 [default = MAX]; // The pooling method
 }
 
 // message that stores paraemters for sequence end layer

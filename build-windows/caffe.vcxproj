@@ -28,6 +28,7 @@
     <ClCompile Include="..\src\caffe\layers\absval_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\accuracy_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\argmax_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\axis_pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\batch_norm_layer.cpp" />
@@ -135,10 +136,11 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_dec_lstm_layer.cpp" />
+    <ClCompile Include="..\tools\caffe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\axis_pooling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\base_data_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\batch_norm_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\batch_reindex_layer.cu" />
@@ -219,6 +221,7 @@
     <ClInclude Include="..\include\caffe\layers\accuracy_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\argmax_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\attention_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\axis_pooling_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\base_conv_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\base_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\batch_norm_layer.hpp" />

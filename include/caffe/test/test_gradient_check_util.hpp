@@ -126,13 +126,15 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
   }
   // Compute derivative of top w.r.t. each bottom and parameter input using
   // finite differencing.
-  // LOG(ERROR) << "Checking " << blobs_to_check.size() << " blobs.";
+  LOG(ERROR) << "Checking " << blobs_to_check.size() << " blobs.";
   for (int blob_id = 0; blob_id < blobs_to_check.size(); ++blob_id) {
     Blob<Dtype>* current_blob = blobs_to_check[blob_id];
     const Dtype* computed_gradients =
         computed_gradient_blobs[blob_id]->cpu_data();
-    // LOG(ERROR) << "Blob " << blob_id << ": checking "
-    //     << current_blob->count() << " parameters.";
+	LOG(ERROR) <<"================================================\n";
+	LOG(ERROR) <<"================================================\n";
+    LOG(ERROR) << "Blob " << blob_id << ": checking "
+         << current_blob->count() << " parameters.";
     for (int feat_id = 0; feat_id < current_blob->count(); ++feat_id) {
       // For an element-wise layer, we only need to do finite differencing to
       // compute the derivative of top[top_id][top_data_id] w.r.t.
@@ -163,8 +165,10 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
       }
       Dtype computed_gradient = computed_gradients[feat_id];
       Dtype feature = current_blob->cpu_data()[feat_id];
-      // LOG(ERROR) << "debug: " << current_blob->cpu_data()[feat_id] << " "
-      //     << current_blob->cpu_diff()[feat_id];
+	  LOG(ERROR) << "debug: (top_id, top_data_id, blob_id, feat_id)="
+		  << top_id << "," << top_data_id << "," << blob_id << "," << feat_id;
+      LOG(ERROR) << "feature: " << current_blob->cpu_data()[feat_id] << " "
+           << "diff: " << current_blob->cpu_diff()[feat_id];
       if (kink_ - kink_range_ > fabs(feature)
           || fabs(feature) > kink_ + kink_range_) {
         // We check relative accuracy, but for too small values, we threshold
@@ -179,9 +183,12 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
           << "; objective+ = " << positive_objective
           << "; objective- = " << negative_objective;
       }
-      // LOG(ERROR) << "Feature: " << current_blob->cpu_data()[feat_id];
-      // LOG(ERROR) << "computed gradient: " << computed_gradient
-      //    << " estimated_gradient: " << estimated_gradient;
+      LOG(INFO) << "; feat = " << feature
+          << "; objective+ = " << positive_objective
+          << "; objective- = " << negative_objective;
+//       LOG(ERROR) << "Feature: " << current_blob->cpu_data()[feat_id];
+       LOG(ERROR) << "computed gradient: " << computed_gradient
+          << " estimated_gradient: " << estimated_gradient;
     }
   }
 }

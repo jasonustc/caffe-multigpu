@@ -59,6 +59,7 @@ namespace caffe{
 			Blob<Dtype>* h_top = new Blob<Dtype>();
 			FillerParameter fill_param;
 			fill_param.set_type("gaussian");
+			fill_param.set_mean(0.5);
 			fill_param.set_std(1);
 			Filler<Dtype>* filler = GetFiller<Dtype>(fill_param);
 			filler->Fill(c);
@@ -80,7 +81,7 @@ namespace caffe{
 		void SetUp(){
 			vector<int> c0_shape;
 			c0_shape.push_back(2);
-			c0_shape.push_back(1);
+			c0_shape.push_back(2);
 			c0_shape.push_back(2);
 			c0_->Reshape(c0_shape);
 			h0_->Reshape(c0_shape);
@@ -94,25 +95,29 @@ namespace caffe{
 			vector<int> cont_shape{ x_shape[0], x_shape[1] };
 			cont_->Reshape(cont_shape);
 			Dtype* cont_data = cont_->mutable_cpu_data();
-			for (int c = 0; c < 2; ++c){
+			for (int c = 0; c < 4; ++c){
 				for (int j = 0; j < 2; j++){
-					c0_data[c * 2 + j] = j * 2 + c;
+					c0_data[c * 2 + j] = j * 2 + c + 0.01;
 					h0_data[c * 2 + j] = c * 0.1;
 				}
 			}
 			for (int c = 0; c < 5; ++c){
-				if (c == 0 || c == 2){
-					cont_data[c] = 0;
-				}
-				else{
-					cont_data[c] = 1;
+				for (int i = 0; i < 2; ++i){
+					if (c == 0 || c == 2){
+						cont_data[c * 2 + i] = 0;
+					}
+					else{
+						cont_data[c * 2 + i] = 1;
+					}
 				}
 			}
-			for (int c = 0; c < 5; ++c){
+			cont_->ToTxt("cont_data");
+			for (int c = 0; c < 10; ++c){
 				for (int j = 0; j < 3; j++){
-					x_data[c * 3 + j] = c * 0.1 + j * 0.3;
+					x_data[c * 3 + j] = c * 0.1 + j * 0.3 + 0.05;
 				}
 			}
+			x_->ToTxt("x_data");
 
 			//set bottom && top
 			bottom_.push_back(c0_);
@@ -124,9 +129,11 @@ namespace caffe{
 			// set layer_param_
 			layer_param_.mutable_inner_product_param()->set_num_output(3);
 			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_type("gaussian");
+			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_mean(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
+			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_value(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
-			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.);
+			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.01);
 			layer_param_.mutable_recurrent_param()->set_conditional(false);
 			layer_param_.mutable_recurrent_param()->set_output_dim(4);
 			layer_param_.mutable_recurrent_param()->set_delay(true);

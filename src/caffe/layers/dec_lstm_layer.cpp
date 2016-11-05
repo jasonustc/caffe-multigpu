@@ -123,7 +123,6 @@ namespace caffe{
 	void DLSTMLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		DRNNBaseLayer<Dtype>::Reshape(bottom, top);
-		//TODO: reshape XH_ and G_
 		// length of sequence has changed
 		if (C_.size() != this->H_.size()){
 			vector<int> h_shape(3, 1);
@@ -202,7 +201,6 @@ namespace caffe{
 
 		// 7. split
 		const vector<Blob<Dtype>*> split_h_bottom(1, H_1_[t].get());
-		/*const vector<Blob<Dtype>*> split_h_top{ this->H_[t].get(), H_2_[t].get() };*/
 		vector<Blob<Dtype>*> split_h_top(2, this->H_[t].get());
 		split_h_top[1] = H_2_[t].get();
 		split_h_->Forward(split_h_bottom, split_h_top);

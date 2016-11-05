@@ -272,7 +272,6 @@ namespace caffe{
 	template <typename Dtype>
 	void DRNNBaseLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		const Dtype* cont_data = bottom[2]->cpu_data();
 		this->ShareWeight();
 		// 1. slice_h_
 		const vector<Blob<Dtype>*> slice_h_bottom(1, bottom[0]);
@@ -303,10 +302,12 @@ namespace caffe{
 		// for all sequence, run decode lstm.
 		int seq_id = -1;
 		int cont_t;
+		const Dtype* cont_data = bottom[2]->cpu_data();
+		const int cont_dim = bottom[2]->count(1);
 		for (int t = 0; t < T_; t++){
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
-			cont_t = static_cast<int>(*(cont_data + bottom[2]->offset(t)));
+			cont_t = static_cast<int>(cont_data[t * cont_dim]);
 			if (cont_t == 0){
 				seq_id++;
 			}
@@ -339,7 +340,6 @@ namespace caffe{
 	template <typename Dtype>
 	void DRNNBaseLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom){
-		const Dtype* cont_data = bottom[2]->cpu_data();
 		this->ShareWeight();
 
 		// 11. concat Y_1_
@@ -355,10 +355,12 @@ namespace caffe{
 		// for all sequence, run decode LSTM
 		int seq_id = num_seq_;
 		int cont_t;
+		const int cont_dim = bottom[2]->count(1);
+		const Dtype* cont_data = bottom[2]->cpu_data();
 		for (int t = T_ - 1; t >= 0; --t){
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
-			cont_t = static_cast<int>(*(cont_data + bottom[2]->offset(t)));
+			cont_t = static_cast<int>(cont_data[t * cont_dim]);
 			if (cont_t == 0){
 				seq_id--;
 			}

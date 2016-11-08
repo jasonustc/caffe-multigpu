@@ -503,8 +503,8 @@ message RecurrentParameter{
     optional bool conditional = 1 [default = true];
     // the decode output dim
     optional int32 output_dim = 2;
-    // the predict sequence length
-    optional int32 pred_length = 3;
+    // the bottom id of C0 for decoding, only used in LSTM
+    optional int32 c0_id = 3;
     // 1 timestep delay when feeding the decoding input 
     optional bool delay = 4 [default = true];
 

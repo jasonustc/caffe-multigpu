@@ -11,6 +11,14 @@ namespace caffe{
 	void DLSTMLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		DRNNBaseLayer<Dtype>::LayerSetUp(bottom, top);
+		has_c0_ = this->layer_param_.recurrent_param().has_c0_id();
+		if (has_c0_){
+			c0_id_ = this->layer_param_.recurrent_param().c0_id();
+			CHECK_LT(c0_id_, bottom.size());
+			// C0_: num_seq_, #streams, hidden_dim_
+			CHECK_EQ(3, bottom[c0_id_]->num_axes());
+			CHECK(bottom[0]->shape() == bottom[c0_id_]->shape());
+		}
 		// parameters and layers
 		bias_term_ = this->layer_param_.inner_product_param().bias_term();
 		if (!bias_term_){
@@ -34,6 +42,24 @@ namespace caffe{
 		vector<int> gate_shape(3, 1);
 		gate_shape[1] = bottom[0]->shape(1);
 		gate_shape[2] = this->hidden_dim_ * 4;
+
+		// setup slice_c_ layer
+		// Top
+		C0_.resize(this->num_seq_);
+		for (int n = 0; n < this->num_seq_; ++n){
+			C0_[n].reset(new Blob<Dtype>(h_shape));
+		}
+
+		// Layer
+		// if no external c0s, we just use zero c0s
+		if (has_c0_){
+			LayerParameter slice_param;
+			slice_param.mutable_slice_param()->set_axis(0);
+			const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[c0_id_]);
+			const vector<Blob<Dtype>*> slice_c_top(this->num_seq_, C0_[0].get());
+			slice_c_.reset(new SliceLayer<Dtype>(slice_param));
+			slice_c_->SetUp(slice_c_bottom, slice_c_top);
+		}
 
 		// setup split_h_ layer
 		H_1_.resize(this->T_);
@@ -122,7 +148,31 @@ namespace caffe{
 	template <typename Dtype>
 	void DLSTMLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
+		vector<int> h_shape(3, 1);
+		h_shape[1] = bottom[0]->shape(1);
+		h_shape[2] = bottom[0]->shape(2);
 		DRNNBaseLayer<Dtype>::Reshape(bottom, top);
+		// C0_: T_, #streams, hidden_dim_
+		if (has_c0_){
+			CHECK_EQ(3, bottom[c0_id_]->num_axes());
+			CHECK_EQ(bottom[c0_id_]->shape(2), hidden_dim_)
+				<< "C0_ feat dim incompatible with dlstm parameters.";
+			CHECK(bottom[0]->shape() == bottom[c0_id_]->shape()) << bottom[0]->shape_string()
+				<< " vs. " << bottom[c0_id_]->shape_string();
+		}
+		if (C0_.size() != this->num_seq_){
+			C0_.resize(this->num_seq_);
+			for (int n = 0; n < this->num_seq_; ++n){
+				C0_[n].reset(new Blob<Dtype>(h_shape));
+			}
+			if (has_c0_){
+				// reshape slice_c_
+				const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[c0_id_]);
+				const vector<Blob<Dtype>*> slice_c_top(this->num_seq_, C0_[0].get());
+				slice_c_->Reshape(slice_c_bottom, slice_c_top);
+			}
+		}
+
 		// length of sequence has changed
 		if (C_.size() != this->H_.size()){
 			vector<int> h_shape(3, 1);
@@ -268,6 +318,40 @@ namespace caffe{
 			concat_top, 
 			vector<bool>(2, true),
 			concat_bottom);
+	}
+
+	template <typename Dtype>
+	void DLSTMLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+		const vector<Blob<Dtype>*>& top){
+		// 2. slice_c_ 
+		if (has_c0_){
+			const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[c0_id_]);
+			vector<Blob<Dtype>*> slice_c_top(this->num_seq_, NULL);
+			for (int n = 0; n < this->num_seq_; ++n){
+				slice_c_top[n] = C0_[n].get();
+			}
+			slice_c_->Forward(slice_c_bottom, slice_c_top);
+		}
+
+		DRNNBaseLayer<Dtype>::Forward_cpu(bottom, top);
+	}
+
+	template<typename Dtype>
+	void DLSTMLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+		const vector<bool>& propagate_down,
+		const vector<Blob<Dtype>*>& bottom){
+		DRNNBaseLayer<Dtype>::Backward_cpu(top, propagate_down, bottom);
+		// 2. slice_c_
+		if (has_c0_){
+			const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[c0_id_]);
+			vector<Blob<Dtype>*> slice_c_top(this->num_seq_, NULL);
+			for (int n = 0; n < this->num_seq_; ++n){
+				slice_c_top[n] = C0_[n].get();
+			}
+			slice_c_->Backward(slice_c_top,
+				vector<bool>(this->num_seq_, true),
+				slice_c_bottom);
+		}
 	}
 
 #ifdef CPU_ONLY

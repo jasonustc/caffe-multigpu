@@ -73,7 +73,7 @@ namespace caffe{
 			DLSTMLayer<Dtype> layer(layer_param_);
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
-			checker.CheckGradientExhaustive(&layer, bottom_, top_, 1);
+			checker.CheckGradientExhaustive(&layer, bottom_, top_, 2);
 		}
 
 
@@ -120,9 +120,9 @@ namespace caffe{
 			x_->ToTxt("x_data");
 
 			//set bottom && top
-			bottom_.push_back(c0_);
 			bottom_.push_back(h0_);
 			bottom_.push_back(cont_);
+			bottom_.push_back(c0_);
 			top_.push_back(y_);
 			propagate_down_.resize(3, true);
 
@@ -137,6 +137,7 @@ namespace caffe{
 			layer_param_.mutable_recurrent_param()->set_conditional(false);
 			layer_param_.mutable_recurrent_param()->set_output_dim(4);
 			layer_param_.mutable_recurrent_param()->set_delay(true);
+			layer_param_.mutable_recurrent_param()->set_c0_id(2);
 		}
 
 		Blob<Dtype>* c0_;

@@ -29,7 +29,7 @@ namespace caffe{
 	/*
 	 * for implementation of DLSTM
 	 * input:
-	 *      c_init_, h_init_, cont_, X_ (if conditional)
+	 *      h_init_, cont_, X_ (if conditional)
 	 * TODO: deal with changed continuation indicators accross different batches
 	 */
 	template <typename Dtype>
@@ -49,7 +49,7 @@ namespace caffe{
 
 		virtual inline bool AllowForceBackward(const int bottom_index) const{
 			// Can't propagate to sequence continuation indicators.
-			return bottom_index != 2;
+			return bottom_index != 1;
 		}
 
 	protected:
@@ -82,9 +82,6 @@ namespace caffe{
 		shared_ptr<SliceLayer<Dtype> > slice_x_;
 		vector<shared_ptr<Blob<Dtype> > > X_;
 
-		// slice_c_ layer
-		shared_ptr<SliceLayer<Dtype> > slice_c_;
-		vector<shared_ptr<Blob<Dtype> > > C0_;
 
 		// concat_y_ layer
 		shared_ptr<ConcatLayer<Dtype> > concat_y_;

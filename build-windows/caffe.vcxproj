@@ -82,9 +82,7 @@
     <ClCompile Include="..\src\caffe\layers\neuron_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\power_layer.cpp" />
-    <ClCompile Include="..\src\caffe\layers\pred_lstm_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prelu_layer.cpp" />
-    <ClCompile Include="..\src\caffe\layers\prnn_base_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\rbm_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reduction_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\relu_layer.cpp" />
@@ -274,9 +272,7 @@
     <ClInclude Include="..\include\caffe\layers\neuron_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\pooling_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\power_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\pred_lstm_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp" />
-    <ClInclude Include="..\include\caffe\layers\prnn_base_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\python_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\local_lstm_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\rbm_layer.hpp" />

@@ -32,6 +32,8 @@ namespace caffe{
 	 * TODO: deal with param_propagate_down_ and propagate_down
 	 * if decoding a sentence, the input is X_[0], X_[1], ...
 	 * if decoding a video, the input is \hat{0}, X_[0], X_[1], ...
+	 * if c0_id is specified, we use external c0s(bottom[c0_id]) as initial memory cell
+	 * otherwise, we use zero c0s
 	 */
 	template <typename Dtype>
 	class DLSTMLayer : public DRNNBaseLayer<Dtype>{
@@ -45,7 +47,15 @@ namespace caffe{
 
 		virtual inline const char* type() const { return "DLSTM"; }
 
+
 	protected:
+
+		virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+			const vector<Blob<Dtype>*>& top);
+		virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+			const vector<bool>& propagate_down,
+			const vector<Blob<Dtype>*>& bottom);
+
 		virtual void RecurrentForward(const int t, const int cont_t, const int seq_id);
 		virtual void RecurrentBackward(const int t, const int cont_t, const int seq_id);
 
@@ -92,6 +102,9 @@ namespace caffe{
 		}
 
 		int bias_term_;
+		bool has_c0_;
+		// external c0 id
+		int c0_id_;
 
 		//Layers
 		// split_h_ layer
@@ -101,6 +114,9 @@ namespace caffe{
 		vector<shared_ptr<Blob<Dtype> > > H_1_;
 		vector<shared_ptr<Blob<Dtype> > > H_2_;
 
+		// slice_c_ layer
+		shared_ptr<SliceLayer<Dtype> > slice_c_;
+		vector<shared_ptr<Blob<Dtype> > > C0_;
 
 		// if not conditional_, we need to feed h into next cell as input
 

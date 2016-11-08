@@ -354,12 +354,6 @@
     <ClCompile Include="..\src\caffe\layers\seq_end_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\pred_lstm_layer.cpp">
-      <Filter>src\layers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\prnn_base_layer.cpp">
-      <Filter>src\layers</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\caffe\layers\rbm_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
@@ -930,12 +924,6 @@
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\layers\seq_end_layer.hpp">
-      <Filter>include\layers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\pred_lstm_layer.hpp">
-      <Filter>include\layers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\prnn_base_layer.hpp">
       <Filter>include\layers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\caffe\layers\rbm_layer.hpp">

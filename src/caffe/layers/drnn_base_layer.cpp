@@ -12,13 +12,10 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		// H0_: num_seq_, #streams, hidden_dim_
 		CHECK_EQ(3, bottom[0]->num_axes());
-		// C0_: num_seq_, #streams, hidden_dim_
-		CHECK_EQ(3, bottom[1]->num_axes());
 		// cont_: (T_, #streams) 
-		CHECK_EQ(2, bottom[2]->num_axes());
-		CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
-		CHECK(bottom[0]->shape() == bottom[1]->shape());
-		if (bottom[2]->shape(1) > 1){
+		CHECK_EQ(2, bottom[1]->num_axes());
+		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
+		if (bottom[1]->shape(1) > 1){
 			LOG(ERROR) << "Please make sure that each stream has the same 'cont' variable";
 		}
 		conditional_ = this->layer_param_.recurrent_param().conditional();
@@ -35,16 +32,16 @@ namespace caffe{
 		if (conditional_){
 			CHECK_EQ(bottom.size(), 4);
 			//X_: T_, #streams, X_dim_
-			CHECK_EQ(3, bottom[3]->num_axes());
-			CHECK_EQ(bottom[2]->shape(0), bottom[3]->shape(0));
-			CHECK_EQ(bottom[2]->shape(1), bottom[3]->shape(1));
+			CHECK_EQ(3, bottom[2]->num_axes());
+			CHECK_EQ(bottom[0]->shape(0), bottom[2]->shape(0));
+			CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
 			//shapes of blobs
-			x_shape[1] = bottom[3]->shape(1);
-			x_shape[2] = bottom[3]->shape(2);
-			X_dim_ = bottom[3]->shape(2);
+			x_shape[1] = bottom[2]->shape(1);
+			x_shape[2] = bottom[2]->shape(2);
+			X_dim_ = bottom[2]->shape(2);
 		}
 		hidden_dim_ = bottom[0]->shape(2);
-		T_ = bottom[2]->shape(0);
+		T_ = bottom[1]->shape(0);
 		num_seq_ = bottom[0]->shape(0);
 
 		vector<int> h_shape(3, 1);
@@ -68,17 +65,6 @@ namespace caffe{
 		slice_h_.reset(new SliceLayer<Dtype>(slice_param));
 		slice_h_->SetUp(slice_h_bottom, slice_h_top);
 
-		// setup slice_c_ layer
-		// Top
-		C0_.resize(num_seq_);
-		for (int n = 0; n < num_seq_; ++n){
-			C0_[n].reset(new Blob<Dtype>(h_shape));
-		}
-		// Layer
-		const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[1]);
-		const vector<Blob<Dtype>*> slice_c_top(num_seq_, C0_[0].get());
-		slice_c_.reset(new SliceLayer<Dtype>(slice_param));
-		slice_c_->SetUp(slice_c_bottom, slice_c_top);
 
 		// setup slice_x_ layer
 		// Top
@@ -88,7 +74,7 @@ namespace caffe{
 				X_[t].reset(new Blob<Dtype>(x_shape));
 			}
 			// Layer
-			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[3]);
+			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[2]);
 			const vector<Blob<Dtype>*> slice_x_top(T_, X_[0].get());
 			slice_x_.reset(new SliceLayer<Dtype>(slice_param));
 			slice_x_->SetUp(slice_x_bottom, slice_x_top);
@@ -173,25 +159,19 @@ namespace caffe{
 		CHECK_EQ(3, bottom[0]->num_axes());
 		CHECK_EQ(bottom[0]->shape(2), hidden_dim_)
 			<< "H0_ feat dim incompatible with dlstm parameters.";
-		// C0_: T_, #streams, hidden_dim_
-		CHECK_EQ(3, bottom[1]->num_axes());
-		CHECK_EQ(bottom[1]->shape(2), hidden_dim_)
-			<< "C0_ feat dim incompatible with dlstm parameters.";
-		CHECK(bottom[0]->shape() == bottom[1]->shape()) << bottom[0]->shape_string()
-			<< " vs. " << bottom[1]->shape_string();
 		// cont_: (T_, #streams) 
-		CHECK_EQ(2, bottom[2]->num_axes());
-		CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
+		CHECK_EQ(2, bottom[1]->num_axes());
+		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
 		vector<int> x_shape(3, 1);
 		if (conditional_){
 			//X_: T_, #streams, X_dim_
-			CHECK_EQ(3, bottom[3]->num_axes());
-			CHECK_EQ(bottom[2]->shape(0), bottom[3]->shape(0));
-			CHECK_EQ(bottom[2]->shape(1), bottom[3]->shape(1));
+			CHECK_EQ(3, bottom[2]->num_axes());
+			CHECK_EQ(bottom[1]->shape(0), bottom[2]->shape(0));
+			CHECK_EQ(bottom[1]->shape(1), bottom[2]->shape(1));
 			//shapes of blobs
-			x_shape[1] = bottom[3]->shape(1);
-			x_shape[2] = bottom[3]->shape(2);
-			CHECK_EQ(bottom[3]->shape(2), X_dim_)
+			x_shape[1] = bottom[2]->shape(1);
+			x_shape[2] = bottom[2]->shape(2);
+			CHECK_EQ(bottom[2]->shape(2), X_dim_)
 				<< "X feat dim incompatible with dlstm parameters.";
 		}
 		vector<int> h_shape(3, 1);
@@ -212,24 +192,16 @@ namespace caffe{
 			const vector<Blob<Dtype>*> slice_h_bottom(1, bottom[0]);
 			const vector<Blob<Dtype>*> slice_h_top(num_seq_, H0_[0].get());
 			slice_h_->Reshape(slice_h_bottom, slice_h_top);
-			C0_.resize(num_seq_);
-			for (int n = 0; n < num_seq_; ++n){
-				C0_[n].reset(new Blob<Dtype>(h_shape));
-			}
-			// reshape slice_c_
-			const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[1]);
-			const vector<Blob<Dtype>*> slice_c_top(num_seq_, C0_[0].get());
-			slice_c_->Reshape(slice_c_bottom, slice_c_top);
 		}
-		if (bottom[2]->shape(0) != T_){
-			T_ = bottom[2]->shape(0);
+		if (bottom[1]->shape(0) != T_){
+			T_ = bottom[1]->shape(0);
 			if (conditional_){
 				X_.resize(T_);
 				for (int t = 0; t < T_; ++t){
 					X_[t].reset(new Blob<Dtype>(x_shape));
 				}
 				// reshape slice_x_
-				const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[3]);
+				const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[2]);
 				const vector<Blob<Dtype>*> slice_x_top(T_, X_[0].get());
 				slice_x_->Reshape(slice_x_bottom, slice_x_top);
 			}
@@ -281,17 +253,9 @@ namespace caffe{
 		}
 		slice_h_->Forward(slice_h_bottom, slice_h_top);
 
-		// 2. slice_c_ 
-		const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[1]);
-		vector<Blob<Dtype>*> slice_c_top(num_seq_, NULL);
-		for (int n = 0; n < num_seq_; ++n){
-			slice_c_top[n] = C0_[n].get();
-		}
-		slice_c_->Forward(slice_c_bottom, slice_c_top);
-
 		// 3. slice_x_ if needed
 		if (conditional_){
-			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[3]);
+			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[2]);
 			vector<Blob<Dtype>*> slice_x_top(T_, NULL);
 			for (int t = 0; t < T_; ++t){
 				slice_x_top[t] = X_[t].get();
@@ -302,8 +266,8 @@ namespace caffe{
 		// for all sequence, run decode lstm.
 		int seq_id = -1;
 		int cont_t;
-		const Dtype* cont_data = bottom[2]->cpu_data();
-		const int cont_dim = bottom[2]->count(1);
+		const Dtype* cont_data = bottom[1]->cpu_data();
+		const int cont_dim = bottom[1]->count(1);
 		for (int t = 0; t < T_; t++){
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
@@ -355,8 +319,8 @@ namespace caffe{
 		// for all sequence, run decode LSTM
 		int seq_id = num_seq_;
 		int cont_t;
-		const int cont_dim = bottom[2]->count(1);
-		const Dtype* cont_data = bottom[2]->cpu_data();
+		const int cont_dim = bottom[1]->count(1);
+		const Dtype* cont_data = bottom[1]->cpu_data();
 		for (int t = T_ - 1; t >= 0; --t){
 			// NOTE: only take the cont of first stream as reference
 			// maybe a bug here
@@ -386,7 +350,7 @@ namespace caffe{
 
 		// 3. slice_x_ if needed
 		if (conditional_){
-			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[3]);
+			const vector<Blob<Dtype>*> slice_x_bottom(1, bottom[2]);
 			vector<Blob<Dtype>*> slice_x_top(T_, NULL);
 			for (int t = 0; t < T_; ++t){
 				slice_x_top[t] = X_[t].get();
@@ -396,15 +360,6 @@ namespace caffe{
 				slice_x_bottom);
 		}
 
-		// 2. slice_c_
-		const vector<Blob<Dtype>*> slice_c_bottom(1, bottom[1]);
-		vector<Blob<Dtype>*> slice_c_top(num_seq_, NULL);
-		for (int n = 0; n < num_seq_; ++n){
-			slice_c_top[n] = C0_[n].get();
-		}
-		slice_c_->Backward(slice_c_top,
-			vector<bool>(num_seq_, true),
-			slice_c_bottom);
 		
 		// 1. slice_h_
 		const vector<Blob<Dtype>*> slice_h_bottom(1, bottom[0]);

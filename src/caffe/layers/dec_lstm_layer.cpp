@@ -14,6 +14,7 @@ namespace caffe{
 		has_c0_ = this->layer_param_.recurrent_param().has_c0_id();
 		if (has_c0_){
 			c0_id_ = this->layer_param_.recurrent_param().c0_id();
+      LOG(INFO) << "using external c0: bottom[" << c0_id_ << "]";
 			CHECK_LT(c0_id_, bottom.size());
 			// C0_: num_seq_, #streams, hidden_dim_
 			CHECK_EQ(3, bottom[c0_id_]->num_axes());
@@ -29,7 +30,7 @@ namespace caffe{
 		}
 
 		//shapes of blobs
-		int x_dim = this->conditional_ ? bottom[3]->shape(2) : this->output_dim_;
+		int x_dim = this->conditional_ ? bottom[2]->shape(2) : this->output_dim_;
 		vector<int> x_shape(3, 1);
 		x_shape[1] = bottom[0]->shape(1);
 		x_shape[2] = x_dim;
@@ -180,7 +181,7 @@ namespace caffe{
 			h_shape[2] = this->hidden_dim_;
 
 			vector<int> xh_shape(3, 1);
-			int x_dim = this->conditional_ ? bottom[3]->shape(2) : this->output_dim_;
+			int x_dim = this->conditional_ ? bottom[2]->shape(2) : this->output_dim_;
 			xh_shape[1] = bottom[0]->shape(1);
 			xh_shape[2] = this->hidden_dim_ + x_dim;
 

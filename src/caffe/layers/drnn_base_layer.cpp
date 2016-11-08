@@ -33,8 +33,8 @@ namespace caffe{
 			CHECK_GE(bottom.size(), 3);
 			//X_: T_, #streams, X_dim_
 			CHECK_EQ(3, bottom[2]->num_axes());
-			CHECK_EQ(bottom[0]->shape(0), bottom[2]->shape(0));
-			CHECK_EQ(bottom[0]->shape(1), bottom[2]->shape(1));
+			CHECK_EQ(bottom[1]->shape(0), bottom[2]->shape(0));
+			CHECK_EQ(bottom[1]->shape(1), bottom[2]->shape(1));
 			//shapes of blobs
 			x_shape[1] = bottom[2]->shape(1);
 			x_shape[2] = bottom[2]->shape(2);
@@ -50,6 +50,7 @@ namespace caffe{
 		vector<int> y_shape(3, 1);
 		y_shape[1] = bottom[0]->shape(1);
 		y_shape[2] = output_dim_;
+    LOG(INFO) << "here";
 
 		// setup slice_h_ layer
 		// Top
@@ -148,6 +149,7 @@ namespace caffe{
 		}
 
 		start_H_.reset(new Blob<Dtype>(h_shape));
+    LOG(INFO) << "drnnbase setup finished";
 	}
 
 	template <typename Dtype>

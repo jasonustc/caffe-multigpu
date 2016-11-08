@@ -155,7 +155,7 @@ namespace caffe{
 		// C0_: T_, #streams, hidden_dim_
 		if (has_c0_){
 			CHECK_EQ(3, bottom[c0_id_]->num_axes());
-			CHECK_EQ(bottom[c0_id_]->shape(2), hidden_dim_)
+			CHECK_EQ(bottom[c0_id_]->shape(2), this->hidden_dim_)
 				<< "C0_ feat dim incompatible with dlstm parameters.";
 			CHECK(bottom[0]->shape() == bottom[c0_id_]->shape()) << bottom[0]->shape_string()
 				<< " vs. " << bottom[c0_id_]->shape_string();

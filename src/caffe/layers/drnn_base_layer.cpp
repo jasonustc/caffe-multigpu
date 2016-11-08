@@ -30,7 +30,7 @@ namespace caffe{
 			CHECK(delay_) << "for un-conditonal decoding, delay must be set to true";
 		}
 		if (conditional_){
-			CHECK_EQ(bottom.size(), 4);
+			CHECK_GE(bottom.size(), 3);
 			//X_: T_, #streams, X_dim_
 			CHECK_EQ(3, bottom[2]->num_axes());
 			CHECK_EQ(bottom[0]->shape(0), bottom[2]->shape(0));

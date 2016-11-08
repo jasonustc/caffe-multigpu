@@ -34,7 +34,7 @@ Please follow the official tutorials here: http://caffe.berkeleyvision.org/insta
 
 ## License and Citation
 
-Please cite this paper if you are interested in the random_trans layer:
+Please cite this paper if you are interested in the random_trans_layer:
 
     @inproceedings{shen-mm,
      author = {Shen, Xu and Tian, Xinmei and He, Anfeng and Sun, Shaoyan and Tao, Dacheng},

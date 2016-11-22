@@ -47,7 +47,7 @@ namespace caffe{
 
 		void TestGradients(Caffe::Brew mode){
 			Caffe::set_mode(mode);
-			GradientChecker<Dtype> checker(0.01, 0.001);
+			GradientChecker<Dtype> checker(0.001, 0.0001);
 			SemiHingeLossLayer<Dtype> layer(layer_param_);
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
@@ -121,7 +121,7 @@ int main(int argc, char** argv){
 	test.TestSetUp();
 //	test.TestForward(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
-//	test.TestGradients(caffe::Caffe::CPU);
-	test.TestGradients(caffe::Caffe::GPU);
+	test.TestGradients(caffe::Caffe::CPU);
+//	test.TestGradients(caffe::Caffe::GPU);
 	return 0;
 }

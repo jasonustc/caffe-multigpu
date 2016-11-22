@@ -83,7 +83,7 @@ namespace caffe{
 				// unsupervised
 				if (dist_data[n] > 0){
 					Dtype gap = dist_diff[n] - unsup_thre_;
-					Dtype alpha = gap > 0 ? 1 : (gap < 0 ? -1 : 0);
+					Dtype alpha = gap > 0 ? -1 : (gap < 0 ? 1 : 0);
 	 				if (propagate_down[0]){
 						caffe_gpu_axpby(dim, Dtype(gamma_ * alpha * loss_weight / num), diff_data,
 							Dtype(0), bottom_diff_1);

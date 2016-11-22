@@ -120,7 +120,7 @@ namespace caffe {
 				// unsupervised gradient
 				if (dist_data[n] > 0){
 					Dtype gap = dist_diff[n] - unsup_thre_;
-					Dtype alpha = gap > 0 ? 1 : (gap == 0 ? 0 : -1);
+					Dtype alpha = gap > 0 ? -1 : (gap == 0 ? 0 : 1);
 					if (propagate_down[0]){
 						caffe_cpu_axpby(dim, Dtype(gamma_ * alpha * loss_weight / num), diff_data,
 							Dtype(0), bottom_diff_1);

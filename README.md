@@ -34,6 +34,17 @@ Please follow the official tutorials here: http://caffe.berkeleyvision.org/insta
 
 ## License and Citation
 
+Please cite this paper if you are interested in the random_trans_layer:
+
+    @inproceedings{shen-mm,
+     author = {Shen, Xu and Tian, Xinmei and He, Anfeng and Sun, Shaoyan and Tao, Dacheng},
+     title = {Transform-Invariant Convolutional Neural Networks for Image Classification and Search},
+     booktitle = {ACM MM},
+     year = {2016},
+     pages = {1345--1354}
+    } 
+
+
 Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
 The BVLC reference models are released for unrestricted use.
 

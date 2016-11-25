@@ -108,6 +108,9 @@ namespace caffe{
 		BORDER_ = static_cast<Border>(this->layer_param_.rand_trans_param().border());
 		INTERP_ = static_cast<Interp>(this->layer_param_.rand_trans_param().interp());
 		InitRand();
+		need_scale_ = scale_;
+		need_rotation_ = rotation_;
+		need_shift_ = shift_;
 		CHECK(need_scale_ || need_rotation_ || need_shift_ || total_random_)
 			<< "at least 1 type of transform should be setted";
 	}

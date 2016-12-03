@@ -514,6 +514,9 @@ message LossParameter {
     NONE = 3;
   }
   optional NormalizationMode normalization = 3 [default = VALID];
+
+  // loss weight file, we will load weight of each label from this file
+  optional string label_weight_file = 4;
   // Deprecated.  Ignored if normalization is specified.  If normalization
   // is not specified, then setting this to false will be equivalent to
   // normalization = BATCH_SIZE to be consistent with previous behavior.

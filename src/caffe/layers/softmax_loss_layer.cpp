@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cfloat>
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 #include "caffe/layers/softmax_loss_layer.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -19,6 +21,29 @@ void SoftmaxWithLossLayer<Dtype>::LayerSetUp(
   softmax_top_vec_.clear();
   softmax_top_vec_.push_back(&prob_);
   softmax_layer_->SetUp(softmax_bottom_vec_, softmax_top_vec_);
+
+  // set up label weight parameter
+  has_label_weight_ = this->layer_param_.loss_param().has_label_weight_file();
+  softmax_axis_ =
+      bottom[0]->CanonicalAxisIndex(this->layer_param_.softmax_param().axis());
+  vector<int> label_shape;
+  label_shape.push_back(bottom[0]->shape(softmax_axis_));
+  label_weight_.Reshape(label_shape);
+  Dtype* weight_data = label_weight_.mutable_cpu_data();
+  if (has_label_weight_){
+	  std::ifstream in(this->layer_param_.loss_param().label_weight_file().c_str());
+	  CHECK(in.is_open()) << 
+		  "can not open file" << this->layer_param_.loss_param().label_weight_file();
+	  Dtype w;
+	  for (int i = 0; i < label_weight_.count(); ++i){
+		  in >> w;
+		  weight_data[i] = w;
+		  LOG(INFO) << "label " << i << ", weight: " << w;
+	  }
+  }
+  else{
+	  caffe_set(label_weight_.count(), Dtype(1.), weight_data);
+  }
 
   has_ignore_label_ =
     this->layer_param_.loss_param().has_ignore_label();
@@ -95,6 +120,7 @@ void SoftmaxWithLossLayer<Dtype>::Forward_cpu(
   int dim = prob_.count() / outer_num_;
   int count = 0;
   Dtype loss = 0;
+  const Dtype* label_weight = label_weight_.cpu_data();
   for (int i = 0; i < outer_num_; ++i) {
     for (int j = 0; j < inner_num_; j++) {
       const int label_value = static_cast<int>(label[i * inner_num_ + j]);
@@ -103,8 +129,9 @@ void SoftmaxWithLossLayer<Dtype>::Forward_cpu(
       }
       DCHECK_GE(label_value, 0);
       DCHECK_LT(label_value, prob_.shape(softmax_axis_));
-      loss -= log(std::max(prob_data[i * dim + label_value * inner_num_ + j],
-                           Dtype(FLT_MIN)));
+	  // scaled by label weight
+      loss -= label_weight[label_value] * 
+		  log(std::max(prob_data[i * dim + label_value * inner_num_ + j], Dtype(FLT_MIN)));
       ++count;
     }
   }
@@ -126,6 +153,7 @@ void SoftmaxWithLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const Dtype* prob_data = prob_.cpu_data();
     caffe_copy(prob_.count(), prob_data, bottom_diff);
     const Dtype* label = bottom[1]->cpu_data();
+	const Dtype* label_weight = label_weight_.cpu_data();
     int dim = prob_.count() / outer_num_;
     int count = 0;
     for (int i = 0; i < outer_num_; ++i) {
@@ -137,6 +165,8 @@ void SoftmaxWithLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           }
         } else {
           bottom_diff[i * dim + label_value * inner_num_ + j] -= 1;
+		  // scaled by label weight
+          bottom_diff[i * dim + label_value * inner_num_ + j] *= label_weight[label_value];
           ++count;
         }
       }

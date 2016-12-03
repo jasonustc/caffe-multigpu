@@ -46,6 +46,7 @@ class LossLayer : public Layer<Dtype> {
   virtual inline bool AllowForceBackward(const int bottom_index) const {
     return bottom_index != 1;
   }
+
 };
 
 }  // namespace caffe

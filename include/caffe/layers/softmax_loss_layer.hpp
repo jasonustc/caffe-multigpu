@@ -123,6 +123,10 @@ class SoftmaxWithLossLayer : public LossLayer<Dtype> {
   LossParameter_NormalizationMode normalization_;
 
   int softmax_axis_, outer_num_, inner_num_;
+
+  /// use weighted loss to deal with unbalanced sample problem
+  bool has_label_weight_;
+  Blob<Dtype> label_weight_;
 };
 
 }  // namespace caffe

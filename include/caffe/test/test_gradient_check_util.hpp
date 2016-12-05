@@ -146,7 +146,6 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
       if (!element_wise || (feat_id == top_data_id)) {
         // Do finite differencing.
         // Compute loss with stepsize_ added to input.
-		  feat_id = 26;
         current_blob->mutable_cpu_data()[feat_id] += stepsize_;
         Caffe::set_random_seed(seed_);
         layer->Forward(bottom, top);

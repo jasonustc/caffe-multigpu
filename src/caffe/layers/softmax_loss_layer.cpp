@@ -165,8 +165,10 @@ void SoftmaxWithLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           }
         } else {
           bottom_diff[i * dim + label_value * inner_num_ + j] -= 1;
-		  // scaled by label weight
-          bottom_diff[i * dim + label_value * inner_num_ + j] *= label_weight[label_value];
+		  // scale this sample by label weight
+		  for (int c = 0; c < bottom[0]->shape(softmax_axis_); ++c) {
+			  bottom_diff[i * dim + c * inner_num_ + j] *= label_weight[label_value];
+		  }
           ++count;
         }
       }

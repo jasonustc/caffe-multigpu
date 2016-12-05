@@ -86,8 +86,11 @@ __global__ void SoftmaxLossBackwardGPU(const int nthreads, const Dtype* top,
       counts[index] = 0;
     } else {
       bottom_diff[n * dim + label_value * spatial_dim + s] -= 1;
-	  // scaled by label weight
-      bottom_diff[n * dim + label_value * spatial_dim + s] *= label_weight[label_value];
+	  // scale this sample by label weight
+      for (int c = 0; c < channels; ++c) {
+		  bottom_diff[n * dim + c * spatial_dim + s] *= 
+			  label_weight[label_value];
+      }
       counts[index] = 1;
     }
   }

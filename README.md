@@ -43,6 +43,15 @@ Please cite this paper if you are interested in the random_trans_layer:
      year = {2016},
      pages = {1345--1354}
     } 
+    
+Please cite this paper if you are interested in the patch_rank_layer:
+
+    @inproceedings{shen-mm,
+     author = {Shen, Xu and Tian, Xinmei and Sun, Shaoyan and Tao, Dacheng},
+     title = {Patch	Reordering:	a Novel	Way	to Achieve Rotation	and	Translation	Invariance in Convolutional Neural Networks},
+     booktitle = {AAAI},
+     year = {2017}
+    } 
 
 
 Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).

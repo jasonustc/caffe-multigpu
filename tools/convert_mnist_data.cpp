@@ -1,366 +1,101 @@
-// This script converts the MNIST dataset to a lmdb (default) or
-// leveldb (--backend=leveldb) format used by caffe to load data.
-// Usage:
-//    convert_mnist_data [FLAGS] input_image_file input_label_file
-//                        output_db_file
-// The MNIST dataset could be downloaded at
-//    http://yann.lecun.com/exdb/mnist/
-
-#include <gflags/gflags.h>
-#include <glog/logging.h>
-#include <google/protobuf/text_format.h>
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
-#include <lmdb.h>
-#include <stdint.h>
-#include <sys/stat.h>
-#include <iostream>
-
 #include <fstream>  // NOLINT(readability/streams)
 #include <string>
 
+#include "boost/scoped_ptr.hpp"
+#include "glog/logging.h"
+#include "google/protobuf/text_format.h"
+#include "stdint.h"
+
 #include "caffe/proto/caffe.pb.h"
+#include "caffe/util/db.hpp"
+#include "boost/algorithm/string.hpp"
+#include "caffe/util/rng.hpp"
 
-// port for Win32
-#ifdef _MSC_VER
-#include <direct.h>
-#define snprintf sprintf_s
-#endif
+using caffe::Datum;
+using boost::scoped_ptr;
+using namespace std;
+using namespace caffe;
 
-using namespace caffe;  // NOLINT(build/namespaces)
-using std::string;
+DEFINE_int32(channels, 0, "channels of the image");
+DEFINE_int32(height, 0, "height of the image");
+DEFINE_int32(width, 0, "width of the image");
+DEFINE_string(backend, "lmdb", "The backend{leveldb/lmdb} for storing the result");
+DEFINE_int32(num_items, 0, "number of samples");
 
-DEFINE_string(backend, "leveldb", "The backend for storing the result");
-DEFINE_bool(build_valid, false, "If we need to split training set into new train and valid");
+void convert_dataset_float(const string& feat_file, const string& label_file, const string& db_name) {
+	//create db
+	scoped_ptr<db::DB> db(db::GetDB(FLAGS_backend));
+	db->Open(db_name, db::NEW);
+	scoped_ptr<db::Transaction> txn(db->NewTransaction());
 
-uint32_t swap_endian(uint32_t val) {
-    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
-    return (val << 16) | (val >> 16);
-}
-
-void convert_dataset(const char* image_filename, const char* label_filename,
-        const char* db_path, const string& db_backend) {
-  // Open files
-  std::ifstream image_file(image_filename, std::ios::in | std::ios::binary);
-  std::ifstream label_file(label_filename, std::ios::in | std::ios::binary);
-  CHECK(image_file) << "Unable to open file " << image_filename;
-  CHECK(label_file) << "Unable to open file " << label_filename;
-  // Read the magic and the meta data
-  uint32_t magic;
-  uint32_t num_items;
-  uint32_t num_labels;
-  uint32_t rows;
-  uint32_t cols;
-
-  image_file.read(reinterpret_cast<char*>(&magic), 4);
-  magic = swap_endian(magic);
-  CHECK_EQ(magic, 2051) << "Incorrect image file magic.";
-  label_file.read(reinterpret_cast<char*>(&magic), 4);
-  magic = swap_endian(magic);
-  CHECK_EQ(magic, 2049) << "Incorrect label file magic.";
-  image_file.read(reinterpret_cast<char*>(&num_items), 4);
-  num_items = swap_endian(num_items);
-  label_file.read(reinterpret_cast<char*>(&num_labels), 4);
-  num_labels = swap_endian(num_labels);
-  CHECK_EQ(num_items, num_labels);
-  image_file.read(reinterpret_cast<char*>(&rows), 4);
-  rows = swap_endian(rows);
-  image_file.read(reinterpret_cast<char*>(&cols), 4);
-  cols = swap_endian(cols);
-
-  // lmdb
-  MDB_env *mdb_env=NULL;
-  MDB_dbi mdb_dbi;
-  MDB_val mdb_key, mdb_data;
-  MDB_txn *mdb_txn=NULL;
-  // leveldb
-  leveldb::DB* db=NULL;
-  leveldb::Options options;
-  options.error_if_exists = true;
-  options.create_if_missing = true;
-  options.write_buffer_size = 268435456;
-  leveldb::WriteBatch* batch = NULL;
-
-  // Open db
-  if (db_backend == "leveldb") {  // leveldb
-    LOG(INFO) << "Opening leveldb " << db_path;
-    leveldb::Status status = leveldb::DB::Open(
-        options, db_path, &db);
-    CHECK(status.ok()) << "Failed to open leveldb " << db_path
-        << ". Is it already existing?";
-    batch = new leveldb::WriteBatch();
-  } else if (db_backend == "lmdb") {  // lmdb
-    LOG(INFO) << "Opening lmdb " << db_path;
-	// port for Win32
-#ifndef _MSC_VER
-	CHECK_EQ(mkdir(db_path, 0744), 0) 
-#else
-	CHECK_EQ(_mkdir(db_path), 0) 
-#endif
-        << "mkdir " << db_path << "failed";
-    CHECK_EQ(mdb_env_create(&mdb_env), MDB_SUCCESS) << "mdb_env_create failed";
-    CHECK_EQ(mdb_env_set_mapsize(mdb_env, 1099511627776), MDB_SUCCESS)  // 1TB
-        << "mdb_env_set_mapsize failed";
-    CHECK_EQ(mdb_env_open(mdb_env, db_path, 0, 0664), MDB_SUCCESS)
-        << "mdb_env_open failed";
-    CHECK_EQ(mdb_txn_begin(mdb_env, NULL, 0, &mdb_txn), MDB_SUCCESS)
-        << "mdb_txn_begin failed";
-    CHECK_EQ(mdb_open(mdb_txn, NULL, 0, &mdb_dbi), MDB_SUCCESS)
-        << "mdb_open failed. Does the lmdb already exist? ";
-  } else {
-    LOG(FATAL) << "Unknown db backend " << db_backend;
-  }
-
-  // Storing to db
-  char label;
-  char* pixels = new char[rows * cols];
-  int count = 0;
-  const int kMaxKeyLength = 10;
-  char key_cstr[kMaxKeyLength];
-  string value;
-
-  Datum datum;
-  datum.set_channels(1);
-  datum.set_height(rows);
-  datum.set_width(cols);
-  LOG(INFO) << "A total of " << num_items << " items.";
-  LOG(INFO) << "Rows: " << rows << " Cols: " << cols;
-  for (int item_id = 0; item_id < num_items; ++item_id) {
-    image_file.read(pixels, rows * cols);
-    label_file.read(&label, 1);
-    datum.set_data(pixels, rows*cols);
-    datum.set_label(label);
-    snprintf(key_cstr, kMaxKeyLength, "%08d", item_id);
-    datum.SerializeToString(&value);
-    string keystr(key_cstr);
-
-    // Put in db
-    if (db_backend == "leveldb") {  // leveldb
-      batch->Put(keystr, value);
-    } else if (db_backend == "lmdb") {  // lmdb
-      mdb_data.mv_size = value.size();
-      mdb_data.mv_data = reinterpret_cast<void*>(&value[0]);
-      mdb_key.mv_size = keystr.size();
-      mdb_key.mv_data = reinterpret_cast<void*>(&keystr[0]);
-      CHECK_EQ(mdb_put(mdb_txn, mdb_dbi, &mdb_key, &mdb_data, 0), MDB_SUCCESS)
-          << "mdb_put failed";
-    } else {
-      LOG(FATAL) << "Unknown db backend " << db_backend;
-    }
-
-    if (++count % 1000 == 0) {
-      // Commit txn
-      if (db_backend == "leveldb") {  // leveldb
-        db->Write(leveldb::WriteOptions(), batch);
-        delete batch;
-        batch = new leveldb::WriteBatch();
-      } else if (db_backend == "lmdb") {  // lmdb
-        CHECK_EQ(mdb_txn_commit(mdb_txn), MDB_SUCCESS)
-            << "mdb_txn_commit failed";
-        CHECK_EQ(mdb_txn_begin(mdb_env, NULL, 0, &mdb_txn), MDB_SUCCESS)
-            << "mdb_txn_begin failed";
-      } else {
-        LOG(FATAL) << "Unknown db backend " << db_backend;
-      }
-    }
-  }
-  // write the last batch
-  if (count % 1000 != 0) {
-    if (db_backend == "leveldb") {  // leveldb
-      db->Write(leveldb::WriteOptions(), batch);
-      delete batch;
-      delete db;
-    } else if (db_backend == "lmdb") {  // lmdb
-      CHECK_EQ(mdb_txn_commit(mdb_txn), MDB_SUCCESS) << "mdb_txn_commit failed";
-      mdb_close(mdb_env, mdb_dbi);
-      mdb_env_close(mdb_env);
-    } else {
-      LOG(FATAL) << "Unknown db backend " << db_backend;
-    }
-    LOG(ERROR) << "Processed " << count << " files.";
-  }
-  delete pixels;
-}
-
-
-void convert_dataset_raw(const char* image_filename,
-	const char* db_path, const string& db_backend) {
-	// Open files
-	std::ifstream image_file(image_filename, std::ios::in);
-	CHECK(image_file) << "Unable to open file " << image_filename;
-	// Read the magic and the meta data
-	uint32_t rows = 28;
-	uint32_t cols = 28;
-	uint32_t num_items = 60000;
-	uint32_t num_training_items = 50000;
-	uint32_t num_testing_items = 10000;
-
-	// lmdb
-	MDB_env *mdb_env = NULL;
-	MDB_dbi mdb_dbi;
-	MDB_val mdb_key, mdb_data;
-	MDB_txn *mdb_txn = NULL;
-	// leveldb
-	leveldb::DB* db = NULL;
-	leveldb::Options options;
-	options.error_if_exists = true;
-	options.create_if_missing = true;
-	options.write_buffer_size = 268435456;
-	leveldb::WriteBatch* batch = NULL;
-
-	// Open db
-	if (db_backend == "leveldb") {  // leveldb
-		LOG(INFO) << "Opening leveldb " << db_path;
-		leveldb::Status status = leveldb::DB::Open(
-			options, db_path, &db);
-		CHECK(status.ok()) << "Failed to open leveldb " << db_path
-			<< ". Is it already existing?";
-		batch = new leveldb::WriteBatch();
-	}
-	else if (db_backend == "lmdb") {  // lmdb
-		LOG(INFO) << "Opening lmdb " << db_path;
-		// port for Win32
-#ifndef _MSC_VER
-		CHECK_EQ(mkdir(db_path, 0744), 0) 
-#else
-		CHECK_EQ(_mkdir(db_path), 0)
-#endif
-			<< "mkdir " << db_path << "failed";
-		CHECK_EQ(mdb_env_create(&mdb_env), MDB_SUCCESS) << "mdb_env_create failed";
-		CHECK_EQ(mdb_env_set_mapsize(mdb_env, 1099511627776), MDB_SUCCESS)  // 1TB
-			<< "mdb_env_set_mapsize failed";
-		CHECK_EQ(mdb_env_open(mdb_env, db_path, 0, 0664), MDB_SUCCESS)
-			<< "mdb_env_open failed";
-		CHECK_EQ(mdb_txn_begin(mdb_env, NULL, 0, &mdb_txn), MDB_SUCCESS)
-			<< "mdb_txn_begin failed";
-		CHECK_EQ(mdb_open(mdb_txn, NULL, 0, &mdb_dbi), MDB_SUCCESS)
-			<< "mdb_open failed. Does the lmdb already exist? ";
-	}
-	else {
-		LOG(FATAL) << "Unknown db backend " << db_backend;
-	}
-
-	// Storing to db
-	int label;
-	float* pixels = new float[rows * cols];
-	int count = 0;
-	const int kMaxKeyLength = 10;
+	// Data buffer
+	const int kMaxKeyLength = 256;
 	char key_cstr[kMaxKeyLength];
-	string value;
-
 	Datum datum;
-	datum.set_channels(1);
-	datum.set_height(rows);
-	datum.set_width(cols);
-	LOG(INFO) << "A total of " << num_items << " items.";
-	LOG(INFO) << "Rows: " << rows << " Cols: " << cols;
-	//build dataset
-	for (int item_id = 0; item_id < num_items; ++item_id) {
-//		if (item_id == num_training_items){
-//			break;
-//		}
-		image_file >> label;
+
+	CHECK(FLAGS_channels > 0 && FLAGS_height > 0 && FLAGS_width > 0)
+		<< "channels, height and width should be positive; while it is set to be "
+		<< FLAGS_channels << "," << FLAGS_height << "," << FLAGS_width;
+	CHECK_GT(FLAGS_num_items, 0) << "number of samples should be positive";
+	datum.set_channels(FLAGS_channels);
+	datum.set_height(FLAGS_height);
+	datum.set_width(FLAGS_width);
+
+	LOG(ERROR) << "Loading data...";
+	const int dim = FLAGS_channels * FLAGS_height * FLAGS_width;
+	int label = 0;
+	int count = 0;
+	float data;
+	ifstream in_feat(feat_file.c_str());
+	CHECK(in_feat.is_open());
+	ifstream in_label(feat_file.c_str());
+	CHECK(in_label.is_open());
+	for (size_t f = 0; f < FLAGS_num_items; f++){
+		in_label >> label;
+		//save feat/label data to db
 		datum.clear_float_data();
-		datum.clear_data();
-		for (int p = 0; p < cols * rows; p++){
-			image_file >> pixels[p];
-			datum.add_float_data(pixels[p]);
+		for (int i = 0; i < dim; i++){
+			in_feat >> data;
+			datum.add_float_data(data);
 		}
-		if (item_id < num_training_items){
-			continue;
-		}
-		CHECK_EQ(datum.float_data_size(), rows * cols) 
-			<< "loaded data size not match with given data size";
 		datum.set_label(label);
-		snprintf(key_cstr, kMaxKeyLength, "%08d", item_id);
-		datum.SerializeToString(&value);
-		string keystr(key_cstr);
+		//sequential
+		string out;
+		datum.SerializeToString(&out);
+		int len = sprintf_s(key_cstr, kMaxKeyLength, "%09d", count);
+		//put into db
+		txn->Put(std::string(key_cstr, len), out);
 
-		// Put in db
-		if (db_backend == "leveldb") {  // leveldb
-			batch->Put(keystr, value);
-		}
-		else if (db_backend == "lmdb") {  // lmdb
-			mdb_data.mv_size = value.size();
-			mdb_data.mv_data = reinterpret_cast<void*>(&value[0]);
-			mdb_key.mv_size = keystr.size();
-			mdb_key.mv_data = reinterpret_cast<void*>(&keystr[0]);
-			CHECK_EQ(mdb_put(mdb_txn, mdb_dbi, &mdb_key, &mdb_data, 0), MDB_SUCCESS)
-				<< "mdb_put failed";
-		}
-		else {
-			LOG(FATAL) << "Unknown db backend " << db_backend;
-		}
-
-		if (++count % 1000 == 0) {
-			// Commit txn
-			if (db_backend == "leveldb") {  // leveldb
-				db->Write(leveldb::WriteOptions(), batch);
-				delete batch;
-				batch = new leveldb::WriteBatch();
-			}
-			else if (db_backend == "lmdb") {  // lmdb
-				CHECK_EQ(mdb_txn_commit(mdb_txn), MDB_SUCCESS)
-					<< "mdb_txn_commit failed";
-				CHECK_EQ(mdb_txn_begin(mdb_env, NULL, 0, &mdb_txn), MDB_SUCCESS)
-					<< "mdb_txn_begin failed";
-			}
-			else {
-				LOG(FATAL) << "Unknown db backend " << db_backend;
-			}
+		if ((++count) % 1000 == 0){
+			//commit db
+			txn->Commit();
+			txn.reset(db->NewTransaction());
+			LOG(ERROR) << "Processed " << count << " feats";
 		}
 	}
-	// write the last batch
-	if (count % 1000 != 0) {
-		if (db_backend == "leveldb") {  // leveldb
-			db->Write(leveldb::WriteOptions(), batch);
-			delete batch;
-			delete db;
-		}
-		else if (db_backend == "lmdb") {  // lmdb
-			CHECK_EQ(mdb_txn_commit(mdb_txn), MDB_SUCCESS) << "mdb_txn_commit failed";
-			mdb_close(mdb_env, mdb_dbi);
-			mdb_env_close(mdb_env);
-		}
-		else {
-			LOG(FATAL) << "Unknown db backend " << db_backend;
-		}
-		LOG(ERROR) << "Processed " << count << " files.";
+	if (count % 1000 != 0){
+		txn->Commit();
+		LOG(ERROR) << "Processed " << count << " feats";
 	}
-	delete pixels;
 }
 
 int main(int argc, char** argv) {
-#ifndef GFLAGS_GFLAGS_H_
-  namespace gflags = google;
-#endif
-
-  gflags::SetUsageMessage("This script converts the MNIST dataset to\n"
-        "the lmdb/leveldb format used by Caffe to load data.\n"
-        "Usage:\n"
-        "    convert_mnist_data [FLAGS] input_image_file input_label_file "
-        "output_db_file\n"
-        "or    convert_mnist_data [FLAGS] input_image_file output_db_file\n"
-        "The MNIST dataset could be downloaded at\n"
-        "    http://yann.lecun.com/exdb/mnist/\n"
-        "You should gunzip them after downloading,"
-        "or directly use data/mnist/get_mnist.sh\n");
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
-  FLAGS_alsologtostderr = 1;
-
-  const string& db_backend = FLAGS_backend;
-
-  if (argc != 4 && argc != 3) {
-    gflags::ShowUsageWithFlagsRestrict(argv[0],
-        "examples/mnist/convert_mnist_data");
-  } else {
-    google::InitGoogleLogging(argv[0]);
-	if (argc == 4){
-		convert_dataset(argv[1], argv[2], argv[3], db_backend);
+	::google::InitGoogleLogging(argv[0]);
+	::google::SetStderrLogging(0);
+	//parse flags
+	::gflags::ParseCommandLineFlags(&argc, &argv, true);
+	if (argc != 4) {
+		gflags::SetUsageMessage("Convert feats and label to lmdb/leveldb\n"
+			"format used for caffe.\n"
+			"Usage: \n"
+			"EXE [FLAGS] FEAT_FILE LABEL_FILE DB_NAME\n");
+		gflags::ShowUsageWithFlagsRestrict(argv[0], "convert_mnist_data");
+		return 1;
 	}
-	else{
-		convert_dataset_raw(argv[1], argv[2], db_backend);
+	else {
+		LOG(INFO) << "Channels: " << FLAGS_channels << ", height: " 
+			<< FLAGS_height << ", width: " << FLAGS_width;
+		convert_dataset_float(string(argv[1]), string(argv[2]), string(argv[3]));
 	}
-  }
-  return 0;
+	return 0;
 }

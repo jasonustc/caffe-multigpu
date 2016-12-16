@@ -403,7 +403,6 @@ int main(int argc, char** argv) {
 	::google::SetLogDestination(0, log_dest.c_str());
 	::google::SetLogFilenameExtension(FLAGS_log_name.c_str());
 #endif
-	google::InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging).
   FLAGS_alsologtostderr = 1;
   // Set version

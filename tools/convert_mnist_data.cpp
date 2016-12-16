@@ -21,6 +21,7 @@ DEFINE_int32(height, 0, "height of the image");
 DEFINE_int32(width, 0, "width of the image");
 DEFINE_string(backend, "lmdb", "The backend{leveldb/lmdb} for storing the result");
 DEFINE_int32(num_items, 0, "number of samples");
+DEFINE_bool(show_blob_data, false, "if we need to visualize the feat data");
 
 void convert_dataset_float(const string& feat_file, const string& label_file, const string& db_name) {
 	//create db

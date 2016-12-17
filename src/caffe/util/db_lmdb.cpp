@@ -16,7 +16,7 @@ namespace caffe { namespace db {
 #ifdef _MSC_VER
 // On Windows lmdb creates file with the full size causing test failures due
 // to insufficient disk space. We will reduce lmdb size to make tests pass.
-	const size_t LMDB_MAP_SIZE = 549750313888; //500 GB
+	const size_t LMDB_MAP_SIZE = 1750313888; //1 GB
 // Constant will overflow on 32-bit build, assert that we are using correct
 // build.
 	static_assert(sizeof(size_t) >= 8, "LMDB size overflow.");

@@ -48,10 +48,18 @@ void convert_dataset_float(const string& feat_file, const string& label_file, co
 	int count = 0;
 	float data;
 	ifstream in_feat(feat_file.c_str());
-	CHECK(in_feat.is_open());
-	ifstream in_label(feat_file.c_str());
-	CHECK(in_label.is_open());
+	CHECK(in_feat.is_open()) << "Failed opening file " << feat_file;
+	ifstream in_label(label_file.c_str());
+	CHECK(in_label.is_open()) << "Failed opening file " << label_file;
+	string out;
 	for (size_t f = 0; f < FLAGS_num_items; f++){
+		// in case for incorrect parameter
+		if (in_label.eof()){
+			break;
+		}
+		if (in_feat.eof()){
+			break;
+		}
 		in_label >> label;
 		//save feat/label data to db
 		datum.clear_float_data();
@@ -61,7 +69,6 @@ void convert_dataset_float(const string& feat_file, const string& label_file, co
 		}
 		datum.set_label(label);
 		//sequential
-		string out;
 		datum.SerializeToString(&out);
 		int len = sprintf_s(key_cstr, kMaxKeyLength, "%09d", count);
 		//put into db
@@ -74,6 +81,8 @@ void convert_dataset_float(const string& feat_file, const string& label_file, co
 			LOG(ERROR) << "Processed " << count << " feats";
 		}
 	}
+	LOG_IF(ERROR, !in_feat.eof()) << "Not all feats are loaded";
+	LOG_IF(ERROR, !in_label.eof()) << "Not all labels are loaded";
 	if (count % 1000 != 0){
 		txn->Commit();
 		LOG(ERROR) << "Processed " << count << " feats";

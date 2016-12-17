@@ -31,16 +31,8 @@
     <Filter Include="include\layers">
       <UniqueIdentifier>{802fafb2-be05-4b9a-94f3-27b9b5cddcb0}</UniqueIdentifier>
     </Filter>
-<<<<<<< HEAD
-    <Filter Include="src\lstm">
-      <UniqueIdentifier>{1b48e598-b0d7-45a7-a3d3-fb73a82ccefc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\lstm">
-      <UniqueIdentifier>{89470449-cbc8-4116-a7e9-607613f7043a}</UniqueIdentifier>
-=======
     <Filter Include="src\solvers">
       <UniqueIdentifier>{dd1d1f47-2a1a-4945-99b8-16e9ab761e98}</UniqueIdentifier>
->>>>>>> master
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -320,16 +312,6 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-<<<<<<< HEAD
-    <ClCompile Include="..\src\caffe\layers\lstm_unit_layer.cpp">
-      <Filter>src\lstm</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\lstm_layer.cpp">
-      <Filter>src\lstm</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\caffe\layers\rnn_base_layer.cpp">
-      <Filter>src\lstm</Filter>
-=======
     <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp">
       <Filter>src\solvers</Filter>
     </ClCompile>
@@ -347,12 +329,17 @@
     </ClCompile>
     <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp">
       <Filter>src\solvers</Filter>
->>>>>>> master
     </ClCompile>
     <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
     <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\src\caffe\layers\adaptive_dropout_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\caffe\layers\dropconnect_layer.cpp">
+      <Filter>src\layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">
@@ -527,6 +514,12 @@
       <Filter>src\solvers</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\caffe\layers\triplet_loss_layer.cu">
+      <Filter>src\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\adaptive_dropout_layer.cu">
+      <Filter>src\layers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\caffe\layers\dropconnect_layer.cu">
       <Filter>src\layers</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -843,19 +836,14 @@
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h">
       <Filter>src\proto</Filter>
     </ClInclude>
-<<<<<<< HEAD
-    <ClInclude Include="..\include\caffe\layers\lstm_layer.hpp">
-      <Filter>include\lstm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\lstm_unit_layer.hpp">
-      <Filter>include\lstm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\caffe\layers\rnn_base_layer.hpp">
-      <Filter>include\lstm</Filter>
-=======
     <ClInclude Include="..\include\caffe\layers\triplet_loss_layer.hpp">
       <Filter>include\layers</Filter>
->>>>>>> master
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\adaptive_dropout_layer.hpp">
+      <Filter>include\layers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\caffe\layers\dropconnect_layer.hpp">
+      <Filter>include\layers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

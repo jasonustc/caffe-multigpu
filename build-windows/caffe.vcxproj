@@ -27,6 +27,7 @@
     <ClCompile Include="..\src\caffe\layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\absval_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\accuracy_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\adaptive_dropout_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\argmax_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_conv_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\base_data_layer.cpp" />
@@ -48,6 +49,7 @@
     <ClCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\deconv_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\dropconnect_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dropout_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\dummy_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\eltwise_layer.cpp" />
@@ -122,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\adaptive_dropout_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\base_data_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\batch_norm_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\batch_reindex_layer.cu" />
@@ -140,6 +143,7 @@
     <CudaCompile Include="..\src\caffe\layers\cudnn_softmax_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\cudnn_tanh_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\deconv_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\dropconnect_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\dropout_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\eltwise_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\elu_layer.cu" />
@@ -191,6 +195,7 @@
     <ClInclude Include="..\include\caffe\layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\absval_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\accuracy_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\adaptive_dropout_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\argmax_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\base_conv_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\base_data_layer.hpp" />
@@ -212,6 +217,7 @@
     <ClInclude Include="..\include\caffe\layers\cudnn_tanh_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\deconv_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\dropconnect_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dropout_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\dummy_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\eltwise_layer.hpp" />

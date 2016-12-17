@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 147 (last added:
-// euclidean_param)
+// LayerParameter next available layer-specific ID: 149 (last added:
+// dropconnect_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -363,6 +363,7 @@ message LayerParameter {
   // engine parameter for selecting the implementation.
   // The default for the engine is set by the ENGINE switch at compile-time.
   optional AccuracyParameter accuracy_param = 102;
+  optional AdaptiveDropoutParameter adaptive_dropout_param = 147;
   optional ArgMaxParameter argmax_param = 103;
   optional BatchNormParameter batch_norm_param = 139;
   optional BiasParameter bias_param = 141;
@@ -372,6 +373,7 @@ message LayerParameter {
   optional CropParameter crop_param = 144;
   optional DataParameter data_param = 107;
   optional DropoutParameter dropout_param = 108;
+  optional DropConnectParameter dropconnect_param = 148;
   optional DummyDataParameter dummy_data_param = 109;
   optional EltwiseParameter eltwise_param = 110;
   optional ELUParameter elu_param = 140;
@@ -407,6 +409,44 @@ message LayerParameter {
   optional TileParameter tile_param = 138;
   optional TripletParameter triplet_loss_param = 145;
   optional WindowDataParameter window_data_param = 129;
+}
+
+// Message that stores parameters used by DropConnectLayer
+message AdaptiveDropoutParameter{
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+  optional FillerParameter weight_filler = 3; // The filler for the weight
+  optional FillerParameter bias_filler = 4; // The filler for the bias
+  optional float alpha = 5[default = 1]; //scale
+  optional float beta = 7[default = 0]; //shift
+  enum ActType{
+    SIGMOID = 1;
+    RELU = 2;
+  }
+
+  optional ActType neuron_act_type = 8[default = RELU];//activation type
+  //of hidden neuron
+  optional ActType prob_act_type = 9[default = SIGMOID];//activation type
+  //of dropout probability
+
+  // The first axis to be lumped into a single inner product computation;
+  // all preceding axes are retained in the output.
+  // May be negative to index from the end (e.g., -1 for the last axis).
+  optional int32 axis = 6 [default = 1];
+}
+
+// Message that stores parameters used by DropConnectLayer
+message DropConnectParameter{
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+  optional FillerParameter weight_filler = 3; // The filler for the weight
+  optional FillerParameter bias_filler = 4; // The filler for the bias
+  optional float dropout_ratio = 5 [default = 0.5]; //THe probability to drop
+  //connects
+  // The first axis to be lumped into a single inner product computation;
+  // all preceding axes are retained in the output.
+  // May be negative to index from the end (e.g., -1 for the last axis).
+  optional int32 axis = 6 [default = 1];
 }
 
 // Message that stores parameters used to compute euclidean loss

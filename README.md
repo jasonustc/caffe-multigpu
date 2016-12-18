@@ -3,6 +3,8 @@ supported in this version.
 
 I also have a talk on brief introduction of Deep Learning, &nbsp;[part1](http://v.youku.com/v_show/id_XMTYyMTk1NDU2MA==.html), &nbsp;[part2](http://v.youku.com/v_show/id_XMTYyMTk2MTEwOA==.html), &nbsp;[slides](http://pan.baidu.com/s/1hrMmyS8).
 
+Besides, I shared some practical tricks for deep learning, &nbsp; [DeepLearnigTricks](https://github.com/jasonustc/my_libs/blob/master/tricks.wiki.md).
+
 ## Windows
 Tools:
 

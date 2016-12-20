@@ -336,7 +336,7 @@
     <ClCompile Include="..\src\caffe\util\file_proc_util.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\tools\convert_mnist_data.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

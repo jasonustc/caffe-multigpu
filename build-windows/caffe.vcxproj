@@ -77,6 +77,7 @@
     <ClCompile Include="..\src\caffe\layers\pooling_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\power_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\prelu_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\random_trans_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reduction_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\relu_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\reshape_layer.cpp" />
@@ -118,6 +119,7 @@
     <ClCompile Include="..\src\caffe\util\io.cpp" />
     <ClCompile Include="..\src\caffe\util\math_functions.cpp" />
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
+    <ClCompile Include="..\src\caffe\util\transform.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
     <ClCompile Include="..\tools\caffe.cpp" />
@@ -161,6 +163,7 @@
     <CudaCompile Include="..\src\caffe\layers\pooling_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\power_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\prelu_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\random_trans_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\reduction_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\relu_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\scale_layer.cu" />
@@ -183,6 +186,7 @@
     <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu" />
     <CudaCompile Include="..\src\caffe\util\im2col.cu" />
     <CudaCompile Include="..\src\caffe\util\math_functions.cu" />
+    <CudaCompile Include="..\src\caffe\util\transform.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\caffe\blob.hpp" />
@@ -246,6 +250,7 @@
     <ClInclude Include="..\include\caffe\layers\power_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\prelu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\python_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\random_transform_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reduction_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\relu_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\reshape_layer.hpp" />
@@ -289,6 +294,7 @@
     <ClInclude Include="..\include\caffe\util\mkl_alternate.hpp" />
     <ClInclude Include="..\include\caffe\util\rng.hpp" />
     <ClInclude Include="..\include\caffe\util\signal_handler.h" />
+    <ClInclude Include="..\include\caffe\util\transform.hpp" />
     <ClInclude Include="..\include\caffe\util\upgrade_proto.hpp" />
     <ClInclude Include="..\src\caffe\proto\caffe.pb.h" />
     <ClInclude Include="..\src\gtest\gtest.h" />

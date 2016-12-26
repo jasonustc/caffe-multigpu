@@ -8,6 +8,7 @@
 #include "caffe/proto/caffe.pb.h"
 
 #include "caffe/layers/loss_layer.hpp"
+#include "caffe/layers/scale_layer.hpp"
 
 namespace caffe {
 
@@ -48,12 +49,23 @@ class EuclideanLossLayer : public LossLayer<Dtype> {
       const vector<Blob<Dtype>*>& top);
 
   virtual inline const char* type() const { return "EuclideanLoss"; }
+
+  // release the exact number restriction from the LossLayer
+  virtual inline int ExactNumBottomBlobs() const { return -1; }
+
+  // allow a third bottom to incooperate an indicator: if -1, 
+  // the corresponding loss of this dim will be ignored
+  virtual inline int MinBottomBlobs() const { return 2; }
+  virtual inline int MaxBottomBlobs() const { return 3; }
   /**
    * Unlike most loss layers, in the EuclideanLossLayer we can backpropagate
    * to both inputs -- override to return true and always allow force_backward.
    */
   virtual inline bool AllowForceBackward(const int bottom_index) const {
-    return true;
+	  // can not backward to indicators
+	  // TODO: actually scale coefficients is allowed in ScaleLayer
+	  // so we can refine this layer to allow this
+    return bottom_index != 2;
   }
 
  protected:
@@ -100,6 +112,11 @@ class EuclideanLossLayer : public LossLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
   virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+  // this layer is used to multiply the loss by bottom[2], which 
+  // consists of 1s and 0s. 1 means the loss of this feat counts, while
+  // 0 means not.
+  shared_ptr<ScaleLayer<Dtype> > scale_layer_;
 
   Blob<Dtype> diff_;
   int axis_;

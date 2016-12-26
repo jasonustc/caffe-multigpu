@@ -214,11 +214,8 @@ void SGDSolver<Dtype>::ComputeUpdateValue(int param_id, Dtype rate) {
   const vector<Blob<Dtype>*>& net_params = this->net_->learnable_params();
   const vector<float>& net_params_lr = this->net_->params_lr();
   // add linear momentum strategy
-  Dtype momentum; 
-  if (this->param_.momentum()){
-	  momentum = this->param_.momentum();
-  }
-  else if(this->param_.re() && this->param_.rs() && this->param_.mom_inc_iter()){
+  Dtype momentum = this->param_.momentum(); 
+  if(this->param_.has_re() && this->param_.has_rs() && this->param_.has_mom_inc_iter()){
 	  CHECK_LT(this->param_.rs(), this->param_.re());
 	  if (this->iter_ > this->param_.mom_inc_iter()){
 		  momentum = this->param_.re();
@@ -227,9 +224,6 @@ void SGDSolver<Dtype>::ComputeUpdateValue(int param_id, Dtype rate) {
 		  Dtype w = Dtype(this->iter_) / Dtype(this->param_.mom_inc_iter());
 		  momentum = w *  this->param_.re() + (1 - w) * this->param_.rs();
 	  }
-  }
-  else{
-	  LOG(FATAL) << "either momemtum or (re, rs, mom_inc_iter) should be set";
   }
   Dtype local_rate = rate * net_params_lr[param_id];
   // Compute the update to history, then copy it to the parameter diff.

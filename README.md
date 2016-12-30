@@ -36,12 +36,21 @@ Please follow the official tutorials here: http://caffe.berkeleyvision.org/insta
 
 Please cite this paper if you are interested in the random_trans_layer:
 
-    @inproceedings{shen-mm,
+    @inproceedings{shen-mm16,
      author = {Shen, Xu and Tian, Xinmei and He, Anfeng and Sun, Shaoyan and Tao, Dacheng},
      title = {Transform-Invariant Convolutional Neural Networks for Image Classification and Search},
      booktitle = {ACM MM},
      year = {2016},
      pages = {1345--1354}
+    } 
+    
+Please cite this paper if you are interested in the patch_rank_layer:
+
+    @inproceedings{shen-aaai17,
+     author = {Shen, Xu and Tian, Xinmei and Sun, Shaoyan and Tao, Dacheng},
+     title = {Patch	Reordering:	a Novel	Way	to Achieve Rotation	and	Translation	Invariance in Convolutional Neural Networks},
+     booktitle = {AAAI},
+     year = {2017}
     } 
 
 

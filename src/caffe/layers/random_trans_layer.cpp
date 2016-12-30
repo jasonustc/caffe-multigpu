@@ -85,8 +85,11 @@ namespace caffe{
 					<< std_dx_prop_ << "," << std_dy_prop_;
 			}
 			min_scale_ = this->layer_param_.rand_trans_param().min_scale();
+			CHECK_GT(min_scale_, 0);
 			max_scale_ = this->layer_param_.rand_trans_param().max_scale();
+			CHECK_LT(min_scale_, max_scale_);
 			max_shift_prop_ = this->layer_param_.rand_trans_param().max_shift_prop();
+			CHECK_GT(max_shift_prop_, 0);
 			break;
 		default:
 			LOG(FATAL) << "Unkown sampling type";

@@ -717,6 +717,11 @@ message CropParameter {
   // axis).
   optional int32 axis = 1 [default = 2];
   repeated uint32 offset = 2;
+  // if crop_size are set, we do not need an extra bottom[1] to infer the
+  // dimensions for cropping
+  repeated int32 crop_size  = 3;
+  // if random are set, we do random cropping as in image data augmentation
+  optional bool random = 4 [default = false];
 }
 
 message DataParameter {

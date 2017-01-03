@@ -333,7 +333,6 @@
     <ClCompile Include="..\src\caffe\layers\triplet_loss_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe.cpp" />
     <ClCompile Include="..\src\caffe\layers\adaptive_dropout_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
@@ -346,6 +345,7 @@
     <ClCompile Include="..\src\caffe\layers\random_trans_layer.cpp">
       <Filter>src\layers</Filter>
     </ClCompile>
+    <ClCompile Include="..\test\test_crop_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

@@ -8,9 +8,31 @@
 #include "caffe/layer.hpp"
 #include "caffe/layers/crop_layer.hpp"
 #include "caffe/net.hpp"
+#include "caffe/util/rng.hpp"
 
 
 namespace caffe {
+
+template <typename Dtype>
+void CropLayer<Dtype>::InitRand() {
+	const bool needs_rand = this->layer_param_.crop_param().random() &&
+      this->phase_ == TRAIN;
+  if (needs_rand) {
+    const unsigned int rng_seed = caffe_rng_rand();
+    rng_.reset(new Caffe::RNG(rng_seed));
+  } else {
+    rng_.reset();
+  }
+}
+
+template <typename Dtype>
+int CropLayer<Dtype>::Rand(int n) {
+  CHECK(rng_);
+  CHECK_GT(n, 0);
+  caffe::rng_t* rng =
+      static_cast<caffe::rng_t*>(rng_->generator());
+  return ((*rng)() % n);
+}
 
 template <typename Dtype>
 void CropLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
@@ -20,10 +42,11 @@ void CropLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   // bottom[0] supplies the data
   // bottom[1] supplies the size
   const CropParameter& param = this->layer_param_.crop_param();
-  CHECK_EQ(bottom.size(), 2) << "Wrong number of bottom blobs.";
+//  CHECK_EQ(bottom.size(), 2) << "Wrong number of bottom blobs.";
   int input_dim = bottom[0]->num_axes();
   const int start_axis = bottom[0]->CanonicalAxisIndex(param.axis());
   CHECK_LT(start_axis, input_dim) << "crop axis bigger than input dim";
+  CHECK(param.offset_size());
   if (param.offset_size() > 1) {
     // the number of crop values specified must be equal to the number
     // of dimensions following axis
@@ -31,47 +54,97 @@ void CropLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       << "number of offset values specified must be equal to the number of "
       << "dimensions following axis.";
   }
+  if (param.crop_size_size() > 1){
+	// the number of crop_size values specified must be equal to the number
+	// of dimensions following axis
+	  CHECK_EQ(start_axis + param.crop_size_size(), input_dim)
+		  << "number of crop_size values specified must be equal to the number of "
+		  << "dimensions following axis.";
+	  CHECK_EQ(bottom.size(), 1) << "either shape reference bottom or crop_size"
+		  << " set, not both";
+  }
+  InitRand();
 }
 
 template <typename Dtype>
 void CropLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  const CropParameter& param = this->layer_param_.crop_param();
-  int input_dim = bottom[0]->num_axes();
-  const int start_axis = bottom[0]->CanonicalAxisIndex(param.axis());
+	const CropParameter& param = this->layer_param_.crop_param();
+	int input_dim = bottom[0]->num_axes();
+	const int start_axis = bottom[0]->CanonicalAxisIndex(param.axis());
 
-  // initialize all offsets to 0
-  offsets = vector<int>(input_dim, 0);
-  // initialize new shape to bottom[0]
-  vector<int> new_shape(bottom[0]->shape());
+	// initialize all offsets to 0
+	offsets = vector<int>(input_dim, 0);
+	// initialize new shape to bottom[0]
+	vector<int> new_shape(bottom[0]->shape());
 
-  // apply crops
-  for (int i = 0; i < input_dim; ++i) {
-    int crop_offset = 0;
-    int new_size    = bottom[0]->shape(i);
-    if (i >= start_axis) {
-      new_size = bottom[1]->shape(i);
+	// apply crops
+	for (int i = 0; i < input_dim; ++i) {
+		int crop_offset = 0;
+		int new_size = bottom[0]->shape(i);
+		if (i >= start_axis) {
+			if (bottom.size() > 1){
+				new_size = bottom[1]->shape(i);
 
-      if (param.offset_size() == 1) {
-        // if only one crop value is supplied, crop all dimensions after axis
-        // by this crop value
-        crop_offset = param.offset(0);
-      } else if (param.offset_size() > 1) {
-        // crop values specified must be equal to the number of dimensions
-        // following axis
-        crop_offset = param.offset(i - start_axis);
-      }
-    }
-    // Check that the image we are cropping minus the margin is bigger
-    // than the destination image.
-    CHECK_GE(bottom[0]->shape(i) - crop_offset,
-             bottom[1]->shape(i))
-        << "invalid crop parameters in dimension: " << i;
-    // Now set new size and offsets
-    new_shape[i] = new_size;
-    offsets[i] = crop_offset;
-  }
-  top[0]->Reshape(new_shape);
+				if (param.offset_size() == 1) {
+					// if only one crop value is supplied, crop all dimensions after axis
+					// by this crop value
+					crop_offset = param.offset(0);
+				}
+				else if (param.offset_size() > 1) {
+					// crop values specified must be equal to the number of dimensions
+					// following axis
+					crop_offset = param.offset(i - start_axis);
+				}
+				// Check that the image we are cropping minus the margin is bigger
+				// than the destination image.
+				CHECK_GE(bottom[0]->shape(i) - crop_offset,
+					bottom[1]->shape(i))
+					<< "invalid crop parameters in dimension: " << i;
+			}
+			else{
+				if (param.crop_size_size() == 1){
+					// if only one crop_size  is supplied, crop all dimensions after axis
+					// by this crop size
+					new_size = param.crop_size(0);
+				}
+				else{
+					// crop_sizes specified must be equal to the number of dimensions
+					// following axis
+					new_size = param.crop_size(i - start_axis);
+				}
+				CHECK_GE(bottom[0]->shape(i), new_size + 1)
+					<< "invalid crop parameters in dimension: " << i;
+
+				if (param.offset_size() == 1) {
+					// if only one crop value is supplied, crop all dimensions after axis
+					// by this crop value
+					if (param.random() && this->phase_ == TRAIN){
+						int crop_range = bottom[0]->shape(i) - new_size;
+						crop_offset = Rand(crop_range);
+					}
+					else{
+						crop_offset = param.offset(0);
+					}
+				}
+				else if (param.offset_size() > 1) {
+					// crop values specified must be equal to the number of dimensions
+					// following axis
+					if (param.random() && this->phase_ == TRAIN){
+						int crop_range = bottom[0]->shape(i) - new_size;
+						crop_offset = Rand(crop_range);
+					}
+					else{
+						crop_offset = param.offset(i - start_axis);
+					}
+				}
+			}
+		}
+		// Now set new size and offsets
+		new_shape[i] = new_size;
+		offsets[i] = crop_offset;
+	}
+	top[0]->Reshape(new_shape);
 }
 
 // recursive copy function

@@ -28,8 +28,11 @@ class CropLayer : public Layer<Dtype> {
       const vector<Blob<Dtype>*>& top);
 
   virtual inline const char* type() const { return "Crop"; }
-  virtual inline int ExactNumBottomBlobs() const { return 2; }
+//  virtual inline int ExactNumBottomBlobs() const { return 2; }
+  virtual inline int MinNumBottoms() const { return 1; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
+
+  void InitRand();
 
  protected:
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
@@ -42,6 +45,8 @@ class CropLayer : public Layer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
   vector<int> offsets;
+  virtual int Rand(int n);
+  shared_ptr<Caffe::RNG> rng_;
 
  private:
   void crop_copy(const vector<Blob<Dtype>*>& bottom,
@@ -61,6 +66,7 @@ class CropLayer : public Layer<Dtype> {
                 const Dtype* src_data,
                 Dtype* dest_data,
                 bool is_forward);
+
 };
 }  // namespace caffe
 

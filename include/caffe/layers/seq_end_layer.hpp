@@ -19,6 +19,10 @@ namespace caffe{
 	 * NOTE: two assumptions:
 	 *       1. the first element is the beginning of a sequence
 	 *       2. the last element is the end of a sequence
+	 *       one requirement:
+	 *       sequence elements are aligned along the first dimension
+	 * bottom[1]: sequence indicators, 2 dims
+	 * bottom[0]: sequences, 3 dims
 	 * used for decoding LSTM or prediction LSTM
 	 **/
 	template <typename Dtype>
@@ -51,8 +55,11 @@ namespace caffe{
 			const vector<bool>& propagate_down,
 			const vector<Blob<Dtype>*>& bottom);
 
+	private:
 		//number of sequences
 		vector<int> end_id_;
+		//the sequence is aligned along this axis
+		int axis_;
 	};
 
 }// namespace caffe

@@ -50,7 +50,6 @@ namespace caffe{
 		vector<int> y_shape(3, 1);
 		y_shape[1] = bottom[0]->shape(1);
 		y_shape[2] = output_dim_;
-    LOG(INFO) << "here";
 
 		// setup slice_h_ layer
 		// Top
@@ -149,7 +148,6 @@ namespace caffe{
 		}
 
 		start_H_.reset(new Blob<Dtype>(h_shape));
-    LOG(INFO) << "drnnbase setup finished";
 	}
 
 	template <typename Dtype>

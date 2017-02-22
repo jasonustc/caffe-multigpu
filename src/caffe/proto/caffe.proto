@@ -309,8 +309,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 155 (last added: //
-// axis_pooling_param)
+// LayerParameter next available layer-specific ID: 156 (last added: //
+// broadcast_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -368,6 +368,7 @@ message LayerParameter {
   optional AxisPoolingParameter axis_pooling_param = 154;
   optional BatchNormParameter batch_norm_param = 139;
   optional BiasParameter bias_param = 141;
+  optional BroadcastParameter broadcast_param = 155;
   optional ConcatParameter concat_param = 104;
   optional ContrastiveLossParameter contrastive_loss_param = 105;
   optional ConvolutionParameter convolution_param = 106;
@@ -417,6 +418,11 @@ message LayerParameter {
   optional WindowDataParameter window_data_param = 129;
 }
 
+message BroadcastParameter{
+    // the broadcast axis
+    optional int32 axis = 1;
+}
+
 message AxisPoolingParameter {
   // The axis along which to pooling-- may be negative to index from the
   // end (e.g., -1 for the last axis).  
@@ -436,6 +442,8 @@ message SeqEndParameter{
     // since in set up stage, all cont variables will be 0s,
     // the output will be with the same length as the input
     optional int32 init_end_len = 1;
+    // the sequence is aligned along this axis
+    optional int32 axis = 2;
 }
 
 // Message that stores parameters for switch layer

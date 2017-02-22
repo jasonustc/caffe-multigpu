@@ -3,15 +3,17 @@
 
 #include "caffe/layers/seq_end_layer.hpp"
 
+/// TODO: make this layer more compatible with dimensions
 namespace caffe{
 	template <typename Dtype>
 	void SeqEndLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
-		CHECK_EQ(bottom[1]->num_axes(), 2);
 		CHECK_EQ(bottom[0]->num_axes(), 3);
-		if (bottom[0]->shape(1) > 1){
+		CHECK_EQ(bottom[1]->num_axes(), 2);
+		if (bottom[1]->shape(1) > 1){
 			LOG(ERROR) << "Please make sure that each stream uses the same cont variable";
 		}
+		/// axis_ = bottom[0]->CanonicalAxisIndex(this->layer_param_.seq_end_param().axis());
 		CHECK_EQ(bottom[0]->shape(0), bottom[1]->shape(0));
 		CHECK_EQ(bottom[0]->shape(1), bottom[1]->shape(1));
 		const int init_end_len = this->layer_param_.seq_end_param().init_end_len();
@@ -40,13 +42,17 @@ namespace caffe{
 		const Dtype* cont_data = bottom[1]->cpu_data();
 		const int T = bottom[1]->shape(0);
 		int cont_t;
+		// NOTE: we just use cont of the first stream to infer sequence end
+		// maybe a bug
+		int seq_offset = bottom[1]->count(1);
+		// skip the first element
+		cont_data += seq_offset;
 		for (int t = 1; t < T; ++t){
-			// NOTE: we just use cont of the first stream to infer sequence end
-			// maybe a bug
-			cont_t = static_cast<int>(*(cont_data + bottom[1]->offset(t)));
+			cont_t = static_cast<int>(cont_data[0]);
 			if (cont_t == 0){
 				end_id_.push_back(t - 1);
 			}
+			cont_data += seq_offset;
 		}
 		end_id_.push_back(T - 1);
 		vector<int> top_shape = bottom[0]->shape();
@@ -66,7 +72,7 @@ namespace caffe{
 		for (int i = 0; i < num_seq; ++i){
 			bottom_offset = bottom_data + outer_dim * static_cast<int>(end_id_[i]);
 			caffe_copy(outer_dim, bottom_offset, top_data);
-			top_data += top[0]->offset(1);
+			top_data += outer_dim;
 		}
 	}
 
@@ -82,7 +88,7 @@ namespace caffe{
 			for (int i = 0; i < num_seq; ++i){
 				bottom_offset = bottom_diff + outer_dim * static_cast<int>(end_id_[i]);
 				caffe_copy(outer_dim, top_diff, bottom_offset);
-				top_diff += top[0]->offset(1);
+				top_diff += outer_dim;
 			}
 		}
 	}

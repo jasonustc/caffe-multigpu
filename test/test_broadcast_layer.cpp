@@ -8,26 +8,26 @@
 #include "caffe/filler.hpp"
 #include "caffe/test/test_gradient_check_util.hpp"
 #include "caffe/test/test_caffe_main.hpp"
-#include "caffe/layers/seq_end_layer.hpp"
+#include "caffe/layers/broadcast_layer.hpp"
 
 namespace caffe{
 	template <typename Dtype>
-	class SeqEndLayerTest{
+	class BroadcastLayerTest{
 	public:
-		SeqEndLayerTest() : x_(new Blob<Dtype>()),cont_(new Blob<Dtype>()), end_(new Blob<Dtype>()){
+		BroadcastLayerTest() : x_(new Blob<Dtype>()),ref_(new Blob<Dtype>()), y_(new Blob<Dtype>()){
 			this->SetUp();
 		}
 
 		void TestSetUp(){
-			shared_ptr<Layer<Dtype>> layer(new SeqEndLayer<Dtype>(layer_param_));
+			shared_ptr<Layer<Dtype>> layer(new BroadcastLayer<Dtype>(layer_param_));
 			layer->SetUp(bottom_, top_);
-			CHECK_EQ(top_[0]->shape(0), 2);
+			CHECK_EQ(top_[0]->shape(0), 15);
 			CHECK_EQ(top_[0]->shape(1), 2);
 			CHECK_EQ(top_[0]->shape(2), 2);
 		}
 
 		void TestForward(Caffe::Brew mode){
-			shared_ptr<Layer<Dtype>> layer(new SeqEndLayer<Dtype>(layer_param_));
+			shared_ptr<Layer<Dtype>> layer(new BroadcastLayer<Dtype>(layer_param_));
 			Caffe::set_mode(mode);
 			layer->SetUp(bottom_, top_);
 			layer->Forward(bottom_, top_);
@@ -44,9 +44,10 @@ namespace caffe{
 
 		void TestGradients(Caffe::Brew mode){
 			Caffe::set_mode(mode);
-			GradientChecker<Dtype> checker(0.01, 0.001);
-			SeqEndLayer<Dtype> layer(layer_param_);
+			GradientChecker<Dtype> checker(0.001, 0.0001);
+			BroadcastLayer<Dtype> layer(layer_param_);
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
+			LOG(INFO) << bottom_.size();
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
 		}
 
@@ -56,37 +57,25 @@ namespace caffe{
 			vector<int> x_shape{ 5, 2, 2 };
 			x_->Reshape(x_shape);
 			Dtype* x_data = x_->mutable_cpu_data();
-			vector<int> cont_shape{ x_shape[0], x_shape[1] };
-			cont_->Reshape(cont_shape);
-			Dtype* cont_data = cont_->mutable_cpu_data();
-			for (int c = 0; c < 5; ++c){
-				if (c == 0 || c == 2){
-					cont_data[c * 2] = 0;
-					cont_data[c * 2 + 1] = 0;
-				}
-				else{
-					cont_data[c * 2] = 1;
-					cont_data[c * 2 + 1] = 1;
-				}
-			}
+			x_shape[0] = 15;
+			ref_->Reshape(x_shape);
 			for (int c = 0; c < 5; ++c){
 				for (int j = 0; j < 4; j++){
 					x_data[c * 4 + j] = c * 0.1 + j * 0.3;
 				}
 			}
-			cont_->ToTxt("cont");
 
 			//set bottom && top
 			bottom_.push_back(x_);
-			bottom_.push_back(cont_);
-			top_.push_back(end_);
-			propagate_down_.resize(1, true);
-			layer_param_.mutable_seq_end_param()->set_init_end_len(2);
+			bottom_.push_back(ref_);
+			top_.push_back(y_);
+			propagate_down_.resize(2, true);
+			layer_param_.mutable_broadcast_param()->set_axis(0);
 		}
 
 		Blob<Dtype>* x_;
-		Blob<Dtype>* cont_;
-		Blob<Dtype>* end_;
+		Blob<Dtype>* ref_;
+		Blob<Dtype>* y_;
 
 		vector<Blob<Dtype>*> bottom_;
 		vector<Blob<Dtype>*> top_;
@@ -100,7 +89,7 @@ namespace caffe{
 int main(int argc, char** argv){
 	::google::InitGoogleLogging(*argv);
 	FLAGS_logtostderr = true;
-	caffe::SeqEndLayerTest<float> test;
+	caffe::BroadcastLayerTest<float> test;
 	test.TestSetUp();
 	test.TestForward(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);

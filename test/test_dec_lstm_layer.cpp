@@ -28,8 +28,8 @@ namespace caffe{
 			layer->SetUp(bottom_, top_);
 			LOG(INFO) << top_[0]->shape_string();
 			CHECK_EQ(top_[0]->shape(0), 5);
-			CHECK_EQ(top_[0]->shape(1), 1);
-			CHECK_EQ(top_[0]->shape(2), 4);
+			CHECK_EQ(top_[0]->shape(1), 2);
+			CHECK_EQ(top_[0]->shape(2), 3);
 		}
 
 		void TestForward(Caffe::Brew mode){
@@ -74,6 +74,18 @@ namespace caffe{
 			CHECK_GT(top_.size(), 0) << "Exhaustive mode requires at least one top blob.";
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 2);
+			checker.CheckGradientExhaustive(&layer, bottom_, top_, 3);
+			layer.SetUp(bottom_, top_);
+			Dtype* top_diff = top_[0]->mutable_cpu_diff();
+			const int size = top_[0]->count();
+			for (int i = 0; i < size; ++i){
+				top_diff[i] = 1;
+			}
+			layer.Backward(top_, vector<bool>(4, true), bottom_);
+			bottom_[0]->ToTxt("bottom0", true);
+			bottom_[1]->ToTxt("bottom1", true);
+			bottom_[2]->ToTxt("bottom2", true);
+			bottom_[3]->ToTxt("bottom3", true);
 		}
 
 
@@ -122,22 +134,23 @@ namespace caffe{
 			//set bottom && top
 			bottom_.push_back(h0_);
 			bottom_.push_back(cont_);
+			bottom_.push_back(x_);
 			bottom_.push_back(c0_);
 			top_.push_back(y_);
-			propagate_down_.resize(3, true);
+			propagate_down_.resize(4, true);
 
 			// set layer_param_
 			layer_param_.mutable_inner_product_param()->set_num_output(3);
-			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_type("gaussian");
-			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_mean(0.1);
-			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
+			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_type("constant");
+//			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_mean(0.1);
+//			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_value(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.01);
-			layer_param_.mutable_recurrent_param()->set_conditional(false);
-			layer_param_.mutable_recurrent_param()->set_output_dim(4);
+			layer_param_.mutable_recurrent_param()->set_conditional(true);
+			layer_param_.mutable_recurrent_param()->set_output_dim(3);
 			layer_param_.mutable_recurrent_param()->set_delay(true);
-			layer_param_.mutable_recurrent_param()->set_c0_id(2);
+			layer_param_.mutable_recurrent_param()->set_c0_id(3);
 		}
 
 		Blob<Dtype>* c0_;
@@ -163,6 +176,6 @@ int main(int argc, char** argv){
 //	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
-	test.TestGradients(caffe::Caffe::GPU);
+//	test.TestGradients(caffe::Caffe::GPU);
 	return 0;
 }

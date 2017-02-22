@@ -35,6 +35,7 @@
     <ClCompile Include="..\src\caffe\layers\batch_reindex_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\bias_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\bnll_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\broadcast_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\concat_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\contrastive_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\conv_layer.cpp" />
@@ -134,7 +135,7 @@
     <ClCompile Include="..\src\caffe\util\signal_handler.cpp" />
     <ClCompile Include="..\src\caffe\util\upgrade_proto.cpp" />
     <ClCompile Include="..\src\gtest\gtest-all.cpp" />
-    <ClCompile Include="..\test\test_enclidean_loss_layer.cpp" />
+    <ClCompile Include="..\test\test_broadcast_layer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu" />
@@ -144,6 +145,7 @@
     <CudaCompile Include="..\src\caffe\layers\batch_reindex_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\bias_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\bnll_layer.cu" />
+    <CudaCompile Include="..\src\caffe\layers\broadcast_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\concat_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\contrastive_loss_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\conv_layer.cu" />
@@ -226,6 +228,7 @@
     <ClInclude Include="..\include\caffe\layers\batch_reindex_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\bias_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\bnll_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\broadcast_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\concat_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\contrastive_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\conv_layer.hpp" />

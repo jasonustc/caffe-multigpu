@@ -67,7 +67,7 @@ namespace caffe{
 			const vector<Blob<Dtype>*> unit_bottom{ c, x };
 			const vector<Blob<Dtype>*> unit_top{ c_top, h_top };
 			Caffe::set_mode(mode);
-			GradientChecker<Dtype> checker(0.01, 0.001);
+			GradientChecker<Dtype> checker(0.001, 0.0001);
 			checker.CheckGradientExhaustive(layer_unit, unit_bottom, unit_top);
 			// then DLSTM Layer
 			DLSTMLayer<Dtype> layer(layer_param_);
@@ -75,17 +75,17 @@ namespace caffe{
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 0);
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 2);
 			checker.CheckGradientExhaustive(&layer, bottom_, top_, 3);
-			layer.SetUp(bottom_, top_);
-			Dtype* top_diff = top_[0]->mutable_cpu_diff();
-			const int size = top_[0]->count();
-			for (int i = 0; i < size; ++i){
-				top_diff[i] = 1;
-			}
-			layer.Backward(top_, vector<bool>(4, true), bottom_);
-			bottom_[0]->ToTxt("bottom0", true);
-			bottom_[1]->ToTxt("bottom1", true);
-			bottom_[2]->ToTxt("bottom2", true);
-			bottom_[3]->ToTxt("bottom3", true);
+//			layer.SetUp(bottom_, top_);
+//			Dtype* top_diff = top_[0]->mutable_cpu_diff();
+//			const int size = top_[0]->count();
+//			for (int i = 0; i < size; ++i){
+//				top_diff[i] = 1;
+//			}
+//			layer.Backward(top_, vector<bool>(4, true), bottom_);
+//			bottom_[0]->ToTxt("bottom0", true);
+//			bottom_[1]->ToTxt("bottom1", true);
+//			bottom_[2]->ToTxt("bottom2", true);
+//			bottom_[3]->ToTxt("bottom3", true);
 		}
 
 
@@ -141,10 +141,10 @@ namespace caffe{
 
 			// set layer_param_
 			layer_param_.mutable_inner_product_param()->set_num_output(3);
-			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_type("constant");
-//			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_mean(0.1);
-//			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
-			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_value(0.1);
+			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_type("gaussian");
+			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_mean(0.1);
+			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_std(0.1);
+//			layer_param_.mutable_inner_product_param()->mutable_weight_filler()->set_value(0.1);
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_type("constant");
 			layer_param_.mutable_inner_product_param()->mutable_bias_filler()->set_value(0.01);
 			layer_param_.mutable_recurrent_param()->set_conditional(true);
@@ -176,6 +176,6 @@ int main(int argc, char** argv){
 //	test.TestForward(caffe::Caffe::CPU);
 	test.TestGradients(caffe::Caffe::CPU);
 //	test.TestForward(caffe::Caffe::GPU);
-//	test.TestGradients(caffe::Caffe::GPU);
+	test.TestGradients(caffe::Caffe::GPU);
 	return 0;
 }

@@ -21,7 +21,7 @@ int LoadPathFromFile(string imgPathFile, vector<string> &imgPath)
 	}
 	if (imgPath.size() == 0)
 	{
-		printf("Load image file %s failed!\n", imgPath);
+		printf("Load image file %s failed!\n", imgPathFile.c_str());
 		return 0;
 	}
 	return 1;

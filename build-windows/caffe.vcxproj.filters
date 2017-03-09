@@ -345,7 +345,7 @@
     <ClCompile Include="..\src\caffe\util\file_proc_util.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\caffe.cpp" />
+    <ClCompile Include="..\tools\extract_feat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

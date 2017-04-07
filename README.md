@@ -48,7 +48,7 @@ Please cite this paper if you are interested in the patch_rank_layer:
 
     @inproceedings{shen-aaai17,
      author = {Shen, Xu and Tian, Xinmei and Sun, Shaoyan and Tao, Dacheng},
-     title = {Patch	Reordering:	a Novel	Way	to Achieve Rotation	and	Translation	Invariance in Convolutional Neural Networks},
+     title = {Patch Reordering: a Novel Way to Achieve Rotation and Translation Invariance in Convolutional Neural Networks},
      booktitle = {AAAI},
      year = {2017}
     } 

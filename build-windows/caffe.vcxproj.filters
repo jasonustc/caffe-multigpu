@@ -336,7 +336,7 @@
     <ClCompile Include="..\src\caffe\util\file_proc_util.cpp">
       <Filter>src\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\tools\extract_feature_from_lmdb.cpp" />
+    <ClCompile Include="..\tools\change_net_params.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\caffe\layers\absval_layer.cu">

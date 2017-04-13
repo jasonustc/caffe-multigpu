@@ -11,12 +11,18 @@ void DeconvolutionLayer<Dtype>::compute_output_shape() {
   const int* pad_data = this->pad_.cpu_data();
   const int* dilation_data = this->dilation_.cpu_data();
   this->output_shape_.clear();
+  // shape offset is like padding in convolution
+  int shape_offset_size = this->layer_param_.convolution_param().shape_offset_size();
+  if (shape_offset_size > 0){
+	  CHECK_EQ(shape_offset_size, this->num_spatial_axes_);
+  }
   for (int i = 0; i < this->num_spatial_axes_; ++i) {
     // i + 1 to skip channel axis
     const int input_dim = this->input_shape(i + 1);
     const int kernel_extent = dilation_data[i] * (kernel_shape_data[i] - 1) + 1;
-    const int output_dim = stride_data[i] * (input_dim - 1)
-        + kernel_extent - 2 * pad_data[i];
+    const int output_dim = shape_offset_size == 0 ? stride_data[i] * (input_dim - 1)
+        + kernel_extent - 2 * pad_data[i] : stride_data[i] * (input_dim - 1)
+        + kernel_extent - 2 * pad_data[i] + this->layer_param_.convolution_param().shape_offset(i);
     this->output_shape_.push_back(output_dim);
   }
 }
@@ -24,6 +30,15 @@ void DeconvolutionLayer<Dtype>::compute_output_shape() {
 template <typename Dtype>
 void DeconvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+	// clip by value, used in wasserstain GAN
+	if (clip_by_value_){
+		Dtype lower = this->layer_param_.convolution_param().clip_lower();
+		Dtype upper = this->layer_param_.convolution_param().clip_upper();
+		caffe_cpu_clip_by_value(this->blobs_[0]->count(), lower, upper, this->blobs_[0]->mutable_cpu_data());
+		if (this->bias_term_){
+			caffe_cpu_clip_by_value(this->blobs_[1]->count(), lower, upper, this->blobs_[1]->mutable_cpu_data());
+		}
+	}
   const Dtype* weight = this->blobs_[0]->cpu_data();
   for (int i = 0; i < bottom.size(); ++i) {
     const Dtype* bottom_data = bottom[i]->cpu_data();
@@ -44,12 +59,22 @@ void DeconvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
   const Dtype* weight = this->blobs_[0]->cpu_data();
   Dtype* weight_diff = this->blobs_[0]->mutable_cpu_diff();
+  bool update_weight = !this->layer_param_.convolution_param().weight_fixed();
+  if (this->layer_param_.convolution_param().gen_mode() && this->gan_mode_ != 3){
+	  update_weight = false;
+  }
+  if (this->layer_param_.convolution_param().dis_mode() && this->gan_mode_ == 3){
+	  update_weight = false;
+  }
+  if (update_weight){
+	  LOG(ERROR) << "Layer: " << this->layer_param_.name() << " update weight.";
+  }
   for (int i = 0; i < top.size(); ++i) {
     const Dtype* top_diff = top[i]->cpu_diff();
     const Dtype* bottom_data = bottom[i]->cpu_data();
     Dtype* bottom_diff = bottom[i]->mutable_cpu_diff();
     // Bias gradient, if necessary.
-    if (this->bias_term_ && this->param_propagate_down_[1]) {
+    if (this->bias_term_ && this->param_propagate_down_[1] && update_weight) {
       Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
       for (int n = 0; n < this->num_; ++n) {
         this->backward_cpu_bias(bias_diff, top_diff + n * this->top_dim_);
@@ -58,7 +83,7 @@ void DeconvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     if (this->param_propagate_down_[0] || propagate_down[i]) {
       for (int n = 0; n < this->num_; ++n) {
         // Gradient w.r.t. weight. Note that we will accumulate diffs.
-        if (this->param_propagate_down_[0]) {
+        if (this->param_propagate_down_[0] && update_weight) {
           this->weight_cpu_gemm(top_diff + n * this->top_dim_,
               bottom_data + n * this->bottom_dim_, weight_diff);
         }
@@ -72,6 +97,8 @@ void DeconvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       }
     }
   }
+  // update gan_mode_
+  this->gan_mode_ = this->gan_mode_ == 3 ? 1 : this->gan_mode_ + 1;
 }
 
 #ifdef CPU_ONLY

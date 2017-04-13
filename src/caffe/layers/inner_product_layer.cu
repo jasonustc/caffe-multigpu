@@ -9,6 +9,25 @@ namespace caffe {
 template <typename Dtype>
 void InnerProductLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
+  // clip by value, used in wasserstain GAN
+  if (clip_by_value_){
+	  Dtype lower = this->layer_param_.inner_product_param().clip_lower();
+	  Dtype upper = this->layer_param_.inner_product_param().clip_upper();
+	  LOG(ERROR) << "before clip: ";
+	  for (int i = 0; i < 20; ++i){
+		  std::cout << this->blobs_[0]->cpu_data()[i] << " ";
+	  }
+	  std::cout << "\n";
+	  caffe_gpu_clip_by_value(this->blobs_[0]->count(), lower, upper, this->blobs_[0]->mutable_gpu_data());
+	  LOG(ERROR) << "after clip: ";
+	  for (int i = 0; i < 20; ++i){
+		  std::cout << this->blobs_[0]->cpu_data()[i] << " ";
+	  }
+	  std::cout << "\n";
+	  if (this->bias_term_){
+		  caffe_gpu_clip_by_value(this->blobs_[1]->count(), lower, upper, this->blobs_[1]->mutable_gpu_data());
+	  }
+  }
   const Dtype* bottom_data = bottom[0]->gpu_data();
   Dtype* top_data = top[0]->mutable_gpu_data();
   const Dtype* weight = this->blobs_[0]->gpu_data();
@@ -34,7 +53,16 @@ template <typename Dtype>
 void InnerProductLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-  if (this->param_propagate_down_[0]) {
+	if (this->layer_param_.inner_product_param().gen_mode() && gan_mode_ != 3){
+		update_weight_ = false;
+	}
+	if (this->layer_param_.inner_product_param().dis_mode() && gan_mode_ == 3){
+		update_weight_ = false;
+	}
+  if (update_weight_){
+	  LOG(ERROR) << "Layer: " << this->layer_param_.name() << " update weight.";
+  }
+  if (this->param_propagate_down_[0] && update_weight_) {
     const Dtype* top_diff = top[0]->gpu_diff();
     const Dtype* bottom_data = bottom[0]->gpu_data();
     // Gradient with respect to weight
@@ -50,7 +78,7 @@ void InnerProductLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
           (Dtype)1., this->blobs_[0]->mutable_gpu_diff());
     }
   }
-  if (bias_term_ && this->param_propagate_down_[1]) {
+  if (bias_term_ && this->param_propagate_down_[1] && update_weight_) {
     const Dtype* top_diff = top[0]->gpu_diff();
     // Gradient with respect to bias
     caffe_gpu_gemv<Dtype>(CblasTrans, M_, N_, (Dtype)1., top_diff,
@@ -72,6 +100,8 @@ void InnerProductLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
          (Dtype)0., bottom[0]->mutable_gpu_diff());
     }
   }
+  // update gan_mode_
+  this->gan_mode_ = this->gan_mode_ == 3 ? 1 : this->gan_mode_ + 1;
 }
 
 INSTANTIATE_LAYER_GPU_FUNCS(InnerProductLayer);

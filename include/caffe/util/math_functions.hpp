@@ -47,6 +47,9 @@ template <typename Dtype>
 void caffe_add_scalar(const int N, const Dtype alpha, Dtype *X);
 
 template <typename Dtype>
+void caffe_cpu_clip_by_value(const int N, const Dtype lower, const Dtype upper, Dtype *X);
+
+template <typename Dtype>
 void caffe_scal(const int N, const Dtype alpha, Dtype *X);
 
 template <typename Dtype>
@@ -181,6 +184,9 @@ inline void caffe_gpu_memset(const size_t N, const int alpha, void* X) {
 
 template <typename Dtype>
 void caffe_gpu_add_scalar(const int N, const Dtype alpha, Dtype *X);
+
+template <typename Dtype>
+void caffe_gpu_clip_by_value(const int N, const Dtype lower, const Dtype upper, Dtype *X);
 
 template <typename Dtype>
 void caffe_gpu_scal(const int N, const Dtype alpha, Dtype *X);

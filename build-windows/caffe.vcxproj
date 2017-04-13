@@ -57,6 +57,8 @@
     <ClCompile Include="..\src\caffe\layers\exp_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\filter_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\flatten_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\gan_gate_layer.cpp" />
+    <ClCompile Include="..\src\caffe\layers\gan_loss_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\hdf5_data_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\hdf5_output_layer.cpp" />
     <ClCompile Include="..\src\caffe\layers\hinge_loss_layer.cpp" />
@@ -97,6 +99,12 @@
     <ClCompile Include="..\src\caffe\parallel.cpp" />
     <ClCompile Include="..\src\caffe\proto\caffe.pb.cc" />
     <ClCompile Include="..\src\caffe\solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adadelta_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adagrad_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\adam_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\nesterov_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\rmsprop_solver.cpp" />
+    <ClCompile Include="..\src\caffe\solvers\sgd_solver.cpp" />
     <ClCompile Include="..\src\caffe\syncedmem.cpp" />
     <ClCompile Include="..\src\caffe\util\benchmark.cpp" />
     <ClCompile Include="..\src\caffe\util\blocking_queue.cpp" />
@@ -165,6 +173,12 @@
     <CudaCompile Include="..\src\caffe\layers\threshold_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\tile_layer.cu" />
     <CudaCompile Include="..\src\caffe\layers\unpooling_layer.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\adadelta_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\adagrad_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\adam_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\nesterov_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\rmsprop_solver.cu" />
+    <CudaCompile Include="..\src\caffe\solvers\sgd_solver.cu" />
     <CudaCompile Include="..\src\caffe\util\im2col.cu" />
     <CudaCompile Include="..\src\caffe\util\math_functions.cu" />
   </ItemGroup>
@@ -209,6 +223,8 @@
     <ClInclude Include="..\include\caffe\layers\exp_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\filter_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\flatten_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\gan_gate_layer.hpp" />
+    <ClInclude Include="..\include\caffe\layers\gan_loss_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\hdf5_data_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\hdf5_output_layer.hpp" />
     <ClInclude Include="..\include\caffe\layers\hinge_loss_layer.hpp" />

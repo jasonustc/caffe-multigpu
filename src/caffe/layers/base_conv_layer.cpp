@@ -12,6 +12,13 @@ template <typename Dtype>
 void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   // Configure the kernel size, padding, stride, and inputs.
+	gan_mode_ = 1;
+	clip_by_value_ = this->layer_param_.convolution_param().clip_by_value();
+	if (clip_by_value_){
+		Dtype lower = this->layer_param_.convolution_param().clip_lower();
+		Dtype upper = this->layer_param_.convolution_param().clip_upper();
+		CHECK_GT(upper, lower);
+	}
   ConvolutionParameter conv_param = this->layer_param_.convolution_param();
   force_nd_im2col_ = conv_param.force_nd_im2col();
   channel_axis_ = bottom[0]->CanonicalAxisIndex(conv_param.axis());

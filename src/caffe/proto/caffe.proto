@@ -239,6 +239,8 @@ message SolverParameter {
   }
   // DEPRECATED: use type instead of solver_type
   optional SolverType solver_type = 30 [default = SGD];
+
+  optional bool gan_solver = 41 [default = false];
 }
 
 // A message that stores the solver snapshots
@@ -306,7 +308,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 145 (last added: crop_param)
+// LayerParameter next available layer-specific ID: 146 (last added: gan_loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -374,6 +376,7 @@ message LayerParameter {
   optional EmbedParameter embed_param = 137;
   optional ExpParameter exp_param = 111;
   optional FlattenParameter flatten_param = 135;
+  optional GANLossParameter gan_loss_param = 145;
   optional HDF5DataParameter hdf5_data_param = 112;
   optional HDF5OutputParameter hdf5_output_param = 113;
   optional HingeLossParameter hinge_loss_param = 114;
@@ -401,6 +404,11 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+}
+
+message GANLossParameter{
+    optional uint32 dis_iter = 1 [default=1];
+    optional uint32 gen_iter = 2 [default=1];
 }
 
 // Message that stores parameters used to apply transformation
@@ -602,6 +610,15 @@ message ConvolutionParameter {
   // implementation; for input blobs with num_axes != 2, this option is
   // ignored and the ND implementation will be used.)
   optional bool force_nd_im2col = 17 [default = false];
+
+  // when set to true, gradient will not be accumulated, used for GAN
+  optional bool weight_fixed = 21 [default = false];
+  optional bool gen_mode = 19[default=false];
+  optional bool dis_mode = 20[default=false];
+  repeated uint32 shape_offset = 22;
+  optional bool clip_by_value = 23[default=false];
+  optional float clip_lower = 24;
+  optional float clip_upper = 25;
 }
 
 message CropParameter {
@@ -816,6 +833,17 @@ message InnerProductParameter {
   // of the weight matrix. The weight matrix itself is not going to be transposed
   // but rather the transfer flag of operations will be toggled accordingly.
   optional bool transpose = 6 [default = false];
+
+  // when set to true, the gradient will not be accumulated (used for GAN)
+  optional bool weight_fixed = 7 [default = false];
+
+  optional bool dis_mode = 8 [default = false];
+
+  optional bool gen_mode = 9 [default = false];
+
+  optional bool clip_by_value = 10[default=false];
+  optional float clip_lower = 11;
+  optional float clip_upper = 12;
 }
 
 message InputParameter {
@@ -1067,6 +1095,14 @@ message ScaleParameter {
   // may be more efficient).  Initialized with bias_filler (defaults to 0).
   optional bool bias_term = 4 [default = false];
   optional FillerParameter bias_filler = 5;
+
+  optional bool weight_fixed = 11 [default=false];
+  optional bool dis_mode = 6 [default=false];
+  optional bool gen_mode = 7 [default=false];
+
+  optional bool clip_by_value = 8[default=false];
+  optional float clip_lower = 9;
+  optional float clip_upper = 10;
 }
 
 message SigmoidParameter {

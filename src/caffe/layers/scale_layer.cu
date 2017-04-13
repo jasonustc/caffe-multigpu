@@ -29,6 +29,25 @@ __global__ void ScaleBiasForward(const int n, const Dtype* in,
 template <typename Dtype>
 void ScaleLayer<Dtype>::Forward_gpu(
     const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
+  // clip by value, used in wasserstain GAN
+  if (clip_by_value_){
+	  Dtype lower = this->layer_param_.scale_param().clip_lower();
+	  Dtype upper = this->layer_param_.scale_param().clip_upper();
+		LOG(ERROR) << "before clip: ";
+		for (int i = 0; i < 20; ++i){
+			std::cout << this->blobs_[0]->cpu_data()[i] << " ";
+		}
+		std::cout << "\n";
+	  caffe_gpu_clip_by_value(this->blobs_[0]->count(), lower, upper, this->blobs_[0]->mutable_gpu_data());
+		LOG(ERROR) << "after clip: ";
+		for (int i = 0; i < 20; ++i){
+			std::cout << this->blobs_[0]->cpu_data()[i] << " ";
+		}
+		std::cout << "\n";
+	  if (bias_layer_){
+		  caffe_gpu_clip_by_value(bias_layer_->blobs()[0]->count(), lower, upper, bias_layer_->blobs()[0]->mutable_gpu_data());
+	  }
+  }
   const int count = top[0]->count();
   const Dtype* bottom_data = bottom[0]->gpu_data();
   if (bottom[0] == top[0]) {
@@ -58,14 +77,24 @@ void ScaleLayer<Dtype>::Forward_gpu(
 template <typename Dtype>
 void ScaleLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (bias_layer_ &&
+  bool update_weight = !this->layer_param_.scale_param().weight_fixed();
+  if (this->layer_param_.scale_param().gen_mode() && this->gan_mode_ != 3){
+	  update_weight = false;
+  }
+  if (this->layer_param_.scale_param().dis_mode() && this->gan_mode_ == 3){
+	  update_weight = false;
+  }
+  if (update_weight){
+	  LOG(ERROR) << "Layer: " << this->layer_param_.name() << " update weight.";
+  }
+  if (bias_layer_ && update_weight &&
       this->param_propagate_down_[this->param_propagate_down_.size() - 1]) {
     bias_layer_->Backward(top, bias_propagate_down_, bias_bottom_vec_);
   }
   const bool scale_param = (bottom.size() == 1);
   Blob<Dtype>* scale = scale_param ? this->blobs_[0].get() : bottom[1];
-  if ((!scale_param && propagate_down[1]) ||
-      (scale_param && this->param_propagate_down_[0])) {
+  if ((!scale_param && propagate_down[1] && update_weight) ||
+      (scale_param && this->param_propagate_down_[0] && update_weight)) {
     const Dtype* top_diff = top[0]->gpu_diff();
     const bool in_place = (bottom[0] == top[0]);
     const Dtype* bottom_data = (in_place ? &temp_ : bottom[0])->gpu_data();
@@ -128,6 +157,8 @@ void ScaleLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, top_diff, scale_data, scale_dim_, inner_dim_, bottom_diff);
   }
+  // update gan_mode_
+  gan_mode_ = gan_mode_ == 3 ? 1 : gan_mode_ + 1;
 }
 
 INSTANTIATE_LAYER_GPU_FUNCS(ScaleLayer);

@@ -184,6 +184,32 @@ void caffe_gpu_add_scalar(const int N, const double alpha, double* Y) {
 }
 
 template <typename Dtype>
+__global__ void clip_by_value_kernel(const int n, const Dtype lower, const Dtype upper, Dtype* y){
+	CUDA_KERNEL_LOOP(index, n){
+		if (y[index] > upper){
+			y[index] = upper;
+		}
+		else if (y[index] < lower){
+			y[index] = lower;
+		}
+	}
+}
+
+template <>
+void caffe_gpu_clip_by_value(const int N, const float lower, const float upper, float* Y) {
+  // NOLINT_NEXT_LINE(whitespace/operators)
+  clip_by_value_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
+      N, lower, upper, Y);
+}
+
+template <>
+void caffe_gpu_clip_by_value(const int N, const double lower, const double upper, double* Y) {
+  // NOLINT_NEXT_LINE(whitespace/operators)
+  clip_by_value_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
+      N, lower, upper, Y);
+}
+
+template <typename Dtype>
 __global__ void add_kernel(const int n, const Dtype* a,
     const Dtype* b, Dtype* y) {
   CUDA_KERNEL_LOOP(index, n) {

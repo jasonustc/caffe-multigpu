@@ -165,7 +165,7 @@ void UnPoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   Dtype* top_data = top[0]->mutable_gpu_data();
   int count = top[0]->count();
   // we simply always assume that we have a mask 
-  assert(top->size() > 1);
+  assert(top.size() > 1);
   const int* mask = NULL;
   const Dtype* top_mask = NULL;
   switch (this->layer_param_.pooling_param().pool()) {
@@ -207,7 +207,7 @@ void UnPoolingLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   const Dtype* top_mask = NULL;
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
-    assert(bottom->size() > 1);
+    assert(bottom.size() > 1);
     top_mask = bottom[1]->gpu_data();
     // NOLINT_NEXT_LINE(whitespace/operators)
     MaxPoolFixedForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(

@@ -13,6 +13,14 @@ void InnerProductLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   bias_term_ = this->layer_param_.inner_product_param().bias_term();
   transpose_ = this->layer_param_.inner_product_param().transpose();
   N_ = num_output;
+  gan_mode_ = 1;
+  update_weight_ = !this->layer_param_.inner_product_param().weight_fixed();
+  clip_by_value_ = this->layer_param_.inner_product_param().clip_by_value();
+  if (clip_by_value_){
+	  Dtype lower = this->layer_param_.inner_product_param().clip_lower();
+	  Dtype upper = this->layer_param_.inner_product_param().clip_upper();
+	  CHECK_GT(upper, lower);
+  }
   const int axis = bottom[0]->CanonicalAxisIndex(
       this->layer_param_.inner_product_param().axis());
   // Dimensions starting from "axis" are "flattened" into a single
@@ -83,6 +91,25 @@ void InnerProductLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 template <typename Dtype>
 void InnerProductLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
+	// clip by value, used in wasserstain GAN
+	if (clip_by_value_){
+		Dtype lower = this->layer_param_.inner_product_param().clip_lower();
+		Dtype upper = this->layer_param_.inner_product_param().clip_upper();
+		LOG(ERROR) << "before clip: ";
+		for (int i = 0; i < 20; ++i){
+			std::cout << this->blobs_[0]->cpu_data()[i] << " ";
+		}
+		std::cout << "\n";
+		caffe_cpu_clip_by_value(this->blobs_[0]->count(), lower, upper, this->blobs_[0]->mutable_cpu_data());
+		LOG(ERROR) << "after clip: ";
+		for (int i = 0; i < 20; ++i){
+			std::cout << this->blobs_[0]->cpu_data()[i] << " ";
+		}
+		std::cout << "\n";
+		if (this->bias_term_){
+			caffe_cpu_clip_by_value(this->blobs_[1]->count(), lower, upper, this->blobs_[1]->mutable_cpu_data());
+		}
+	}
   const Dtype* bottom_data = bottom[0]->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
   const Dtype* weight = this->blobs_[0]->cpu_data();
@@ -100,7 +127,16 @@ template <typename Dtype>
 void InnerProductLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-  if (this->param_propagate_down_[0]) {
+	if (this->layer_param_.inner_product_param().gen_mode() && gan_mode_ != 3){
+		update_weight_ = false;
+	}
+	if (this->layer_param_.inner_product_param().dis_mode() && gan_mode_ == 3){
+		update_weight_ = false;
+	}
+  if (update_weight_){
+	  LOG(ERROR) << "Layer: " << this->layer_param_.name() << " update weight.";
+  }
+  if (this->param_propagate_down_[0] && update_weight_) {
     const Dtype* top_diff = top[0]->cpu_diff();
     const Dtype* bottom_data = bottom[0]->cpu_data();
     // Gradient with respect to weight
@@ -116,7 +152,7 @@ void InnerProductLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           (Dtype)1., this->blobs_[0]->mutable_cpu_diff());
     }
   }
-  if (bias_term_ && this->param_propagate_down_[1]) {
+  if (bias_term_ && this->param_propagate_down_[1] && update_weight_) {
     const Dtype* top_diff = top[0]->cpu_diff();
     // Gradient with respect to bias
     caffe_cpu_gemv<Dtype>(CblasTrans, M_, N_, (Dtype)1., top_diff,
@@ -138,6 +174,8 @@ void InnerProductLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           (Dtype)0., bottom[0]->mutable_cpu_diff());
     }
   }
+  // update gan_mode_
+  this->gan_mode_ = this->gan_mode_ == 3 ? 1 : this->gan_mode_ + 1;
 }
 
 #ifdef CPU_ONLY

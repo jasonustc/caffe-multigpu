@@ -82,6 +82,30 @@ void caffe_add_scalar(const int N, const double alpha, double* Y) {
   }
 }
 
+template <>
+void caffe_cpu_clip_by_value(const int N, const double lower, const double upper, double* Y){
+	for (int i = 0; i < N; ++i){
+		if (Y[i] > upper){
+			Y[i] = upper;
+		}
+		else if (Y[i] < lower){
+			Y[i] = lower;
+		}
+	}
+}
+
+template <>
+void caffe_cpu_clip_by_value(const int N, const float lower, const float upper, float* Y){
+	for (int i = 0; i < N; ++i){
+		if (Y[i] > upper){
+			Y[i] = upper;
+		}
+		else if (Y[i] < lower){
+			Y[i] = lower;
+		}
+	}
+}
+
 template <typename Dtype>
 void caffe_copy(const int N, const Dtype* X, Dtype* Y) {
   if (X != Y) {

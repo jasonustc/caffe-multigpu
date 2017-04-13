@@ -242,7 +242,7 @@ void UnPoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   const Dtype* top_mask;
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
-    assert(bottom->size() > 1);
+    assert(bottom.size() > 1);
     top_mask = bottom[1]->cpu_data();
     for (int n = 0; n < bottom[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {

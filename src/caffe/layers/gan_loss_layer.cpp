@@ -233,7 +233,7 @@ namespace caffe{
 		if (gan_mode_ == 1){
 			if (diter_idx_ % dis_iter_ == 0){
 				for (int i = 0; i < batch_size; ++i){
-					bottom[0]->mutable_cpu_data()[i] = Dtype(1) / Dtype(batch_size);
+					bottom[0]->mutable_cpu_diff()[i] = Dtype(1) / Dtype(batch_size);
 				}
 			}
 			else{

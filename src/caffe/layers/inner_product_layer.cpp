@@ -127,6 +127,7 @@ template <typename Dtype>
 void InnerProductLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
+  update_weight_ = !this->layer_param_.inner_product_param().weight_fixed();
 	if (this->layer_param_.inner_product_param().gen_mode() && gan_mode_ != 3){
 		update_weight_ = false;
 	}

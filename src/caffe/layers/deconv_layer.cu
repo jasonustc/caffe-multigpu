@@ -8,20 +8,10 @@ template <typename Dtype>
 void DeconvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   // clip by value, used in wasserstain GAN
-  if (clip_by_value_){
+  if (this->clip_by_value_){
 	  Dtype lower = this->layer_param_.convolution_param().clip_lower();
 	  Dtype upper = this->layer_param_.convolution_param().clip_upper();
-	  LOG(ERROR) << "before clip: ";
-	  for (int i = 0; i < 20; ++i){
-		  std::cout << this->blobs_[0]->cpu_data()[i] << " ";
-	  }
-	  std::cout << "\n";
 	  caffe_gpu_clip_by_value(this->blobs_[0]->count(), lower, upper, this->blobs_[0]->mutable_gpu_data());
-	  LOG(ERROR) << "after clip: ";
-	  for (int i = 0; i < 20; ++i){
-		  std::cout << this->blobs_[0]->cpu_data()[i] << " ";
-	  }
-	  std::cout << "\n";
 	  if (this->bias_term_){
 		  caffe_gpu_clip_by_value(this->blobs_[1]->count(), lower, upper, this->blobs_[1]->mutable_gpu_data());
 	  }
@@ -52,9 +42,6 @@ void DeconvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   }
   if (this->layer_param_.convolution_param().dis_mode() && this->gan_mode_ == 3){
 	  update_weight = false;
-  }
-  if (update_weight){
-	  LOG(ERROR) << "Layer: " << this->layer_param_.name() << " update weight.";
   }
   for (int i = 0; i < top.size(); ++i) {
     const Dtype* top_diff = top[i]->gpu_diff();

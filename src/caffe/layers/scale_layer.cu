@@ -33,17 +33,7 @@ void ScaleLayer<Dtype>::Forward_gpu(
   if (clip_by_value_){
 	  Dtype lower = this->layer_param_.scale_param().clip_lower();
 	  Dtype upper = this->layer_param_.scale_param().clip_upper();
-		LOG(ERROR) << "before clip: ";
-		for (int i = 0; i < 20; ++i){
-			std::cout << this->blobs_[0]->cpu_data()[i] << " ";
-		}
-		std::cout << "\n";
 	  caffe_gpu_clip_by_value(this->blobs_[0]->count(), lower, upper, this->blobs_[0]->mutable_gpu_data());
-		LOG(ERROR) << "after clip: ";
-		for (int i = 0; i < 20; ++i){
-			std::cout << this->blobs_[0]->cpu_data()[i] << " ";
-		}
-		std::cout << "\n";
 	  if (bias_layer_){
 		  caffe_gpu_clip_by_value(bias_layer_->blobs()[0]->count(), lower, upper, bias_layer_->blobs()[0]->mutable_gpu_data());
 	  }
@@ -83,9 +73,6 @@ void ScaleLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   }
   if (this->layer_param_.scale_param().dis_mode() && this->gan_mode_ == 3){
 	  update_weight = false;
-  }
-  if (update_weight){
-	  LOG(ERROR) << "Layer: " << this->layer_param_.name() << " update weight.";
   }
   if (bias_layer_ && update_weight &&
       this->param_propagate_down_[this->param_propagate_down_.size() - 1]) {

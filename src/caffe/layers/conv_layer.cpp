@@ -26,7 +26,7 @@ void ConvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 	const Dtype* weight = this->blobs_[0]->cpu_data();
 	// clip by value, used in wasserstain GAN
-	if (clip_by_value_){
+	if (this->clip_by_value_){
 		Dtype lower = this->layer_param_.convolution_param().clip_lower();
 		Dtype upper = this->layer_param_.convolution_param().clip_upper();
 		LOG(ERROR) << "before clip: ";

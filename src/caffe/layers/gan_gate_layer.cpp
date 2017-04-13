@@ -19,6 +19,7 @@ namespace caffe{
 		CHECK_EQ(bottom[0]->width(), bottom[1]->width());
 		// 1: true 2,3: fake
 		int index = gan_mode_ == 1 ? 0 : 1;
+    LOG(ERROR) << "gan_gate_layer index: " << index;
 		top[0]->ReshapeLike(*bottom[index]);
 		top[0]->ShareData(*bottom[index]);
 		top[0]->ShareDiff(*bottom[index]);

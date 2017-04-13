@@ -31,7 +31,7 @@ template <typename Dtype>
 void DeconvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 	// clip by value, used in wasserstain GAN
-	if (clip_by_value_){
+	if (this->clip_by_value_){
 		Dtype lower = this->layer_param_.convolution_param().clip_lower();
 		Dtype upper = this->layer_param_.convolution_param().clip_upper();
 		caffe_cpu_clip_by_value(this->blobs_[0]->count(), lower, upper, this->blobs_[0]->mutable_cpu_data());

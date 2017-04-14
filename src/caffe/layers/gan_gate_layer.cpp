@@ -22,16 +22,6 @@ namespace caffe{
 		top[0]->ReshapeLike(*bottom[index]);
 		top[0]->ShareData(*bottom[index]);
 		top[0]->ShareDiff(*bottom[index]);
-    LOG(INFO) << "bottom index: " << index;
-    LOG(INFO) << "top data in " << this->layer_param_.name();
-    for (int i = 0; i < 10; ++i){
-      std::cout << top[0]->cpu_data()[i] << " ";
-    }
-    std::cout << std::endl;
-    for (int i = 0; i < 10; ++i){
-      std::cout << top[0]->cpu_data()[2*3*128*128 + i] << " ";
-    }
-    std::cout << std::endl;
     // update gan_mode_
     gan_mode_ = gan_mode_ == 3 ? 1 : gan_mode_ + 1;
 	}

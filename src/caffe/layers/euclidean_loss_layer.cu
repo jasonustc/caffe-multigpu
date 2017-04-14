@@ -24,7 +24,6 @@ template <typename Dtype>
 void EuclideanLossLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
 	if (iter_idx_ % update_iter_ == 0){
-		LOG(INFO) << "update by loss Layer " << this->layer_param_.name();
 		for (int i = 0; i < 2; ++i) {
 			if (propagate_down[i]) {
 				const Dtype sign = (i == 0) ? 1 : -1;

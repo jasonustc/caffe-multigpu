@@ -196,11 +196,17 @@ namespace caffe{
 		const vector<Blob<Dtype>*>& top){
 		int batch_size = bottom[0]->count();
 		const Dtype* score = bottom[0]->cpu_data();
+    LOG(INFO) << "gan_loss bottom_data: ";
+    for (int i = 0; i < 10; ++i){
+      std::cout << bottom[0]->cpu_data()[i] << " ";
+    }
+    std::cout << std::endl;
 		Dtype loss(0.);
 		// when gan_mode_ == 1, this input of loss is D(x)
 		// loss is discriminative loss: D(x)
 		if (gan_mode_ == 1){
 			diter_idx_++;
+      LOG(INFO) << "D(x) loss";
 			for (int i = 0; i < batch_size; ++i){
 				loss += score[i];
 			}
@@ -208,6 +214,7 @@ namespace caffe{
 		// when gan_mode_ == 2, the input of the loss is D(G(z))
 		// loss is discriminative loss: -D(G(z))
 		else if (gan_mode_ == 2){
+      LOG(INFO) << "-D(G(z)) loss";
 			for (int i = 0; i < batch_size; ++i){
 				loss -= score[i];
 			}
@@ -216,11 +223,13 @@ namespace caffe{
 		// loss is generative loss: D(G(z))
 		else if (gan_mode_ == 3){
 			giter_idx_++;
+      LOG(INFO) << "D(G(z)) loss";
 			for (int i = 0; i < batch_size; ++i){
 				loss += score[i];
 			}
 		}
 		loss /= Dtype(batch_size);
+    LOG(INFO) << "gan loss: " << loss;
 		top[0]->mutable_cpu_data()[0] = loss;
 	}
 

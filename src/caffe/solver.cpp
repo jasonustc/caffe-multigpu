@@ -222,14 +222,16 @@ void Solver<Dtype>::Step(int iters) {
     // accumulate the loss and gradient
     Dtype loss = 0;
 	if (gan_solver){
-		for (int i = 0; i < gan_iter_times; ++i) {
-			loss += net_->ForwardBackward();
-		}
-		gan_iter_times = gan_iter_times == 2 ? 1 : 2;
-	}
+    for (int i = 0; i < gan_iter_times; ++i) {
+      loss += net_->ForwardBackward();
+    }
+    gan_iter_times = gan_iter_times == 2 ? 1 : 2;
+  }
+  else{
     for (int i = 0; i < param_.iter_size(); ++i) {
       loss += net_->ForwardBackward();
     }
+  }
     loss /= param_.iter_size();
     // average the loss across iterations for smoothed reporting
     UpdateSmoothedLoss(loss, start_iter, average_loss);

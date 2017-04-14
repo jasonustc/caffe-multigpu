@@ -308,7 +308,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 146 (last added: gan_loss_param)
+// LayerParameter next available layer-specific ID: 147 (last added: loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -459,6 +459,8 @@ message LossParameter {
   // is not specified, then setting this to false will be equivalent to
   // normalization = BATCH_SIZE to be consistent with previous behavior.
   optional bool normalize = 2;
+
+  optional uint32 update_iter = 4 [default=1];
 }
 
 // Messages that store parameters used by individual layer types follow, in
@@ -513,6 +515,17 @@ message BatchNormParameter {
   // Small value to add to the variance estimate so that we don't divide by
   // zero.
   optional float eps = 3 [default = 1e-5];
+
+  // when set to true, the gradient will not be accumulated (used for GAN)
+  optional bool weight_fixed = 4 [default = false];
+
+  optional bool dis_mode = 5 [default = false];
+
+  optional bool gen_mode = 6 [default = false];
+
+  optional bool clip_by_value = 7[default=false];
+  optional float clip_lower = 8;
+  optional float clip_upper = 9;
 }
 
 message BiasParameter {

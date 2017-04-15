@@ -235,12 +235,13 @@ namespace caffe{
 	void WGANLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom){
 		int batch_size = bottom[0]->count();
+    Dtype alpha = top[0]->cpu_diff()[0] / Dtype(batch_size);
 		// when gan_mode_ == 1, this input of loss is D(x)
 		// backward for discriminative loss
 		if (gan_mode_ == 1){
 			if (diter_idx_ % dis_iter_ == 0){
 				for (int i = 0; i < batch_size; ++i){
-					bottom[0]->mutable_cpu_diff()[i] = Dtype(-1) / Dtype(batch_size);
+					bottom[0]->mutable_cpu_diff()[i] = Dtype(-1) * alpha;
 				}
 			}
 			else{
@@ -252,7 +253,7 @@ namespace caffe{
 		else if (gan_mode_ == 2){
 			if (diter_idx_ % dis_iter_ == 0){
 				for (int i = 0; i < batch_size; ++i){
-					bottom[0]->mutable_cpu_diff()[i] = Dtype(1) / Dtype(batch_size);
+					bottom[0]->mutable_cpu_diff()[i] = Dtype(1) * alpha;
 				}
  //       LOG(INFO) << "dis_loss: " << dis_loss_;
 			}
@@ -265,7 +266,7 @@ namespace caffe{
 		else if (gan_mode_ == 3){
 			if (giter_idx_ % gen_iter_ == 0){
 				for (int i = 0; i < batch_size; ++i){
-					bottom[0]->mutable_cpu_diff()[i] = Dtype(-1) / Dtype(batch_size);
+					bottom[0]->mutable_cpu_diff()[i] = Dtype(-1) * alpha;
 				}
 //        LOG(INFO) << "gen_loss: " << gen_loss_;
 			}

@@ -189,6 +189,8 @@ namespace caffe{
 		gen_iter_ = this->layer_param_.gan_loss_param().gen_iter();
 		gan_mode_ = 1;
 		CHECK_EQ(bottom[0]->shape(1), 1);
+    dis_loss_ = 0.;
+    gen_loss_ = 0.;
 	}
 
 	template <typename Dtype>
@@ -204,6 +206,8 @@ namespace caffe{
 			for (int i = 0; i < batch_size; ++i){
 				loss -= score[i];
 			}
+		  loss /= Dtype(batch_size);
+      dis_loss_ = loss;
 		}
 		// when gan_mode_ == 2, the input of the loss is D(G(z))
 		// loss is discriminative loss: D(G(z))
@@ -211,6 +215,8 @@ namespace caffe{
 			for (int i = 0; i < batch_size; ++i){
 				loss += score[i];
 			}
+		  loss /= Dtype(batch_size);
+      dis_loss_ += loss;
 		}
 		// when gan_mode_ == 3, the input of the loss is D(G(z))
 		// loss is generative loss: -D(G(z))
@@ -219,8 +225,9 @@ namespace caffe{
 			for (int i = 0; i < batch_size; ++i){
 				loss -= score[i];
 			}
+		  loss /= Dtype(batch_size);
+      gen_loss_ = loss;
 		}
-		loss /= Dtype(batch_size);
 		top[0]->mutable_cpu_data()[0] = loss;
 	}
 
@@ -247,6 +254,7 @@ namespace caffe{
 				for (int i = 0; i < batch_size; ++i){
 					bottom[0]->mutable_cpu_diff()[i] = Dtype(1) / Dtype(batch_size);
 				}
+ //       LOG(INFO) << "dis_loss: " << dis_loss_;
 			}
 			else{
 				caffe_set<Dtype>(bottom[0]->count(), Dtype(0.), bottom[0]->mutable_cpu_diff());
@@ -259,6 +267,7 @@ namespace caffe{
 				for (int i = 0; i < batch_size; ++i){
 					bottom[0]->mutable_cpu_diff()[i] = Dtype(-1) / Dtype(batch_size);
 				}
+//        LOG(INFO) << "gen_loss: " << gen_loss_;
 			}
 			else{
 				caffe_set<Dtype>(bottom[0]->count(), Dtype(0.), bottom[0]->mutable_cpu_diff());

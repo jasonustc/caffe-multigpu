@@ -105,10 +105,12 @@ namespace caffe{
 			const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 
 		int dis_iter_;
-		int gen_iter_; 
+		int gen_iter_;
 		int gan_mode_;
 		int diter_idx_;
 		int giter_idx_;
+    Dtype dis_loss_;
+    Dtype gen_loss_;
 	};
 } //namespace caffe
 #endif // CAFFE_GAN_LOSS_LAYER_HPP_

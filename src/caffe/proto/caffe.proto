@@ -543,6 +543,8 @@ message RecurrentParameter{
     optional float local_loss_weight = 14[default = 1];
     // how many time steps we can backward?
     optional int32 back_length = 15[default = -1];
+    // if true, input x - x^hat, otherwise input x
+    optional bool input_residual = 16[default = false];
 }
 
 // Message that stores parameters used to compute euclidean loss

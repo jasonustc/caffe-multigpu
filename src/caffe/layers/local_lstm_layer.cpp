@@ -79,6 +79,7 @@ namespace caffe{
 		regularize_type_ = this->layer_param_.recurrent_param().local_decay_type();
 		LOG(INFO) << "regularize type: " << regularize_type_;
 		back_steps_ = this->layer_param_.recurrent_param().back_length();
+		input_residual_ = this->layer_param_.recurrent_param().input_residual();
 //		if (back_steps_ > 0){
 //			LOG(INFO) << "We only backward " << back_steps_ << " time steps"
 //				<< " Please make sure to set the batch_size to be 1.";
@@ -300,6 +301,26 @@ namespace caffe{
 
 	template <typename Dtype>
 	void LocalLSTMLayer<Dtype>::RecurrentForward(const int t){
+		if (input_residual_ && t > 0){
+			const int count = px_->count();
+			//input x_t - x_t_hat instead of x_t
+			switch (Caffe::mode()){
+				case Caffe::CPU:{
+					Dtype* x_t_data = this->X_[t]->mutable_cpu_data();
+					const Dtype* x_t_hat_data = px_->cpu_data();
+					caffe_sub<Dtype>(count, x_t_data, x_t_hat_data, x_t_data);
+					break;
+				}
+				case Caffe::GPU:{
+					Dtype* x_t_data = this->X_[t]->mutable_gpu_data();
+					const Dtype* x_t_hat_data = px_->gpu_data();
+					caffe_gpu_sub<Dtype>(count, x_t_data, x_t_hat_data, x_t_data);
+					break;
+				}
+			default:
+				LOG(FATAL) << "Unknown caffe mode: " << Caffe::mode();
+			}
+		}
 		LSTMLayer<Dtype>::RecurrentForward(t);
 		// update by prediction
 		if (t < this->T_ - 1){
@@ -307,12 +328,17 @@ namespace caffe{
 			// otherwise the history diffs will be accumulated
 			// TODO: check the last time before global learning?
 			ClearLocalParamDiffs();
-			LOG(INFO) << "sumsq_diff of local 0: " << local_learn_params_[0]->sumsq_diff();
+//			LOG(INFO) << "sumsq_diff of local 0: " << local_learn_params_[0]->sumsq_diff();
 			// 1. Predict
-			// 1.1 inner_product
+			// 1.0 inner_product
 			const vector<Blob<Dtype>*> ip_xp_bottom(1, this->H_[t].get());
 			const vector<Blob<Dtype>*> ip_xp_top(1, px_.get());
 			ip_xp_->Forward(ip_xp_bottom, ip_xp_top);
+			// 1.1 activation
+			const vector<Blob<Dtype>*> act_bottom(1, px_.get());
+			const vector<Blob<Dtype>*> act_top(1, px_.get());
+			act_layer_->Forward(act_bottom, act_top);
+
 			// 1.2 local loss
 			vector<Blob<Dtype>*> local_loss_bottom(2, NULL);
 			local_loss_bottom[0] = px_.get();
@@ -324,15 +350,17 @@ namespace caffe{
 			// 2. Backward
 			vector<bool> propagate_down(2, false);
 			propagate_down[0] = true;
-			// 2.1 local loss
+			// 2.2 local loss
 			loss_layer_->Backward(local_loss_top,
 				propagate_down,
 				local_loss_bottom);
-			// 2.2 inner_product
+			// 2.1 activation
+			act_layer_->Backward(act_top, vector<bool>(1, true), act_bottom);
+			// 2.0 inner_product
 			ip_xp_->Backward(ip_xp_top,
 				vector<bool>(1, true),
 				ip_xp_bottom);
-			// 2.3 LSTM Unit.
+			// 2.-1 LSTM Unit.
 			vector<Blob<Dtype>*> lstm_bottom(3, NULL);
 			if (t == 0)
 			{
@@ -348,17 +376,15 @@ namespace caffe{
 			// since we backward to this->H_[t] in local inner_product layer
 			// here we backward diff in this->H_[t] down
 			lstm_top[1] = this->H_[t].get();
-			vector<bool> lstm_unit_bool(3, true);
-			lstm_unit_bool[2] = false;
 			this->lstm_unit_->Backward(lstm_top,
-				lstm_unit_bool,
+ 				vector<bool>(3, false),
 				lstm_bottom);
 
 			// 2.4 forward gate.
 			const vector<Blob<Dtype>*> ip_g_bottom(1, this->XH_[t].get());
 			const vector<Blob<Dtype>*> ip_g_top(1, this->G_[t].get());
 			this->ip_g_->Backward(ip_g_top,
-				vector<bool>(1, true),
+				vector<bool>(1, false),
 				ip_g_bottom);
 			/// NOTE: because we only care about the update of parameters
 			///   so we do not need to backward to concat_ layer 

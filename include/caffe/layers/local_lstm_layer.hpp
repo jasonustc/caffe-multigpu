@@ -83,6 +83,7 @@ namespace caffe{
 		// local loss layer
 		shared_ptr<Layer<Dtype> > loss_layer_;
 		shared_ptr<Blob<Dtype> > local_loss_;
+		bool input_residual_;
 
 		Dtype local_lr_;
 		// how much does the local lr decay through time step?

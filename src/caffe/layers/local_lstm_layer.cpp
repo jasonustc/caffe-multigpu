@@ -340,15 +340,17 @@ namespace caffe{
 			act_layer_->Forward(act_bottom, act_top);
 
 			// 1.2 local loss
-			vector<Blob<Dtype>*> local_loss_bottom(2, NULL);
+			// allow cont_ to control if loss of specific sample counted
+			vector<Blob<Dtype>*> local_loss_bottom(3);
 			local_loss_bottom[0] = px_.get();
 			local_loss_bottom[1] = this->X_[t + 1].get();
+			local_loss_bottom[2] = this->CONT_[t + 1].get();
 			const vector<Blob<Dtype>*> local_loss_top(1, local_loss_.get());
 			loss_layer_->Forward(local_loss_bottom, local_loss_top);
 			DLOG(INFO) << "local loss " << t << " : " << local_loss_->cpu_data()[0];
 
 			// 2. Backward
-			vector<bool> propagate_down(2, false);
+			vector<bool> propagate_down(3, false);
 			propagate_down[0] = true;
 			// 2.2 local loss
 			loss_layer_->Backward(local_loss_top,
@@ -360,7 +362,7 @@ namespace caffe{
 			ip_xp_->Backward(ip_xp_top,
 				vector<bool>(1, true),
 				ip_xp_bottom);
-			// 2.-1 LSTM Unit.
+			// 2.00 LSTM Unit.
 			vector<Blob<Dtype>*> lstm_bottom(3, NULL);
 			if (t == 0)
 			{
@@ -396,18 +398,6 @@ namespace caffe{
 			// to avoid being accumulated in global LSTM error
 			// propagation
 			ClearLocalParamDiffs();
-		}
-	}
-
-	// only backward back_steps_ time steps
-	template <typename Dtype>
-	void LocalLSTMLayer<Dtype>::RecurrentBackward(const int t){
-		if (back_steps_ > 0 && t == (this->T_ - 1)){
-			// only need to operate once
-			this->GetBackwardIndicator();
-		}
-		if (backward_indicator_[t]){
-			LSTMLayer<Dtype>::RecurrentBackward(t);
 		}
 	}
 

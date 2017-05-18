@@ -105,16 +105,6 @@ namespace caffe{
 		}
 		CHECK_EQ(this->layer_param_.recurrent_param().local_param_size(), local_learn_params_.size()) 
 			<< "param spec should be set for every parameter";
-
-		// backward indicator
-		if (back_steps_ > 0){
-			backward_indicator_.resize(this->T_, false);
-			CHECK_EQ(this->CONT_[0]->shape(1), 1) 
-				<< "partially backward is only supported for 1 stream input";
-		}
-		else{
-			backward_indicator_.resize(this->T_, true);
-		}
 	}
 
 	template <typename Dtype>

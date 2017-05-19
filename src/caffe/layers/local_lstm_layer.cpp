@@ -78,12 +78,7 @@ namespace caffe{
 		LOG(INFO) << "local momentum: " << local_momentum_;
 		regularize_type_ = this->layer_param_.recurrent_param().local_decay_type();
 		LOG(INFO) << "regularize type: " << regularize_type_;
-		back_steps_ = this->layer_param_.recurrent_param().back_length();
 		input_residual_ = this->layer_param_.recurrent_param().input_residual();
-//		if (back_steps_ > 0){
-//			LOG(INFO) << "We only backward " << back_steps_ << " time steps"
-//				<< " Please make sure to set the batch_size to be 1.";
-//		}
 
 		// TODO: check if bias should be included in learnable parameters
 		// local learn parameters
@@ -111,8 +106,6 @@ namespace caffe{
 	void LocalLSTMLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 		const vector<Blob<Dtype>*>& top){
 		LSTMLayer<Dtype>::Reshape(bottom, top);
-		// backward indicator
-		backward_indicator_.resize(this->T_);
 		const vector<Blob<Dtype>*> ip_xp_bottom(1, this->H_[0].get());
 		const vector<Blob<Dtype>*> ip_xp_top(1, px_.get());
 		ip_xp_->Reshape(ip_xp_bottom, ip_xp_top);

@@ -163,8 +163,8 @@ int main(int argc, char** argv){
 	FLAGS_logtostderr = true;
 	caffe::LocalLSTMLayerTest<float> test;
 	test.TestSetUp();
-	test.TestForward(caffe::Caffe::CPU);
-	test.TestGradients(caffe::Caffe::CPU);
+//	test.TestForward(caffe::Caffe::CPU);
+//	test.TestGradients(caffe::Caffe::CPU);
 	test.TestForward(caffe::Caffe::GPU);
 //	test.TestGradients(caffe::Caffe::GPU);
 	return 0;

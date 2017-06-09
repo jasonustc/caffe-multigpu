@@ -51,10 +51,12 @@ namespace caffe{
 		LayerParameter local_loss_param;
 		local_loss_param.add_loss_weight(
 			this->layer_param_.recurrent_param().local_loss_weight());
+		local_loss_param.mutable_scale_param()->set_axis(0);
 		loss_layer_.reset(new EuclideanLossLayer<Dtype>(local_loss_param));
-		vector<Blob<Dtype>*> local_loss_bottom(2, NULL);
+		vector<Blob<Dtype>*> local_loss_bottom(3, NULL);
 		local_loss_bottom[0] = px_.get();
 		local_loss_bottom[1] = this->X_[0].get();
+		local_loss_bottom[2] = this->CONT_[0].get();
 		local_loss_.reset(new Blob<Dtype>());
 		const vector<Blob<Dtype>*> local_loss_top(1, local_loss_.get());
 		loss_layer_->SetUp(local_loss_bottom, local_loss_top);

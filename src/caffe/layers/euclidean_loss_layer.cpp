@@ -8,10 +8,10 @@ template <typename Dtype>
 void EuclideanLossLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
 	const vector<Blob<Dtype>*>& top){
 	LossLayer<Dtype>::LayerSetUp(bottom, top);
-	axis_ = this->layer_param_.euclidean_param().axis();
 	CHECK_LT(axis_, bottom[0]->num_axes());
 	// setup scale layer
 	if (bottom.size() > 2){
+		// put all scale parameters in scale_param
 		scale_layer_.reset(new ScaleLayer<Dtype>(this->layer_param_));
 		vector<Blob<Dtype>*> scale_bottom(2);
 		// use bottom[1] for shape reference

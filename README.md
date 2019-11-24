@@ -29,7 +29,19 @@ Please cite this paper in your publications if it helps your research:
   journal={IEEE Transactions on Neural Networks and Learning Systems},
   title={Continuous Dropout},
   year={2018},
-  pages={3926-3937},
+  pages={3926-3937}
 }
 ```
 
+Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
+The BVLC reference models are released for unrestricted use.
+
+Please cite Caffe in your publications if it helps your research:
+```
+    @article{jia2014caffe,
+      Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
+      Journal = {arXiv preprint arXiv:1408.5093},
+      Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
+      Year = {2014}
+    }
+```

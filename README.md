@@ -1,49 +1,35 @@
-Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016. Multi-GPU is
-supported in this version.
+# Continous Dropout
 
-I also have a talk on brief introduction of Deep Learning, &nbsp;[part1](http://v.youku.com/v_show/id_XMTYyMTk1NDU2MA==.html), &nbsp;[part2](http://v.youku.com/v_show/id_XMTYyMTk2MTEwOA==.html), &nbsp;[slides](http://pan.baidu.com/s/1hrMmyS8).
+### Overview
+This repository contains the implementation code of Continuous Dropout: [*Continuous Dropout*](http://staff.ustc.edu.cn/~xinmei/publications_pdf/2017/Continuous%20Dropout.pdf).
 
-## Windows
-Tools:
+We extend the traditional binary dropout
+to continuous dropout. On the one hand, continuous dropout is
+considerably closer to the activation characteristics of neurons
+in the human brain than traditional binary dropout. On the
+other hand, we demonstrate that continuous dropout has the
+property of avoiding the co-adaptation of feature detectors, which
+suggests that we can extract more independent feature detectors
+for model averaging in the test stage.
 
-1. Visual Studio 2013
+### Source code
+include/caffe/layers/dropout_layer.hpp
 
-2. Cuda 7.5 (&nbsp;**you should install cuda after the installation of Visual Studio 2013 to incorporate cuda vs integration into VS**)
+src/caffe/layers/dropout_layer.cpp
 
-3. OpenCV 2.4.9
+src/caffe/layers/dropout_layer.cu
 
-4. Boost
 
-Steps:
+### Citation
+Please cite this paper in your publications if it helps your research:
 
-1. Copy folder `3rdparty` (http://pan.baidu.com/s/1ge3nKRp) and `bin` (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
+```
+@inproceedings{xu2018cd,
+  author={X. {Shen} and X. {Tian} and T. {Liu} and F. {Xu} and D. {Tao}},
+  journal={IEEE Transactions on Neural Networks and Learning Systems},
+  title={Continuous Dropout},
+  year={2018},
+  pages={3926-3937},
+}
+```
 
-2. Configure the environment variables: `BOOST_1_56_0` (e.g. `C:\local\boost_1_56_0`), `OPENCV_2_4_9` (e.g. `D:\apps\opencv\build`)
-
-3. Compile the caffe.sln in `build-windows` by VS2013
-
-Notes:
-
-1. Currently Caffe works with cuDNN_v3 or cuDNN_v4 (**The current settings in caffe.sln do not use cuDNN**)
-
-You need copy More details at https://github.com/BVLC/caffe/tree/windows
-
-## Linux
-
-Please follow the official tutorials here: http://caffe.berkeleyvision.org/installation.html 
-
-## License and Citation
-
-The official turtorial is here: [caffe tutorial](http://caffe.berkeleyvision.org/installation.html)
-
-Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
-The BVLC reference models are released for unrestricted use.
-
-Please cite Caffe in your publications if it helps your research:
-
-    @article{jia2014caffe,
-      Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
-      Journal = {arXiv preprint arXiv:1408.5093},
-      Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
-      Year = {2014}
-    }

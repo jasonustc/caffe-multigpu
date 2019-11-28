@@ -1,36 +1,25 @@
-Here is the linux/windows compatible version of caffe forked from https://github.com/BVLC/caffe in 04/10/2016 . Multi-GPU is
-supported in this version.
+## TICNN & PRCNN
 
-I also have a talk on brief introduction of Deep Learning, [part1](http://v.youku.com/v_show/id_XMTYyMTk1NDU2MA==.html),[part2](http://v.youku.com/v_show/id_XMTYyMTk2MTEwOA==.html), [slides](http://pan.baidu.com/s/1hrMmyS8).
+### Overview
+This repository contains the implementation code of TICNN: [*TICNN*](http://staff.ustc.edu.cn/~xinmei/publications_pdf/2016/Transform-Invariant%20Convolutional%20Neural%20Networks%20for%20Image%20Classification%20and%20Search.pdf) 
 
-## Windows
-Tools:
+and PRCNN: [*PRCNN*](https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/view/14674/14441).
 
-1. Visual Studio 2013
 
-2. Cuda 7.5 (**you should install cuda after the installation of Visual Studio 2013 to incorporate cuda vs integration into VS**)
+### TICNN Source code
+include/caffe/layers/random_trans_layer.hpp
 
-3. OpenCV 2.4.9
+src/caffe/layers/random_trans_layer.cpp
 
-4. Boost
+src/caffe/layers/random_trans_layer.cu
 
-Steps:
+### PRCNN Source code
+include/caffe/layers/patch_rank_layer.hpp
 
-1. Copy folder \$3rdparty (http://pan.baidu.com/s/1ge3nKRp) and \$bin (http://pan.baidu.com/s/1jIyEjKq) to the caffe root directory
+src/caffe/layers/patch_rank_layer.cpp
 
-2. Configure the environment variables: \$BOOST_1_56_0, \$OPENCV_2_4_9
+src/caffe/layers/patch_rank_layer.cu
 
-3. Compile the caffe.sln in VS2013
-
-Notes:
-
-1. Currently Caffe works with cuDNN_v3 or cuDNN_v4 (**The current settings in caffe.sln do not use cuDNN**)
-
-You need copy More details at https://github.com/BVLC/caffe/tree/windows
-
-## Linux
-
-Please follow the official tutorials here: http://caffe.berkeleyvision.org/installation.html 
 
 ## License and Citation
 

@@ -7,7 +7,7 @@ and PRCNN: [*PRCNN*](https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/view/14674
 
 
 ### TICNN Source code
-include/caffe/layers/random_trans_layer.hpp
+include/caffe/layers/random_transform_layer.hpp
 
 src/caffe/layers/random_trans_layer.cpp
 

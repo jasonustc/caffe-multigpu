@@ -1,7 +1,7 @@
 # Continous Dropout
 
 ### Overview
-This repository contains the implementation code of Continuous Dropout: [*Continuous Dropout*](http://staff.ustc.edu.cn/~xinmei/publications_pdf/2017/Continuous%20Dropout.pdf).
+This repository contains the implementation code of Continuous Dropout: [*Continuous Dropout*](https://arxiv.org/abs/1911.12675).
 
 We extend the traditional binary dropout
 to continuous dropout. On the one hand, continuous dropout is
